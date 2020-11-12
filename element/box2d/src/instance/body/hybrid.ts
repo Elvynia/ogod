@@ -1,5 +1,5 @@
 import { Hybrids } from 'hybrids';
-import { ogodFactoryInstanceProperty, ogodFactoryInstanceChildren } from '@ogod/element-core';
+import { ogodFactoryInstanceProperty, ogodFactoryInstanceChildren, ogodFactoryInstanceBoolean } from '@ogod/element-core';
 import { Box2dElementBody } from './element';
 
 export function box2dHybridBody(): Hybrids<Box2dElementBody> {
@@ -11,6 +11,7 @@ export function box2dHybridBody(): Hybrids<Box2dElementBody> {
         density: ogodFactoryInstanceProperty(1),
         friction: ogodFactoryInstanceProperty(0),
         restitution: ogodFactoryInstanceProperty(0),
+        fixedRotation: ogodFactoryInstanceBoolean(true),
         shape: ogodFactoryInstanceChildren('shape')
     };
 }

@@ -54,6 +54,7 @@ export class Box2dRuntimeJump extends OgodRuntimeSystemDefault {
         state.subscriptions[instance.id] = self.update$.pipe(
             map(() => ({ jumping: instance.jumping, grounded: instance.grounded, body: instance.body$ })),
             distinctUntilChanged((a, b) => a.jumping === b.jumping && a.grounded === b.grounded),
+            // tap((i) => console.log('CHECK JUMP %s:', instance.id, i)),
             filter((instance) => instance.jumping && instance.grounded),
             // FIXME: Delay when falling on ground before jumping again, wait velocityY === 0 ?
             // delay(10)

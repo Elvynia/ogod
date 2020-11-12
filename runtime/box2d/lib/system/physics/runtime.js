@@ -19,7 +19,7 @@ class Box2dRuntimePhysics extends runtime_core_1.OgodRuntimeSystemDefault {
     }
     add(state, instance) {
         super.add(state, instance);
-        instance.body$ = runtime_1.pixiCreateBody(state.world$, instance.body, instance.id);
+        instance.body$ = runtime_1.box2dCreateBody(state.world$, instance.body, instance.id);
     }
     remove(state, id, instance) {
         state.world$.DestroyBody(instance.body$);

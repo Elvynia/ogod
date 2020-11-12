@@ -1,3 +1,4 @@
+import { PixiRuntimeHero } from './hero/runtime';
 import { ogodWorkerStream } from '@ogod/runtime-core';
 import { OgodPixiRegistry } from '@ogod/runtime-pixi';
 
@@ -41,6 +42,15 @@ if (typeof Symbol === 'function') {
 
 import * as PIXI from 'pixi.js';
 (self as any).PIXI = PIXI;
+import { PixiRuntimeLevel } from './level/runtime';
+import { OgodBox2dRegistry } from '@ogod/runtime-box2d';
+import { PixiRuntimeDebugBox2d } from './scene/runtime';
 
 self.debugMode = true;
-self.onmessage = ogodWorkerStream(OgodPixiRegistry, '/');
+self.onmessage = ogodWorkerStream({
+    ...OgodBox2dRegistry,
+    ...OgodPixiRegistry,
+    'instance.level': PixiRuntimeLevel,
+    'instance.hero': PixiRuntimeHero,
+    'scene.box2d-debug': PixiRuntimeDebugBox2d
+}, '/');

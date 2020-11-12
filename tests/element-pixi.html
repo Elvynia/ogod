@@ -23,7 +23,7 @@
 
 <body>
     <ogod-engine worker-path="./pixiWorker.js" running>
-        <canvas slot="canvas" width="1280" height="768"></canvas>
+        <canvas slot="canvas" width="1600" height="768"></canvas>
         <pixi-spritesheet id="ground" path="assets/ground/ground.json"></pixi-spritesheet>
         <pixi-spritesheet id="adventurer" path="assets/hero/adventurer.json"></pixi-spritesheet>
         <pixi-world-side id="world" follow="hero" aspects="worldX worldY" mode="all" tick>
@@ -32,35 +32,28 @@
                 <pixi-area min-x="500" min-y="100" max-x="800" max-y="600"></pixi-area>
             </pixi-camera>
         </pixi-world-side>
-        <pixi-physics id="physics" runtime="physics-debug" world-id="world" gravity-y="-9.8" tick></pixi-physics>
+        <box2d-physics id="physics" gravity-y="-9.8" modifier="world" tick></box2d-physics>
         <pixi-velocity modifier="physics" tick></pixi-velocity>
-        <pixi-jump physics-id="physics" force="30"></pixi-jump>
-        <pixi-renderer width="1280" height="768">
+        <box2d-jump physics-id="physics" force="30"></box2d-jump>
+        <pixi-renderer width="1600" height="768">
             <pixi-scene active>
                 <pixi-sprite id="level" runtime="level" resource="ground" tick></pixi-sprite>
-                <pixi-animation id="hero" runtime="hero" scale-x="1.6" scale-y="1.6" world-x="20" world-y="600"
+                <pixi-sprite-animated id="hero" runtime="hero" scale-x="1.6" scale-y="1.6" world-x="20" world-y="600"
                     index="1" anchor="0.5" resource="adventurer" animation="idle/1" duration="600" reflects="velocity"
-                    updates="x y keys" playing loop tick sensor-y="-4">
-                    <pixi-body x="2" y="60" density="5" dynamic>
-                        <pixi-shape x="2" y="4"></pixi-shape>
-                    </pixi-body>
+                    updates="x y keys grounded" playing loop tick sensor-y="-4">
+                    <box2d-body x="2" y="60" density="5" friction="0.001" restitution="0" dynamic>
+                        <box2d-shape-box x="2" y="4"></box2d-shape-box>
+                    </box2d-body>
                     <ogod-keys active>
                         <ogod-key code="KeyA" name="left"></ogod-key>
                         <ogod-key code="KeyD" name="right"></ogod-key>
                         <ogod-key code="Space" name="jump"></ogod-key>
                     </ogod-keys>
-                </pixi-animation>
+                </pixi-sprite-animated>
             </pixi-scene>
+            <box2d-debug slot="ui-before" physics-id="physics" active tick></box2d-debug>
         </pixi-renderer>
     </ogod-engine>
-    <script>
-        const rainbow = document.getElementById('test-rainbow');
-        const title = document.getElementById('title');
-        title.style.top = rainbow.y - title.offsetHeight + 'px';
-        rainbow.state$.subscribe((state) => {
-            title.style.left = state.x - title.offsetWidth / 2 + 'px';
-        });
-    </script>
 </body>
 
 </html>

@@ -6,7 +6,7 @@ const epic_1 = require("../actor/epic");
 exports.epicSceneInit = epic_1.ogodEpicActorInit(common_1.OGOD_CATEGORY.SCENE, (state, runtime) => {
     if (self.canvas) {
         const changes = runtime.nextCanvas(state, self.canvas, undefined);
-        if (Object.keys(changes).length) {
+        if (changes && Object.keys(changes).length) {
             Object.assign(state, changes);
         }
     }

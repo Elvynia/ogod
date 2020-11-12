@@ -25,9 +25,11 @@ export * from './instance-ref/define';
 export * from './instance-ref/element';
 export * from './instance-ref/hybrid';
 
+export * from './key/define';
 export * from './key/element';
 export * from './key/hybrid';
 
+export * from './keys/define';
 export * from './keys/element';
 export * from './keys/hybrid';
 

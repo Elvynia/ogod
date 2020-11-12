@@ -8,13 +8,11 @@ const operators_1 = require("rxjs/operators");
 const runtime_1 = require("../../system/physics/runtime");
 class Box2dRuntimeDebug extends runtime_core_1.OgodRuntimeSceneDefault {
     initialize(state, state$) {
-        return state$.pipe(operators_1.filter((fs) => fs.system[state.physicsId] && !!fs.system[state.physicsId].world$), operators_1.tap((fs) => {
-            this.physics = fs.system[state.physicsId];
-        }), operators_1.take(1), operators_1.switchMap(() => {
+        return state$.pipe(operators_1.filter((fs) => fs.system[state.physicsId] && !!fs.system[state.physicsId].world$), operators_1.map((fs) => fs.system[state.physicsId].world$), operators_1.take(1), operators_1.switchMap((world) => {
             if (state.draw && !state.context$) {
-                return state$.pipe(operators_1.filter((fs) => !!fs.scene[state.id].context$), operators_1.map((fs) => fs.scene[state.id]), operators_1.take(1));
+                return state$.pipe(operators_1.filter((fs) => !!fs.scene[state.id].context$), operators_1.map((fs) => (Object.assign(Object.assign({}, fs.scene[state.id]), { world$: world }))), operators_1.take(1));
             }
-            return rxjs_1.of(state);
+            return rxjs_1.of(Object.assign(Object.assign({}, state), { world$: world }));
         }), operators_1.switchMap((initState) => super.initialize(Object.assign(Object.assign({}, initState), { graphics: {} }), state$)));
     }
     nextCanvas(state, canvas, lastCanvas) {
@@ -48,23 +46,27 @@ class Box2dRuntimeDebug extends runtime_core_1.OgodRuntimeSceneDefault {
         }
     }
     update(delta, state) {
-        let body = this.physics.world$.GetBodyList();
+        let body = state.world$.GetBodyList();
         while (body != null) {
             let fx = body.GetFixtureList();
             while (fx != null) {
-                const shape = fx.GetShape();
-                const pos = body.GetPosition();
-                state.graphics[body.GetUserData().id] = {
-                    position: new box2d_1.b2Vec2(pos.x * runtime_1.WORLD_RATIO, pos.y * runtime_1.WORLD_RATIO),
-                    vertices: shape.m_vertices,
-                    angle: body.GetAngle()
-                };
-                if (!shape.m_vertices) {
-                    state.graphics[body.GetUserData().id].radius = shape.m_radius * runtime_1.WORLD_RATIO;
-                }
+                this.addGraphic(state, body, fx);
                 fx = fx.GetNext();
             }
             body = body.GetNext();
+        }
+    }
+    addGraphic(state, body, fx) {
+        const shape = fx.GetShape();
+        const pos = body.GetPosition();
+        const id = (fx.GetUserData() ? fx.GetUserData().id + (fx.GetUserData().footSensor ? '_footSensor' : '') : body.GetUserData().id);
+        state.graphics[id] = {
+            position: new box2d_1.b2Vec2(pos.x * runtime_1.WORLD_RATIO, pos.y * runtime_1.WORLD_RATIO),
+            vertices: shape.m_vertices,
+            angle: body.GetAngle()
+        };
+        if (!shape.m_vertices) {
+            state.graphics[id].radius = shape.m_radius * runtime_1.WORLD_RATIO;
         }
     }
 }

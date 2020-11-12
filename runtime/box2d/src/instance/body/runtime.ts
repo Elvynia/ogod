@@ -3,7 +3,7 @@ import { Box2dStateBody } from './state';
 import { isShapeBox } from '../shape-box/state';
 import { isShapeCircle } from '../shape-circle/state';
 
-export function pixiCreateBody(world: b2World, body: Box2dStateBody, id: string): b2Body {
+export function box2dCreateBody(world: b2World, body: Box2dStateBody, id: string): b2Body {
     const bd = new b2BodyDef();
     bd.position.Set(body.x, body.y);
     if (body.dynamic) {

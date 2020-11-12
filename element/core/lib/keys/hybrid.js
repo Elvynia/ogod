@@ -26,7 +26,7 @@ function ogodHybridKeys() {
                 window.removeEventListener('keydown', keyDownListener);
                 window.removeEventListener('keyup', keyUpListener);
             };
-        }),
+        })
     };
 }
 exports.ogodHybridKeys = ogodHybridKeys;

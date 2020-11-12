@@ -11,6 +11,7 @@ function box2dHybridBody() {
         density: element_core_1.ogodFactoryInstanceProperty(1),
         friction: element_core_1.ogodFactoryInstanceProperty(0),
         restitution: element_core_1.ogodFactoryInstanceProperty(0),
+        fixedRotation: element_core_1.ogodFactoryInstanceBoolean(true),
         shape: element_core_1.ogodFactoryInstanceChildren('shape')
     };
 }

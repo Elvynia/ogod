@@ -4,7 +4,7 @@ exports.box2dDefineJump = void 0;
 const element_core_1 = require("@ogod/element-core");
 const hybrid_1 = require("./hybrid");
 function box2dDefineJump(tagName, stateHybrids = [], overrideHybrids = []) {
-    element_core_1.ogodDefineSystem(tagName || 'box2d-jump', [hybrid_1.box2dHybridJump(), ...stateHybrids], overrideHybrids);
+    element_core_1.ogodDefineSystem(tagName || 'box2d-jump', [hybrid_1.box2dHybridJump(), ...stateHybrids], [...overrideHybrids, { runtime: 'jump', aspects: element_core_1.ogodFactorySystemArrayString(['grounded', 'jumping']) }]);
 }
 exports.box2dDefineJump = box2dDefineJump;
 //# sourceMappingURL=define.js.map

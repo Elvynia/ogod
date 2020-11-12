@@ -36,7 +36,9 @@ class Box2dRuntimeJump extends runtime_core_1.OgodRuntimeSystemDefault {
     }
     add(state, instance) {
         super.add(state, instance);
-        state.subscriptions[instance.id] = self.update$.pipe(operators_1.map(() => ({ jumping: instance.jumping, grounded: instance.grounded, body: instance.body$ })), operators_1.distinctUntilChanged((a, b) => a.jumping === b.jumping && a.grounded === b.grounded), operators_1.filter((instance) => instance.jumping && instance.grounded)).subscribe(() => {
+        state.subscriptions[instance.id] = self.update$.pipe(operators_1.map(() => ({ jumping: instance.jumping, grounded: instance.grounded, body: instance.body$ })), operators_1.distinctUntilChanged((a, b) => a.jumping === b.jumping && a.grounded === b.grounded), 
+        // tap((i) => console.log('CHECK JUMP %s:', instance.id, i)),
+        operators_1.filter((instance) => instance.jumping && instance.grounded)).subscribe(() => {
             const impulse = instance.body$.GetMass() * state.force;
             body.ApplyLinearImpulse(new box2d_1.b2Vec2(0, impulse), body.GetWorldCenter());
         });

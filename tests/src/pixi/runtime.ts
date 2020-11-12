@@ -260,7 +260,7 @@ ww.postMessage(instanceInit({
         jumping: false,
         grounded: false,
         playing: true,
-        loop: false,
+        loop: true,
         animation: 'stand',
         duration: 1200,
         anchor: 0.5,

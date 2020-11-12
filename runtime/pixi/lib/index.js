@@ -35,6 +35,8 @@ __exportStar(require("./resource/spritesheet/runtime"), exports);
 __exportStar(require("./resource/spritesheet/state"), exports);
 __exportStar(require("./system/world/runtime"), exports);
 __exportStar(require("./system/world/state"), exports);
+__exportStar(require("./system/world/area/state"), exports);
+__exportStar(require("./system/world/camera/state"), exports);
 __exportStar(require("./system/world-side/runtime"), exports);
 __exportStar(require("./system/world-side/state"), exports);
 __exportStar(require("./system/velocity/runtime"), exports);

@@ -1,33 +1,19 @@
-import { OgodStateEngine, OgodStateInstance } from '@ogod/common';
-import { OgodRuntimeInstanceDefault, OgodRuntimeEngine } from '@ogod/runtime-core';
+import { OgodStateEngine } from '@ogod/common';
+import { OgodRuntimeEngine, OgodRuntimeInstanceDefault } from '@ogod/runtime-core';
 import { PixiStateSpritesheet, PixiStateWorld, waitForResource } from '@ogod/runtime-pixi';
 import * as TileMap from 'pixi-tilemap';
 import { empty, Observable, range } from 'rxjs';
 import { filter, first, map, mapTo, switchMap, tap, toArray } from 'rxjs/operators';
-import { RADAR } from './radar';
+import { RADAR } from '../radar';
+import { PixiStateLevel } from './state';
+import { Box2dStateBody, WORLD_RATIO, box2dCreateBody } from '@ogod/runtime-box2d';
 
 declare var self: OgodRuntimeEngine;
 
-export interface LevelState extends OgodStateInstance {
-    resource$: PIXI.Spritesheet;
-    instance$: TileMap.CompositeRectTileLayer & PIXI.Sprite;
-    tileExtension: string;
-    tileSize: number;
-    width: number;
-    height: number;
-    flatness: number;
-    gapFreq: number;
-    gapSizeMin: number;
-    gapSizeMax: number;
-    scale: number;
-    worldX: number;
-    worldY: number;
-}
-
-export class LevelRuntime extends OgodRuntimeInstanceDefault {
+export class PixiRuntimeLevel extends OgodRuntimeInstanceDefault {
     world: any;
 
-    initialize(state: LevelState, state$: Observable<OgodStateEngine>) {
+    initialize(state: PixiStateLevel, state$: Observable<OgodStateEngine>) {
         state.scale = 0.25;
         return waitForResource<PixiStateSpritesheet>(state as any, state$).pipe(
             map((data) => ({
@@ -57,7 +43,7 @@ export class LevelRuntime extends OgodRuntimeInstanceDefault {
         );
     }
 
-    update(delta: number, state: LevelState) {
+    update(delta: number, state: PixiStateLevel) {
         const fullState = self.store.getState();
         const camera = (fullState.system['world'] as PixiStateWorld).camera;
         if (camera) {
@@ -67,14 +53,14 @@ export class LevelRuntime extends OgodRuntimeInstanceDefault {
         return empty();
     }
 
-    private createTilemap(state: LevelState, data: PIXI.Spritesheet): TileMap.CompositeRectTileLayer & PIXI.Sprite {
+    private createTilemap(state: PixiStateLevel, data: PIXI.Spritesheet): TileMap.CompositeRectTileLayer & PIXI.Sprite {
         const tilemap: TileMap.CompositeRectTileLayer & PIXI.Sprite = new TileMap.CompositeRectTileLayer(-1, Object.values(data.textures)) as any;
         tilemap.scale.x = state.scale;
         tilemap.scale.y = state.scale;
         return tilemap;
     }
  
-    private createLevel(state: LevelState) {
+    private createLevel(state: PixiStateLevel) {
         const ground = this.generateGround(state);
         let tiles = [];
         for (let y = 0; y < ground.length; ++y) {
@@ -93,14 +79,14 @@ export class LevelRuntime extends OgodRuntimeInstanceDefault {
         }
         tiles.forEach((tile) => state.instance$.addFrame(tile.radar + state.tileExtension, state.tileSize * tile.x, state.tileSize * tile.y));
         tiles.forEach((tile) => {
-            // const body = this.getBody(state, tile.radar, tile.x, tile.y);
-            // if (body) {
-            //     pixiCreateBody(this.world, body, tile.id);
-            // }
+            const body = this.getBody(state, tile.radar, tile.x, tile.y);
+            if (body) {
+                box2dCreateBody(this.world, body, tile.id);
+            }
         });
     }
 
-    private generateGround(state: LevelState): boolean[][] {
+    private generateGround(state: PixiStateLevel): boolean[][] {
         let tiles: boolean[][];
         range(0, state.height).pipe(
             switchMap(() => range(0, state.width).pipe(
@@ -164,23 +150,24 @@ export class LevelRuntime extends OgodRuntimeInstanceDefault {
         return result;
     }
 
-    // private getBody(state: LevelState, radar: RADAR, x: number, y: number): Box2dBody {
-    //     if (radar === 255) {
-    //         return null;
-    //     }
-    //     const b = {
-    //         x: x * state.tileSize * state.scale / WORLD_RATIO,
-    //         y: (state.instance$.height - (y+1) * state.tileSize * state.scale) / WORLD_RATIO,
-    //         shape: {
-    //             x: (state.tileSize / 2) * state.scale / WORLD_RATIO,
-    //             y: (state.tileSize / 2) * state.scale / WORLD_RATIO,
-    //             centerX: 256 * state.scale / WORLD_RATIO,
-    //             centerY: 256 * state.scale / WORLD_RATIO
-    //         }
-    //     };
-        
-    //     return b;
-    // }
+    private getBody(state: PixiStateLevel, radar: RADAR, x: number, y: number): Box2dStateBody {
+        if (radar === 255) {
+            return null;
+        }
+        const b = {
+            x: x * state.tileSize * state.scale / WORLD_RATIO,
+            y: (state.instance$.height - (y+1) * state.tileSize * state.scale) / WORLD_RATIO,
+            friction: 0.001,
+            restitution: 0,
+            shape: {
+                x: (state.tileSize / 2) * state.scale / WORLD_RATIO,
+                y: (state.tileSize / 2) * state.scale / WORLD_RATIO,
+                centerX: 256 * state.scale / WORLD_RATIO,
+                centerY: 256 * state.scale / WORLD_RATIO
+            }
+        } as Box2dStateBody;
+        return b;
+    }
 
     private nextRand(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;

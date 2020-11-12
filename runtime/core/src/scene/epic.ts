@@ -7,7 +7,7 @@ declare var self: OgodRuntimeEngine;
 export const epicSceneInit = ogodEpicActorInit(OGOD_CATEGORY.SCENE, (state, runtime) => {
     if (self.canvas) {
         const changes = runtime.nextCanvas(state, self.canvas, undefined);
-        if (Object.keys(changes).length) {
+        if (changes && Object.keys(changes).length) {
             Object.assign(state, changes);
         }
     }

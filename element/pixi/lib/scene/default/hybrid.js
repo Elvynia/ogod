@@ -4,7 +4,7 @@ exports.pixiHybridScene = void 0;
 const element_core_1 = require("@ogod/element-core");
 function pixiHybridScene() {
     return {
-        renderer: element_core_1.ogodFactoryParent('renderer')
+        renderer: element_core_1.ogodFactoryReactiveParent('renderer')
     };
 }
 exports.pixiHybridScene = pixiHybridScene;

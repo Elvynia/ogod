@@ -23,6 +23,8 @@ export * from './resource/spritesheet/runtime';
 export * from './resource/spritesheet/state';
 export * from './system/world/runtime';
 export * from './system/world/state';
+export * from './system/world/area/state';
+export * from './system/world/camera/state';
 export * from './system/world-side/runtime';
 export * from './system/world-side/state';
 export * from './system/velocity/runtime';

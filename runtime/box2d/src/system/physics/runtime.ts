@@ -4,7 +4,7 @@ import { OgodRuntimeSystemDefault, OgodRuntimeEngine } from '@ogod/runtime-core'
 import { Box2dStatePhysics } from './state';
 import { OgodStateEngine, OgodActionSystem } from '@ogod/common';
 import { Observable, from } from 'rxjs';
-import { pixiCreateBody } from '../../instance/body/runtime';
+import { box2dCreateBody } from '../../instance/body/runtime';
 
 declare var self: OgodRuntimeEngine;
 export const WORLD_RATIO = 10;
@@ -24,7 +24,7 @@ export class Box2dRuntimePhysics extends OgodRuntimeSystemDefault {
 
     add(state: Box2dStatePhysics, instance: any) {
         super.add(state, instance);
-        instance.body$ = pixiCreateBody(state.world$, instance.body, instance.id);
+        instance.body$ = box2dCreateBody(state.world$, instance.body, instance.id);
     }
 
     remove(state: Box2dStatePhysics, id: string, instance: any) {

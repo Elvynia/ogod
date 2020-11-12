@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.pixiCreateBody = void 0;
+exports.box2dCreateBody = void 0;
 const box2d_1 = require("@flyover/box2d");
 const state_1 = require("../shape-box/state");
 const state_2 = require("../shape-circle/state");
-function pixiCreateBody(world, body, id) {
+function box2dCreateBody(world, body, id) {
     const bd = new box2d_1.b2BodyDef();
     bd.position.Set(body.x, body.y);
     if (body.dynamic) {
@@ -42,5 +42,5 @@ function pixiCreateBody(world, body, id) {
     });
     return b;
 }
-exports.pixiCreateBody = pixiCreateBody;
+exports.box2dCreateBody = box2dCreateBody;
 //# sourceMappingURL=runtime.js.map

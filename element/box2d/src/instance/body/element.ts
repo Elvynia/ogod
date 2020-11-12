@@ -8,5 +8,6 @@ export interface Box2dElementBody extends HTMLElement {
     density?: number;
     friction?: number;
     restitution?: number;
+    fixedRotation: boolean;
     shape: Box2dElementShape;
 }

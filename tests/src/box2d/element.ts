@@ -1,6 +1,6 @@
 import { instanceInit } from '@ogod/common';
 import { html } from 'hybrids';
-import { ogodDefineEngine, ogodFactoryInstanceChildren } from "@ogod/element-core";
+import { ogodDefineEngine, ogodFactoryInstanceChildren, ogodFactoryInstanceBoolean } from "@ogod/element-core";
 import { d2DefineCircle, d2DefineRect, d2DefineScene } from '@ogod/element-d2';
 import { box2dDefineBody, box2dDefineShapeCircle, box2dDefineShapeBox, box2dDefinePhysics, box2dDefineDebug } from '@ogod/element-box2d';
 
@@ -41,7 +41,9 @@ d2DefineCircle('d2-ball', [{
     `
 }]);
 d2DefineRect('d2-ground', [{ body: ogodFactoryInstanceChildren('body') }]);
-box2dDefineBody();
+box2dDefineBody(null, [], [{ 
+    fixedRotation: ogodFactoryInstanceBoolean(false)
+}]);
 box2dDefineShapeBox();
 box2dDefineShapeCircle();
 box2dDefinePhysics();

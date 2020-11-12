@@ -1,8 +1,8 @@
-import { b2PolygonShape, b2Vec2, b2CircleShape } from '@flyover/box2d';
+import { b2CircleShape, b2PolygonShape, b2Vec2, b2Body, b2Fixture } from '@flyover/box2d';
 import { OgodActionScene, OgodStateEngine } from "@ogod/common";
 import { OgodRuntimeEngine, OgodRuntimeSceneDefault } from "@ogod/runtime-core";
 import { Observable, of } from "rxjs";
-import { filter, switchMap, take, tap, map } from 'rxjs/operators';
+import { filter, map, switchMap, take } from 'rxjs/operators';
 import { WORLD_RATIO } from '../../system/physics/runtime';
 import { Box2dStatePhysics } from '../../system/physics/state';
 import { Box2dStateDebug } from "./state";
@@ -10,24 +10,27 @@ import { Box2dStateDebug } from "./state";
 declare var self: OgodRuntimeEngine;
 
 export class Box2dRuntimeDebug extends OgodRuntimeSceneDefault {
-    physics: Box2dStatePhysics;
 
     initialize(state: Box2dStateDebug, state$: Observable<OgodStateEngine>): Observable<OgodActionScene> {
         return state$.pipe(
             filter((fs) => fs.system[state.physicsId] && !!(fs.system[state.physicsId] as Box2dStatePhysics).world$),
-            tap((fs) => {
-                this.physics = fs.system[state.physicsId] as Box2dStatePhysics;
-            }),
+            map((fs) => (fs.system[state.physicsId] as Box2dStatePhysics).world$),
             take(1),
-            switchMap(() => {
+            switchMap((world) => {
                 if (state.draw && !state.context$) {
                     return state$.pipe(
                         filter((fs) => !!(fs.scene[state.id] as Box2dStateDebug).context$),
-                        map((fs) => fs.scene[state.id]),
+                        map((fs) => ({
+                            ...fs.scene[state.id],
+                            world$: world
+                        })),
                         take(1)
                     );
                 }
-                return of(state);
+                return of({
+                    ...state,
+                    world$: world
+                });
             }),
             switchMap((initState) => super.initialize({
                 ...initState,
@@ -68,23 +71,28 @@ export class Box2dRuntimeDebug extends OgodRuntimeSceneDefault {
     }
 
     update(delta: number, state: Box2dStateDebug) {
-        let body = this.physics.world$.GetBodyList();
+        let body = state.world$.GetBodyList();
         while (body != null) {
             let fx = body.GetFixtureList();
             while (fx != null) {
-                const shape = fx.GetShape() as b2PolygonShape;
-                const pos = body.GetPosition();
-                state.graphics[body.GetUserData().id] = {
-                    position: new b2Vec2(pos.x * WORLD_RATIO, pos.y * WORLD_RATIO),
-                    vertices: shape.m_vertices,
-                    angle: body.GetAngle()
-                }
-                if (!shape.m_vertices) {
-                    state.graphics[body.GetUserData().id].radius = (shape as any as b2CircleShape).m_radius * WORLD_RATIO;
-                }
+                this.addGraphic(state, body, fx);
                 fx = fx.GetNext();
             }
             body = body.GetNext();
+        }
+    }
+
+    protected addGraphic(state: Box2dStateDebug, body: b2Body, fx: b2Fixture) {
+        const shape = fx.GetShape() as b2PolygonShape;
+        const pos = body.GetPosition();
+        const id = (fx.GetUserData() ? fx.GetUserData().id + (fx.GetUserData().footSensor ? '_footSensor' : '') : body.GetUserData().id);
+        state.graphics[id] = {
+            position: new b2Vec2(pos.x * WORLD_RATIO, pos.y * WORLD_RATIO),
+            vertices: shape.m_vertices,
+            angle: body.GetAngle()
+        };
+        if (!shape.m_vertices) {
+            state.graphics[id].radius = (shape as any as b2CircleShape).m_radius * WORLD_RATIO;
         }
     }
 }

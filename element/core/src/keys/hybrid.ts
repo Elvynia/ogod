@@ -26,8 +26,7 @@ export function ogodHybridKeys(): Hybrids<OgodElementKeys> {
                 window.removeEventListener('keydown', keyDownListener);
                 window.removeEventListener('keyup', keyUpListener);
             }
-        }),
-        // ...ogodAsyncState()
+        })
     };
 }
 

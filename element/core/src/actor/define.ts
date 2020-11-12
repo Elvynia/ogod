@@ -12,8 +12,9 @@ export function ogodDefineActorReactive<E extends OgodElementActor<C>, C extends
     defaultKeys: string[], initCreator: ActionCreator, changesCreator: ActionCreator,
     destroyCreator: ActionCreator, active: boolean = true): hybrids.HybridElement<E> {
     return ogodDefineElement(tagName, baseHybrid,
-        changesCreator ? [ ogodHybridActor(category), ...stateHybrids, ogodHybridReactive<C>(changesCreator, active)] : stateHybrids,
-        [ ...overrideHybrids, ogodHybridStateReactive<C>(defaultKeys, initCreator, destroyCreator)]);
+        changesCreator ? [ogodHybridActor(category), ...stateHybrids, ogodHybridReactive<C>(changesCreator, active)] :
+            [ogodHybridActor(category), ...stateHybrids],
+        [...overrideHybrids, ogodHybridStateReactive<C>(defaultKeys, initCreator, destroyCreator)]);
 }
 
 export function ogodDefineActorAsync<E extends HTMLElement, S = any>(tagName: string,
