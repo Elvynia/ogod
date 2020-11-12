@@ -1,0 +1,1 @@
+{"version":3,"file":"define.js","sourceRoot":"","sources":["../../src/system/define.ts"],"names":[],"mappings":";;;AACA,4CAA0D;AAC1D,qCAA4C;AAC5C,4CAAiD;AACjD,yCAAwE;AAExE,SAAgB,gBAAgB,CAAC,UAAkB,aAAa,EAAE,YAA6B,EAAE,eAAgC;IAC7H,OAAO,gCAAuB,CAAC,OAAO,EAAE,QAAQ,EAAE,yBAAgB,EAAE,EAAE,YAAY,EAAE,eAAe,EAC/F,6BAAiB,EAAE,mBAAU,EAAE,sBAAa,EAAE,sBAAa,CAAC,CAAC;AACrE,CAAC;AAHD,4CAGC"}

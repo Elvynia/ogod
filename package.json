@@ -1,0 +1,46 @@
+{
+  "name": "@ogod/monorepo",
+  "version": "1.0.0",
+  "description": "Workspace for @ogod packages",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Elvynia/ogod.git"
+  },
+  "keywords": [
+    "game",
+    "web",
+    "component",
+    "webgl",
+    "engine",
+    "canvas",
+    "worker",
+    "html",
+    "redux"
+  ],
+  "author": "Elvynia",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/Elvynia/ogod/issues"
+  },
+  "homepage": "https://github.com/Elvynia/ogod#readme",
+  "devDependencies": {
+    "pixi-tilemap": "2.1.3",
+    "redux": "^4.0.5",
+    "redux-observable": "^1.2.0",
+    "rxjs": "^6.6.3",
+    "ts-loader": "^8.0.7",
+    "typescript": "^4.0.5",
+    "webpack": "^4.44.2",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
+  },
+  "workspaces": [
+    "./common",
+    "./runtime/*",
+    "./element/*"
+  ]
+}

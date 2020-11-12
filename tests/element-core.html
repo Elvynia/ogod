@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>OGOD Engine test</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            display: inline;
+            position: absolute;
+            margin: 0;
+        }
+    </style>
+    <script src="coreElement.js"></script>
+</head>
+
+<body>
+    <ogod-engine worker-path="./coreWorker.js" running>
+        <canvas slot="canvas" width="1280" height="768"></canvas>
+        <!-- <ogod-resource path="./fakepath"></ogod-resource> -->
+        <d2-translate runtime="translate" aspects="tx ty" mode="any" step="0.1" tick></d2-translate>
+        <d2-rainbow id="test-rainbow" x="640" y="600" width="1000" height="600" tx="1" reflects="x" tick></d2-rainbow>
+        <d2-scene template active clear>
+            <template>
+                <d2-rainbow id="test-rainbow-2" x="0" y="500" width="600" height="300" tx="-1" tick></d2-rainbow>
+            </template>
+            <ogod-instance-ref target="test-rainbow" active></ogod-instance-ref>
+        </d2-scene>
+        <div>
+            <h1 id="title" class="d-inline position-absolute">OGOD Element Test</h1>
+        </div>
+    </ogod-engine>
+    <script>
+        const rainbow = document.getElementById('test-rainbow');
+        const title = document.getElementById('title');
+        title.style.top = rainbow.y - title.offsetHeight + 'px';
+        rainbow.state$.subscribe((state) => {
+            title.style.left = state.x - title.offsetWidth / 2 + 'px';
+        });
+    </script>
+</body>
+
+</html>

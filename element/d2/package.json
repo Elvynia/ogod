@@ -1,0 +1,26 @@
+{
+  "name": "@ogod/element-d2",
+  "version": "1.0.0",
+  "description": "Hybrid.js Web components to interact with @ogod/runtime-d2",
+  "main": "lib/index.js",
+  "module": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "/dist",
+    "/lib",
+    "README.md",
+    "LICENSE"
+  ],
+  "author": "Elvynia",
+  "scripts": {
+      "start": "rm -rf lib && tsc --watch"
+  },
+  "peerDependencies": {
+    "@ogod/common": "^1.0.0",
+    "@ogod/element-core": "^1.0.0",
+    "hybrids": "^4.3.3",
+    "redux": "^4.0.5",
+    "redux-observable": "^1.2.0",
+    "rxjs": "^6.6.3"
+  }
+}

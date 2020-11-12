@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>OGOD Engine test</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            display: inline;
+            position: absolute;
+            margin: 0;
+        }
+    </style>
+    <script src="pixiElement.js"></script>
+</head>
+
+<body>
+    <ogod-engine worker-path="./pixiWorker.js" running>
+        <canvas slot="canvas" width="1280" height="768"></canvas>
+        <pixi-spritesheet id="ground" path="assets/ground/ground.json"></pixi-spritesheet>
+        <pixi-spritesheet id="adventurer" path="assets/hero/adventurer.json"></pixi-spritesheet>
+        <pixi-world-side id="world" follow="hero" aspects="worldX worldY" mode="all" tick>
+            <pixi-area max-x="12800" min-y="-500" max-y="1000"></pixi-area>
+            <pixi-camera x="0" y="0" width="1280" height="768">
+                <pixi-area min-x="500" min-y="100" max-x="800" max-y="600"></pixi-area>
+            </pixi-camera>
+        </pixi-world-side>
+        <pixi-physics id="physics" runtime="physics-debug" world-id="world" gravity-y="-9.8" tick></pixi-physics>
+        <pixi-velocity modifier="physics" tick></pixi-velocity>
+        <pixi-jump physics-id="physics" force="30"></pixi-jump>
+        <pixi-renderer width="1280" height="768">
+            <pixi-scene active>
+                <pixi-sprite id="level" runtime="level" resource="ground" tick></pixi-sprite>
+                <pixi-animation id="hero" runtime="hero" scale-x="1.6" scale-y="1.6" world-x="20" world-y="600"
+                    index="1" anchor="0.5" resource="adventurer" animation="idle/1" duration="600" reflects="velocity"
+                    updates="x y keys" playing loop tick sensor-y="-4">
+                    <pixi-body x="2" y="60" density="5" dynamic>
+                        <pixi-shape x="2" y="4"></pixi-shape>
+                    </pixi-body>
+                    <ogod-keys active>
+                        <ogod-key code="KeyA" name="left"></ogod-key>
+                        <ogod-key code="KeyD" name="right"></ogod-key>
+                        <ogod-key code="Space" name="jump"></ogod-key>
+                    </ogod-keys>
+                </pixi-animation>
+            </pixi-scene>
+        </pixi-renderer>
+    </ogod-engine>
+    <script>
+        const rainbow = document.getElementById('test-rainbow');
+        const title = document.getElementById('title');
+        title.style.top = rainbow.y - title.offsetHeight + 'px';
+        rainbow.state$.subscribe((state) => {
+            title.style.left = state.x - title.offsetWidth / 2 + 'px';
+        });
+    </script>
+</body>
+
+</html>

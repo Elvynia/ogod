@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>OGOD Engine test</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+    <script src="box2dElement.js"></script>
+</head>
+
+<body>
+    <ogod-engine worker-path="./box2dWorker.js" running>
+        <canvas slot="canvas" width="1280" height="768"></canvas>
+        <box2d-physics gravity-y="9.8" tick></box2d-physics>
+        <d2-scene active clear>
+            <d2-ball id="ball" size="20" color="#00da00">
+                <box2d-body x="40" y="0" dynamic>
+                    <box2d-shape-circle x="0" y="0" angle="1"></box2d-shape-circle>
+                </box2d-body>
+            </d2-ball>
+            <d2-ground id="ground_R" x="600" y="400" size-x="600" size-y="10" color="grey" angle="-0.6">
+                <box2d-body x="90" y="40.5">
+                    <box2d-shape-box x="30" y="0.5" angle="-0.6"></box2d-shape-box>
+                </box2d-body>
+            </d2-ground>
+            <d2-ground id="slide_L" x="0" y="400" size-x="600" size-y="10" color="grey" angle="0.6">
+                <box2d-body x="30" y="40.5">
+                    <box2d-shape-box x="30" y="0.5" angle="0.6"></box2d-shape-box>
+                </box2d-body>
+            </d2-ground>
+            <d2-ground id="ground" x="0" y="758" size-x="1280" size-y="10" color="grey">
+                <box2d-body x="64" y="76.3">
+                    <box2d-shape-box x="64" y="0.5"></box2d-shape-box>
+                </box2d-body>
+            </d2-ground>
+        </d2-scene>
+        <box2d-debug slot="ui-before" physics-id="ogod-system-physics" active draw tick></box2d-debug>
+    </ogod-engine>
+</body>
+
+</html>
