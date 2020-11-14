@@ -89,7 +89,7 @@ export class OgodRuntimeSystemDefault implements OgodRuntimeSystem {
     }
 
     remove(state: OgodStateSystem, id: string, child: OgodStateInstance) {
-        console.log('[SYSTEM] Remove %s to %s', child.id, state.id);
+        console.log('[SYSTEM] Remove %s from %s', child.id, state.id);
         state.entities = state.entities.filter((childId) => id !== childId);
     }
 

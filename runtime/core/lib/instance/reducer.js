@@ -25,10 +25,8 @@ function ogodReducerInstance(initialState = {}) {
         state[action.id].scenes = state[action.id].scenes.filter((id) => id !== action.sceneId);
         return Object.assign({}, state);
     }), reducer_1.ogodReducerOn(common_1.instanceDestroySuccess, common_1.instanceDestroyError, common_1.instanceInitError, (state, action) => {
-        if (self.runtimes[common_1.OGOD_CATEGORY.INSTANCE][action.id]) {
-            delete self.runtimes[common_1.OGOD_CATEGORY.INSTANCE][action.id];
-        }
         const _a = state, _b = action.id, removed = _a[_b], states = __rest(_a, [typeof _b === "symbol" ? _b : _b + ""]);
+        delete self.runtimes.instance[action.id];
         return Object.assign({}, states);
     }));
 }

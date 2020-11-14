@@ -65,7 +65,7 @@ class OgodRuntimeSystemDefault {
         }));
     }
     remove(state, id, child) {
-        console.log('[SYSTEM] Remove %s to %s', child.id, state.id);
+        console.log('[SYSTEM] Remove %s from %s', child.id, state.id);
         state.entities = state.entities.filter((childId) => id !== childId);
     }
     stop(state) {

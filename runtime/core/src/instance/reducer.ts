@@ -31,10 +31,8 @@ export function ogodReducerInstance(initialState: OgodStateInstances = {}) {
             return { ...state };
         }),
         ogodReducerOn(instanceDestroySuccess, instanceDestroyError, instanceInitError, (state: OgodStateInstances, action) => {
-            if (self.runtimes[OGOD_CATEGORY.INSTANCE][action.id]) {
-                delete self.runtimes[OGOD_CATEGORY.INSTANCE][action.id];
-            }
             const { [action.id]: removed, ...states } = state;
+            delete self.runtimes.instance[action.id];
             return { ...states };
         })
     );

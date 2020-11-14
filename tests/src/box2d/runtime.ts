@@ -59,9 +59,9 @@ ww.postMessage(sceneInit({
 }));
 // Add an instance into the scene.
 ww.postMessage(instanceInit({
-    id: 'test-shape',
+    id: 'ball',
     state: {
-        id: 'test-shape',
+        id: 'ball',
         scenes: [sceneId],
         category: OGOD_CATEGORY.INSTANCE,
         runtime: 'default',
@@ -118,10 +118,11 @@ generateGrounds(ww, sceneId, {
         angle: 0.4
     },
     slide_4: {
-        x: 300,
-        y: 220,
-        sizeX: 600,
-        sizeY: 10
+        x: 600,
+        y: 80,
+        sizeX: 400,
+        sizeY: 10,
+        angle: 0.4
     },
     wall_E: {
         x: 1190,
@@ -141,40 +142,52 @@ function generateUuid(): string {
     return '_' + Math.random().toString(36).substr(2, 9);
 }
 
-window.addEventListener('click', (e) => {
-    const ballId = generateUuid();
-    ww.postMessage(instanceInit({
-        id: ballId,
-        state: {
+let interval = null;
+window.addEventListener('mousedown', (e) => {
+    interval = setInterval(() => {
+        const ballId = 'ball' + generateUuid();
+        ww.postMessage(instanceInit({
             id: ballId,
-            scenes: [sceneId],
-            category: OGOD_CATEGORY.INSTANCE,
-            runtime: 'default',
-            active: true,
-            type: 'circle',
-            x: 200,
-            y: 0,
-            color: '#626c66',
-            size: 20,
-            updates: [],
-            reflects: [],
-            tick: false,
-            body: {
-                dynamic: true,
-                x: 20,
-                y: 0,
-                density: 10,
-                friction: 0.1,
-                restitution: 0.2,
-                shape: {
-                    x: 0,
+            state: {
+                id: ballId,
+                scenes: [sceneId],
+                category: OGOD_CATEGORY.INSTANCE,
+                runtime: 'default',
+                active: true,
+                type: 'circle',
+                color: '#626c66',
+                size: 20,
+                updates: [],
+                reflects: [],
+                tick: false,
+                body: {
+                    dynamic: true,
+                    x: Math.floor(Math.random() * 100),
                     y: 0,
-                    radius: 1
+                    density: 10,
+                    friction: 0.1,
+                    restitution: 0.2,
+                    shape: {
+                        x: 0,
+                        y: 0,
+                        radius: 1
+                    }
                 }
-            }
-        } as any
-    }));   
-})
+            } as any
+        }));
+    }, 100);
+});
+window.addEventListener('mouseup', (e) => {
+    clearInterval(interval);
+});
+const balls = {};
+const count = document.getElementById('count');
+ww.onmessage = (e) => {
+    Object.assign(balls, e.data.states
+        .filter(({ state }) => state.id.startsWith('ball'))
+        .reduce((a, b) => Object.assign(a, { [b.id]: b.state }), {}));
+    count.textContent = Object.keys(balls).length.toString();
+}
 
 // Add a canvas to render to.
 ww.postMessage(engineCanvas({

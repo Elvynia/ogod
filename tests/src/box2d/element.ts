@@ -1,5 +1,5 @@
-import { instanceInit } from '@ogod/common';
-import { html } from 'hybrids';
+import { instanceInit, instanceDestroy, instanceRemove } from '@ogod/common';
+import { html, property } from 'hybrids';
 import { ogodDefineEngine, ogodFactoryInstanceChildren, ogodFactoryInstanceBoolean } from "@ogod/element-core";
 import { d2DefineCircle, d2DefineRect, d2DefineScene } from '@ogod/element-d2';
 import { box2dDefineBody, box2dDefineShapeCircle, box2dDefineShapeBox, box2dDefinePhysics, box2dDefineDebug } from '@ogod/element-box2d';
@@ -27,7 +27,15 @@ const addBalls = (host) => {
     }
 };
 
-ogodDefineEngine();
+ogodDefineEngine(null, [{
+    cleanup: property(true, (host) => {
+        host.update$.subscribe(({ id, state }) => {
+            if (state.y > 1000) {
+                host.worker.postMessage(instanceDestroy({ id }));
+            }
+        })
+    })
+}]);
 d2DefineScene();
 d2DefineCircle('d2-ball', [{
     body: ogodFactoryInstanceChildren('body'),
