@@ -1,1 +1,0 @@
-{"version":3,"file":"define.js","sourceRoot":"","sources":["../../../src/instance/shape-box/define.ts"],"names":[],"mappings":";;;AACA,qDAAuD;AACvD,qDAA0D;AAC1D,qCAA+C;AAE/C,SAAgB,mBAAmB,CAAC,OAAgB,EAAE,eAAoC,EAAE,EAAE,kBAAuC,EAAE;IACnI,gCAAiB,CAAC,OAAO,IAAI,iBAAiB,EAAE,4BAAmB,EAAE,EAAE,YAAY,EACnF,CAAE,GAAG,eAAe,EAAE,mCAAoB,EAAE,CAAC,CAAC,CAAC;AACnD,CAAC;AAHD,kDAGC"}

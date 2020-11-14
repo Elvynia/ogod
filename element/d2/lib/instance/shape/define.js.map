@@ -1,1 +1,0 @@
-{"version":3,"file":"define.js","sourceRoot":"","sources":["../../../src/instance/shape/define.ts"],"names":[],"mappings":";;;AAAA,qDAAwD;AAGxD,qCAAyC;AAEzC,SAAgB,aAAa,CAAC,OAAgB,EAAE,eAAoC,EAAE,EAAE,kBAAuC,EAAE;IAC7H,OAAO,iCAAkB,CAAC,OAAO,IAAI,UAAU,EAAE,CAAC,sBAAa,EAAE,EAAE,GAAG,YAAY,CAAC,EAAE,eAAe,CAA0C,CAAC;AACnJ,CAAC;AAFD,sCAEC"}

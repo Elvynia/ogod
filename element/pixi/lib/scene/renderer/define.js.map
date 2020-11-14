@@ -1,1 +1,0 @@
-{"version":3,"file":"define.js","sourceRoot":"","sources":["../../../src/scene/renderer/define.ts"],"names":[],"mappings":";;;AACA,qDAA6E;AAC7E,qCAA8C;AAE9C,SAAgB,kBAAkB,CAAC,OAAgB,EAAE,eAAoC,EAAE,EAAE,kBAAuC,EAAE;IAClI,OAAO,gCAAiB,CAAC,OAAO,IAAI,eAAe,EAAE,2BAAkB,EAAE,EAAE,YAAY,EACnF,CAAE,GAAG,eAAe,EAAE,mCAAoB,EAAE,CAAC,CAAC,CAAC;AACvD,CAAC;AAHD,gDAGC"}

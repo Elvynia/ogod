@@ -1,1 +1,0 @@
-{"version":3,"file":"define.js","sourceRoot":"","sources":["../../../src/instance/shape-circle/define.ts"],"names":[],"mappings":";;;AACA,qDAAuD;AACvD,qDAA0D;AAC1D,qCAAkD;AAElD,SAAgB,sBAAsB,CAAC,OAAgB,EAAE,eAAoC,EAAE,EAAE,kBAAuC,EAAE;IACtI,gCAAiB,CAAC,OAAO,IAAI,oBAAoB,EAAE,+BAAsB,EAAE,EAAE,YAAY,EACzF,CAAE,GAAG,eAAe,EAAE,mCAAoB,EAAE,CAAC,CAAC,CAAC;AACnD,CAAC;AAHD,wDAGC"}

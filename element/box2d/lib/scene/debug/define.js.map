@@ -1,1 +1,0 @@
-{"version":3,"file":"define.js","sourceRoot":"","sources":["../../../src/scene/debug/define.ts"],"names":[],"mappings":";;;AAAA,qDAAqD;AAErD,qCAA4C;AAE5C,SAAgB,gBAAgB,CAAC,OAAgB,EAAE,eAAoC,EAAE,EAAE,kBAAuC,EAAE;IAChI,OAAO,8BAAe,CAAC,OAAO,IAAI,aAAa,EAAE,CAAC,yBAAgB,EAAE,EAAE,GAAG,YAAY,CAAC,EAClF,CAAC,GAAG,eAAe,EAAE,EAAE,OAAO,EAAE,aAAa,EAAE,CAAC,CAAC,CAAC;AAC1D,CAAC;AAHD,4CAGC"}
