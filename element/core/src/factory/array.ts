@@ -9,7 +9,12 @@ export const ogodFactoryReactiveArrayString = (defaultValue: Array<string>, chan
         }
         return connect && connect(host, key, invalidate);
     }, observe),
-    get: (host, value = defaultValue) => value,
+    get: (host, value) => {
+        if (value == null) {
+            return [];
+        }
+        return value;
+    },
     set: (host, value, lastValue) => {
         if (value != null && typeof value === 'string') {
             return value !== '' ? value.split(' ') : [];
