@@ -6,5 +6,9 @@ export interface OgodElementResource extends OgodElementActor<'resource'> {
 }
 
 export interface OgodElementResources extends OgodElementActor<'resource'> {
-    paths: string;
+    pathPrefix?: string;
+    pathSuffix?: string;
+    pathStart: number;
+    pathCount: number;
+    paths: string[];
 }
