@@ -11,15 +11,15 @@ export const ogodFactoryReactiveArrayString = (defaultValue: Array<string>, chan
     }, observe),
     get: (host, value) => {
         if (value == null) {
-            return [];
+            return defaultValue;
         }
         return value;
     },
     set: (host, value, lastValue) => {
         if (value != null && typeof value === 'string') {
-            return value !== '' ? value.split(' ') : [];
+            return value !== '' ? value.split(' ') : defaultValue;
         }
-        return value || [];
+        return value || defaultValue;
     }
 });
 
