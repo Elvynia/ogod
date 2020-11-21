@@ -3,11 +3,8 @@ import {
     OgodStateEngine, OgodStateInstance
 } from "@ogod/common";
 import { Observable, of } from "rxjs";
-import { ogodReactiveUpdate } from '../util/reactive-update';
-import { OgodRuntimeEngine } from "../engine/runtime";
 import { OgodRuntimeReactive } from "../reactive/runtime";
-
-declare var self: OgodRuntimeEngine;
+import { ogodReactiveUpdate } from '../util/reactive-update';
 
 export interface OgodRuntimeInstance extends OgodRuntimeReactive<OgodStateInstance, OgodActionInstance> {
 }

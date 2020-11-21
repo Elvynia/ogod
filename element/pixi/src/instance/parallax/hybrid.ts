@@ -4,6 +4,10 @@ import { ogodFactoryInstanceProperty } from '@ogod/element-core';
 
 export function pixiHybridParallax(): Hybrids<PixiElementParallax> {
     return {
-        speedFactor: ogodFactoryInstanceProperty(1)
+        width: ogodFactoryInstanceProperty(800),
+        height: ogodFactoryInstanceProperty(600),
+        speed: ogodFactoryInstanceProperty(0),
+        speedFactor: ogodFactoryInstanceProperty(3),
+        ratio: ogodFactoryInstanceProperty(1)
     }
 }

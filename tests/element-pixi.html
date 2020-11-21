@@ -8,6 +8,7 @@
     <style>
         body {
             margin: 0;
+            overflow: hidden;
         }
 
         h1 {
@@ -23,26 +24,30 @@
 
 <body>
     <ogod-engine worker-path="./pixiWorker.js" running>
-        <canvas slot="canvas" width="1600" height="768"></canvas>
+        <canvas slot="canvas" width="1920" height="1080"></canvas>
         <pixi-spritesheet id="ground" path="assets/ground/ground.json"></pixi-spritesheet>
         <pixi-spritesheet id="adventurer" path="assets/hero/adventurer.json"></pixi-spritesheet>
-        <pixi-world-side id="world" follow="hero" aspects="worldX worldY" mode="all" tick>
-            <pixi-area max-x="12800" min-y="-500" max-y="1000"></pixi-area>
-            <pixi-camera x="0" y="0" width="1280" height="768">
-                <pixi-area min-x="500" min-y="100" max-x="800" max-y="600"></pixi-area>
-            </pixi-camera>
+        <pixi-textures id="forest" path-prefix="assets/bg_forest/bg_forest_"
+            path-start="1" path-count="10"></pixi-textures>
+        <pixi-world-side id="world" follow="hero" aspects="worldX worldY" mode="all" backgrounds="bg" tick>
+            <ogod-area min-x="-1000" max-x="12800" min-y="-1000" max-y="1000"></ogod-area>
+            <ogod-camera x="0" y="0" width="1920" height="1080">
+                <ogod-area min-x="160" min-y="600" max-x="360" max-y="800"></ogod-area>
+            </ogod-ogod>
         </pixi-world-side>
         <box2d-physics id="physics" gravity-y="-9.8" modifier="world" tick></box2d-physics>
-        <pixi-velocity modifier="physics" tick></pixi-velocity>
-        <box2d-jump physics-id="physics" force="30"></box2d-jump>
-        <pixi-renderer width="1600" height="768">
+        <box2d-velocity tick></box2d-velocity>
+        <box2d-jump physics-id="physics" force="18"></box2d-jump>
+        <pixi-renderer width="1920" height="1080">
             <pixi-scene active>
-                <pixi-sprite id="level" runtime="level" resource="ground" tick></pixi-sprite>
-                <pixi-sprite-animated id="hero" runtime="hero" scale-x="1.6" scale-y="1.6" world-x="20" world-y="600"
-                    index="1" anchor="0.5" resource="adventurer" animation="idle/1" duration="600" reflects="velocity"
-                    updates="x y keys grounded" playing loop tick sensor-y="-4">
-                    <box2d-body x="2" y="60" density="5" friction="0.001" restitution="0" dynamic>
-                        <box2d-shape-box x="2" y="4"></box2d-shape-box>
+                <pixi-parallax id="bg" resource="forest" width="1920" height="1080" index="0"
+                    ratio="1" speed-factor="2" tick></pixi-parallax>
+                <pixi-sprite id="level" runtime="level" resource="ground" index="1" tick></pixi-sprite>
+                <pixi-sprite-animated id="hero" runtime="hero" scale-x="1.6" scale-y="1.6"
+                    index="2" anchor="0.5" resource="adventurer" animation="idle/1" duration="600"
+                    bindings="x$ y$ keys$ grounded$ velocityY$" playing loop tick sensor-y="-2.5">
+                    <box2d-body x="11" y="10" density="5" friction="0.001" restitution="0" dynamic>
+                        <box2d-shape-box x="1" y="2.5"></box2d-shape-box>
                     </box2d-body>
                     <ogod-keys active>
                         <ogod-key code="KeyA" name="left"></ogod-key>
@@ -51,7 +56,7 @@
                     </ogod-keys>
                 </pixi-sprite-animated>
             </pixi-scene>
-            <box2d-debug slot="ui-before" physics-id="physics" active tick></box2d-debug>
+            <!-- <box2d-debug slot="ui-before" physics-id="physics" active tick></box2d-debug> -->
         </pixi-renderer>
     </ogod-engine>
 </body>

@@ -1,6 +1,6 @@
-import { engineInit, systemInit, OGOD_CATEGORY, sceneInit, instanceInit, engineCanvas, engineStart } from "@ogod/common";
-import { Box2dStatePhysics, Box2dStateDebug } from "@ogod/runtime-box2d";
-import { D2StateShape, D2StateScene } from "@ogod/runtime-d2";
+import { engineCanvas, engineInit, engineStart, instanceInit, OGOD_CATEGORY, sceneInit, systemInit } from "@ogod/common";
+import { Box2dStateDebug, Box2dStatePhysics } from "@ogod/runtime-box2d";
+import { D2StateScene } from "@ogod/runtime-d2";
 import { generateGrounds } from "./ground";
 
 const physicsId = 'physics-system';
@@ -23,6 +23,7 @@ ww.postMessage(systemInit({
         aspects: ['body'],
         mode: 'any',
         updates: [],
+        watches: [],
         reflects: [],
         tick: true,
         gravityY: 9.8
@@ -37,6 +38,7 @@ ww.postMessage(sceneInit({
         runtime: 'default',
         active: true,
         updates: [],
+        watches: [],
         reflects: [],
         tick: false,
         clear: true
@@ -51,6 +53,7 @@ ww.postMessage(sceneInit({
         runtime: 'box2d-debug',
         active: true,
         updates: [],
+        watches: [],
         reflects: [],
         tick: true,
         draw: true,
@@ -72,6 +75,7 @@ ww.postMessage(instanceInit({
         color: '#626c66',
         size: 20,
         updates: [],
+        watches: [],
         reflects: [],
         tick: false,
         body: {
@@ -158,6 +162,7 @@ window.addEventListener('mousedown', (e) => {
                 color: '#626c66',
                 size: 20,
                 updates: [],
+                watches: [],
                 reflects: [],
                 tick: false,
                 body: {

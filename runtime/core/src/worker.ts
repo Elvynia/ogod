@@ -1,11 +1,11 @@
+import { ReducersMapObject } from 'redux';
+import { Epic } from 'redux-observable';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { OgodRuntimeEngine, ogodRuntimeEngineDefault } from './engine/runtime';
 import { ogodEpics } from './epics';
 import { ogodReducers } from './reducers';
-import { Epic } from 'redux-observable';
-import { ReducersMapObject } from 'redux';
-import { OgodRuntimeEngine, ogodRuntimeEngineDefault } from './engine/runtime';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { OgodRegistry } from './util/registry';
 import { ogodConfigureStore } from './store';
+import { OgodRegistry, OgodRuntimeRegistry } from './util/registry';
 
 
 declare var self: OgodRuntimeEngine;
@@ -24,6 +24,6 @@ export const ogodWorkerStream = (registry: OgodRegistry, baseHref: string = '/',
     }).subscribe(self.state$);
     self.baseHref = baseHref;
     self.intervalUpdate = intervalUpdate;
-    self.registry = registry;
+    self.registry = new OgodRuntimeRegistry(registry);
     return runtimeEngine;
 }

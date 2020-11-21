@@ -5,6 +5,7 @@ import { Box2dStatePhysics } from './state';
 import { OgodStateEngine, OgodActionSystem } from '@ogod/common';
 import { Observable, from } from 'rxjs';
 import { box2dCreateBody } from '../../instance/body/runtime';
+import { Box2dStateInstanceBody } from '../../instance/body/state';
 
 declare var self: OgodRuntimeEngine;
 export const WORLD_RATIO = 10;
@@ -22,12 +23,12 @@ export class Box2dRuntimePhysics extends OgodRuntimeSystemDefault {
         return super.initialize(state, state$);
     }
 
-    add(state: Box2dStatePhysics, instance: any) {
+    add(state: Box2dStatePhysics, instance: Box2dStateInstanceBody) {
         super.add(state, instance);
         instance.body$ = box2dCreateBody(state.world$, instance.body, instance.id);
     }
 
-    remove(state: Box2dStatePhysics, id: string, instance: any) {
+    remove(state: Box2dStatePhysics, id: string, instance: Box2dStateInstanceBody) {
         state.world$.DestroyBody(instance.body$);
         delete instance.body$;
         super.remove(state, id, instance);
@@ -41,8 +42,8 @@ export class Box2dRuntimePhysics extends OgodRuntimeSystemDefault {
         }
         const fullState = self.store.getState();
         from(state.entities).pipe(
-            map((id) => fullState.instance[id] as any),
-            filter((instance) => instance.body.dynamic && instance.body$),
+            map((id) => fullState.instance[id] as Box2dStateInstanceBody),
+            filter((instance) => instance.body.dynamic && !!instance.body$),
         ).subscribe((instance) => {
             instance[state.modifierX] = instance.body$.GetPosition().x * WORLD_RATIO;
             instance[state.modifierY] = instance.body$.GetPosition().y * WORLD_RATIO;

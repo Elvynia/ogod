@@ -25,7 +25,15 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
 	"sourceSize": {"w":256,"h":256},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0},
+    "shape": {
+        "vertices": [
+            { "x": 0.75, "y": 0.25},
+            { "x": 0.75, "y": 0.75},
+            { "x": 1, "y": 0.75},
+            { "x": 1, "y": 0.25}
+        ]
+    }
 },
 "3.png":
 {
@@ -43,7 +51,15 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
 	"sourceSize": {"w":256,"h":256},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0},
+    "shape": {
+        "vertices": [
+            { "x": 0.25, "y": 0},
+            { "x": 0.25, "y": 0.75},
+            { "x": 0.75, "y": 0.75},
+            { "x": 0.75, "y": 0}
+        ]
+    }
 },
 "5.png":
 {
@@ -52,7 +68,15 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
 	"sourceSize": {"w":256,"h":256},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0},
+    "shape": {
+        "vertices": [
+            { "x": 0.25, "y": 0},
+            { "x": 0.25, "y": 1},
+            { "x": 0.75, "y": 1},
+            { "x": 0.75, "y": 0}
+        ]
+    }
 },
 "6.png":
 {
@@ -79,7 +103,15 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
 	"sourceSize": {"w":256,"h":256},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0},
+    "shape": {
+        "vertices": [
+            { "x": 0, "y": 0.25},
+            { "x": 0, "y": 0.75},
+            { "x": 0.25, "y": 0.75},
+            { "x": 0.25, "y": 0.25}
+        ]
+    }
 },
 "9.png":
 {
@@ -88,7 +120,16 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
 	"sourceSize": {"w":256,"h":256},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0},
+    "shape": {
+        "vertices": [
+            { "x": 0, "y": 0.25},
+            { "x": 0, "y": 0.75},
+            { "x": 0.25, "y": 1},
+            { "x": 0.75, "y": 1},
+            { "x": 0.75, "y": 0.25}
+        ]
+    }
 },
 "10.png":
 {
@@ -97,7 +138,15 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
 	"sourceSize": {"w":256,"h":256},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0},
+    "shape": {
+        "vertices": [
+            { "x": 0, "y": 0.25},
+            { "x": 0, "y": 0.75},
+            { "x": 1, "y": 0.75},
+            { "x": 1, "y": 0.25}
+        ]
+    }
 },
 "11.png":
 {
@@ -106,7 +155,17 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
 	"sourceSize": {"w":256,"h":256},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0},
+    "shape": {
+        "vertices": [
+            { "x": 0, "y": 0.25},
+            { "x": 0, "y": 0.75},
+            { "x": 0.25, "y": 1},
+            { "x": 0.75, "y": 1},
+            { "x": 1, "y": 0.75},
+            { "x": 1, "y": 0.25}
+        ]
+    }
 },
 "12.png":
 {
@@ -151,7 +210,15 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
 	"sourceSize": {"w":256,"h":256},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0},
+    "shape": {
+        "vertices": [
+            { "x": 0, "y": 0.25},
+            { "x": 0, "y": 0.75},
+            { "x": 1, "y": 0.75},
+            { "x": 1, "y": 0.25}
+        ]
+    }
 },
 "23.png":
 {
@@ -169,7 +236,16 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
 	"sourceSize": {"w":256,"h":256},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0},
+    "shape": {
+        "vertices": [
+            { "x": 0, "y": 0.25},
+            { "x": 0, "y": 0.75},
+            { "x": 0.25, "y": 1},
+            { "x": 1, "y": 1},
+            { "x": 1, "y": 0.25}
+        ]
+    }
 },
 "31.png":
 {
@@ -187,7 +263,15 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
 	"sourceSize": {"w":256,"h":256},
-	"anchor": {"x":0,"y":0}
+    "anchor": {"x":0,"y":0},
+    "shape": {
+        "vertices": [
+            { "x": 0.25, "y": 0},
+            { "x": 0.25, "y": 0.75},
+            { "x": 1, "y": 0.75},
+            { "x": 1, "y": 0}
+        ]
+    }
 },
 "39.png":
 {
@@ -196,7 +280,16 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
 	"sourceSize": {"w":256,"h":256},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0},
+    "shape": {
+        "vertices": [
+            { "x": 0.25, "y": 0},
+            { "x": 0.25, "y": 1},
+            { "x": 0.75, "y": 1},
+            { "x": 1, "y": 0.75},
+            { "x": 1, "y": 0}
+        ]
+    }
 },
 "46.png":
 {
@@ -223,7 +316,15 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
 	"sourceSize": {"w":256,"h":256},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0},
+    "shape": {
+        "vertices": [
+            { "x": 0.25, "y": 0},
+            { "x": 0.25, "y": 1},
+            { "x": 1, "y": 1},
+            { "x": 1, "y": 0}
+        ]
+    }
 },
 "63.png":
 {
@@ -241,7 +342,15 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
 	"sourceSize": {"w":256,"h":256},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0},
+    "shape": {
+        "vertices": [
+            { "x": 0, "y": 0},
+            { "x": 0, "y": 0.75},
+            { "x": 0.75, "y": 0.75},
+            { "x": 0.75, "y": 0}
+        ]
+    }
 },
 "77.png":
 {
@@ -250,7 +359,16 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
 	"sourceSize": {"w":256,"h":256},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0},
+    "shape": {
+        "vertices": [
+            { "x": 0, "y": 0},
+            { "x": 0, "y": 0.75},
+            { "x": 0.25, "y": 1},
+            { "x": 0.75, "y": 1},
+            { "x": 0.75, "y": 0}
+        ]
+    }
 },
 "78.png":
 {
@@ -286,7 +404,15 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
 	"sourceSize": {"w":256,"h":256},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0},
+    "shape": {
+        "vertices": [
+            { "x": 0, "y": 0},
+            { "x": 0, "y": 0.75},
+            { "x": 1, "y": 0.75},
+            { "x": 1, "y": 0}
+        ]
+    }
 },
 "111.png":
 {
@@ -295,7 +421,17 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
 	"sourceSize": {"w":256,"h":256},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0},
+    "shape": {
+        "vertices": [
+            { "x": 0, "y": 0},
+            { "x": 0, "y": 0.75},
+            { "x": 0.25, "y": 1},
+            { "x": 0.75, "y": 1},
+            { "x": 1, "y": 0.75},
+            { "x": 1, "y": 0}
+        ]
+    }
 },
 "127.png":
 {
@@ -304,7 +440,16 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
 	"sourceSize": {"w":256,"h":256},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0},
+    "shape": {
+        "vertices": [
+            { "x": 0, "y": 0},
+            { "x": 0, "y": 0.75},
+            { "x": 0.25, "y": 1},
+            { "x": 1, "y": 1},
+            { "x": 1, "y": 0}
+        ]
+    }
 },
 "137.png":
 {
@@ -313,7 +458,15 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
 	"sourceSize": {"w":256,"h":256},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0},
+    "shape": {
+        "vertices": [
+            { "x": 0, "y": 0.25},
+            { "x": 0, "y": 1},
+            { "x": 0.75, "y": 1},
+            { "x": 0.75, "y": 0.25}
+        ]
+    }
 },
 "139.png":
 {
@@ -322,7 +475,16 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
 	"sourceSize": {"w":256,"h":256},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0},
+    "shape": {
+        "vertices": [
+            { "x": 0, "y": 0.25},
+            { "x": 0, "y": 1},
+            { "x": 0.75, "y": 1},
+            { "x": 1, "y": 0.75},
+            { "x": 1, "y": 0.25}
+        ]
+    }
 },
 "141.png":
 {
@@ -349,7 +511,15 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
 	"sourceSize": {"w":256,"h":256},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0},
+    "shape": {
+        "vertices": [
+            { "x": 0, "y": 0.25},
+            { "x": 0, "y": 1},
+            { "x": 1, "y": 1},
+            { "x": 1, "y": 0.25}
+        ]
+    }
 },
 "159.png":
 {
@@ -385,7 +555,15 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
 	"sourceSize": {"w":256,"h":256},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0},
+    "shape": {
+        "vertices": [
+            { "x": 0, "y": 0},
+            { "x": 0, "y": 1},
+            { "x": 0.75, "y": 1},
+            { "x": 0.75, "y": 0}
+        ]
+    }
 },
 "207.png":
 {
@@ -412,7 +590,16 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":256,"h":256},
 	"sourceSize": {"w":256,"h":256},
-	"anchor": {"x":0,"y":0}
+	"anchor": {"x":0,"y":0},
+    "shape": {
+        "vertices": [
+            { "x": 0, "y": 0},
+            { "x": 0, "y": 1},
+            { "x": 0.75, "y": 1},
+            { "x": 1, "y": 0.75},
+            { "x": 1, "y": 0}
+        ]
+    }
 },
 "255.png":
 {

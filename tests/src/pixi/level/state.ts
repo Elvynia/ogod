@@ -14,4 +14,7 @@ export interface PixiStateLevel extends OgodStateInstance {
     scale: number;
     worldX: number;
     worldY: number;
+    index: number;
+    x: number;
+    y: number;
 }

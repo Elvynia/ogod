@@ -1,10 +1,12 @@
 import { OgodRuntimeReactive } from '../reactive/runtime';
-import { OgodStateReactive, OgodActionReactive, OgodCategoryState } from '@ogod/common';
+import { OgodStateReactive, OgodActionReactive, OgodCategoryState, OgodStateActor } from '@ogod/common';
 import { Observable, Subscription } from 'rxjs';
 import { tap, map, scan } from 'rxjs/operators';
 import { OgodRuntimeEngine } from '../engine/runtime';
 
 declare var self: OgodRuntimeEngine;
+
+export type OgodUpdateFunction<S extends OgodStateActor<C>, C extends keyof OgodCategoryState = S['category']> = (delta: number, state: S) => void;
 
 export function ogodReactiveUpdate<
     S extends OgodStateReactive<C>,
@@ -18,15 +20,15 @@ export function ogodReactiveUpdate<
             tap((delta) => runtime.update(delta, state))
         );
     }
-    if (state.updates.length > 0 || state.reflects.length > 0) {
+    if (state.watches.length > 0 || state.reflects.length > 0) {
         source = source.pipe(
-            map((delta) => [delta, state.updates.concat(state.reflects.filter((i) => !state.updates.includes(i)))
+            map((delta) => [delta, state.watches.concat(state.reflects.filter((i) => !state.watches.includes(i)))
                 .reduce((acc, key) => Object.assign(acc, { [key]: state[key] }), {})])
         );
-        if (state.updates.length > 0) {
+        if (state.watches.length > 0) {
             source = source.pipe(
                 scan((s1, [delta, s2]) => {
-                    state.updates
+                    state.watches
                         .filter((up) => s1[up] !== s2[up])
                         .forEach((up) => {
                             const upFn = 'updateState' + up[0].toUpperCase() + (up.length > 1 ? up.substring(1) : '');

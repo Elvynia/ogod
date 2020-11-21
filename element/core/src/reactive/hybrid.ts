@@ -1,5 +1,5 @@
 import { ActionCreator, OgodCategoryState } from '@ogod/common';
-import { Hybrids } from 'hybrids';
+import { Hybrids, property } from 'hybrids';
 import { ogodFactoryReactiveProperty } from '../factory/property';
 import { ogodFactoryReactiveArrayString } from '../factory/array';
 import { OgodElementReactive } from './element';
@@ -10,6 +10,25 @@ export function ogodHybridReactive<C extends keyof OgodCategoryState>(changesCre
         active: ogodFactoryReactiveBoolean(active, changesCreator),
         tick: ogodFactoryReactiveProperty(false, changesCreator),
         updates: ogodFactoryReactiveArrayString([], changesCreator),
-        reflects: ogodFactoryReactiveArrayString([], changesCreator)
+        watches: ogodFactoryReactiveArrayString([], changesCreator),
+        reflects: ogodFactoryReactiveArrayString([], changesCreator),
+        bindings: property('', (host) => {
+            if (host.bindings) {
+                const binds = host.bindings.split(' ');
+                binds.forEach((bind) => {
+                    if (bind.match(/.*[$%#]{1}$/)) {
+                        const mode = bind[bind.length - 1];
+                        bind = bind.substring(0, bind.length - 1);
+                        if (mode === '$' || mode === '#') {
+                            host.watches.push(bind);
+                        }
+                        if (mode === '%' || mode === '#') {
+                            host.reflects.push(bind);
+                        }
+                    }
+                    host.updates.push(bind);
+                })
+            }
+        })
     };
 }

@@ -33,22 +33,6 @@ export * from './scene/default/define';
 export * from './scene/default/element';
 export * from './scene/default/hybrid';
 
-export * from './system/area/define';
-export * from './system/area/element';
-export * from './system/area/hybrid';
-
-export * from './system/camera/define';
-export * from './system/camera/element';
-export * from './system/camera/hybrid';
-
-export * from './system/world/define';
-export * from './system/world/element';
-export * from './system/world/hybrid';
-
 export * from './system/world-side/define';
 export * from './system/world-side/element';
 export * from './system/world-side/hybrid';
-
-export * from './system/velocity/define';
-export * from './system/velocity/element';
-export * from './system/velocity/hybrid';

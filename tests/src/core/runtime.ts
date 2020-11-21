@@ -1,5 +1,6 @@
 import { engineInit, engineCanvas, engineStart, engineStop, systemInit, OGOD_CATEGORY, sceneInit, instanceInit, sceneChanges } from '@ogod/common';
-import { D2StateTranslate, D2StateScene, D2StateShape } from '@ogod/runtime-d2';
+import { D2StateScene, D2StateShape } from '@ogod/runtime-d2';
+import { OgodStateTranslate } from '@ogod/runtime-core';
 
 const canvas = (document.getElementById('test-canvas') as HTMLCanvasElement).transferControlToOffscreen();
 const ww = new Worker('./coreWorker.js', { type: 'module' });
@@ -9,7 +10,6 @@ ww.postMessage(engineInit({
 }));
 
 const sceneId = 'test-scene';
-const rainbowId = 'test-rainbow';
 // Add systems.
 ww.postMessage(systemInit({
     id: 'translate-system',
@@ -20,12 +20,15 @@ ww.postMessage(systemInit({
         active: true,
         aspects: ['tx', 'ty'],
         mode: 'any',
-        borderMode: 'bounce',
-        step: 0.1,
         updates: [],
+        watches: [],
         reflects: [],
-        tick: true
-    } as D2StateTranslate
+        tick: true,
+        borderMode: 'bounce',
+        scale: 0.1,
+        width: canvas.width,
+        height: canvas.height
+    } as any
 }));
 // Add a scene.
 ww.postMessage(sceneInit({
@@ -37,6 +40,7 @@ ww.postMessage(sceneInit({
         active: true,
         clear: true,
         updates: [],
+        watches: [],
         reflects: [],
         tick: false
     } as D2StateScene
@@ -57,10 +61,13 @@ ww.postMessage(instanceInit({
         ty: 2.5,
         color: 'green',
         size: 25,
+        width: 25,
+        height: 25,
         updates: [],
+        watches: [],
         reflects: [],
         tick: false
-    } as D2StateShape
+    } as any
 }));
 // Add an instance into the scene.
 ww.postMessage(instanceInit({
@@ -77,10 +84,13 @@ ww.postMessage(instanceInit({
         ty: -1,
         color: 'blue',
         size: 25,
+        width: 25,
+        height: 25,
         updates: [],
+        watches: [],
         reflects: [],
         tick: false
-    } as D2StateShape
+    } as any
 }));
 
 // Add a canvas to render to.

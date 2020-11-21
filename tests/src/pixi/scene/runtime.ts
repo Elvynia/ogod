@@ -1,9 +1,10 @@
-import { switchMap, filter, map, tap, take } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { OgodActionScene, OgodStateEngine } from '@ogod/common';
 import { Box2dRuntimeDebug, WORLD_RATIO } from "@ogod/runtime-box2d";
+import { OgodStateWorld } from '@ogod/runtime-core';
+import { PixiStateScene } from '@ogod/runtime-pixi';
+import { Observable } from 'rxjs';
+import { filter, map, switchMap, take } from 'rxjs/operators';
 import { PixiStateDebugBox2d } from "./state";
-import { OgodStateEngine, OgodActionScene } from '@ogod/common';
-import { PixiStateScene, PixiStateWorld } from '@ogod/runtime-pixi';
 
 export class PixiRuntimeDebugBox2d extends Box2dRuntimeDebug {
 
@@ -18,8 +19,8 @@ export class PixiRuntimeDebugBox2d extends Box2dRuntimeDebug {
                 graphics$: new PIXI.Graphics()
             })),
             switchMap((initState) => state$.pipe(
-                filter((fs) => fs.system[state.worldId] && !!(fs.system[state.worldId] as PixiStateWorld).camera),
-                map((fs) => (fs.system[state.worldId] as PixiStateWorld).camera),
+                filter((fs) => fs.system[state.worldId] && !!(fs.system[state.worldId] as OgodStateWorld).camera),
+                map((fs) => (fs.system[state.worldId] as OgodStateWorld).camera),
                 take(1),
                 map((camera) => ({
                     ...initState,
@@ -53,5 +54,11 @@ export class PixiRuntimeDebugBox2d extends Box2dRuntimeDebug {
             }
             state.graphics$.endFill();
         }
+        const minX = state.camera.x + state.camera.offset.minX;
+        const minY = state.camera.y + state.camera.height - state.camera.offset.minY;
+        const maxX = state.camera.x + state.camera.offset.maxX;
+        const maxY = state.camera.y  + state.camera.height - state.camera.offset.maxY;
+        state.graphics$.drawRect(minX, minY,
+            maxX - minX, maxY - minY);
     }
 }

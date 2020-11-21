@@ -6,7 +6,7 @@ export const configurePlayer = (ww: Worker) => {
         right: false,
         jump: false
     };
-    let previousVelocity, velocity = 0;
+    let previousTx, tx = 0;
     let previousJump = false;
     const onKeyDown = (e) => {
         if (e.code === 'KeyD' && !keys.right) {
@@ -30,16 +30,16 @@ export const configurePlayer = (ww: Worker) => {
     }
     const checkState = () => {
         if (keys.left) {
-            velocity = -8;
+            tx = -20;
         } else if (keys.right) {
-            velocity = 8;
+            tx = 20;
         } else {
-            velocity = 0;
+            tx = 0;
         }
         const changes: any = {};
-        if (previousVelocity !== velocity) {
-            previousVelocity = velocity;
-            changes.velocity = velocity;
+        if (previousTx !== tx) {
+            previousTx = tx;
+            changes.tx = tx;
         }
         if (keys.jump  !== previousJump) {
             previousJump = keys.jump;

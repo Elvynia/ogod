@@ -20,6 +20,7 @@ ww.postMessage(sceneInit({
         active: true,
         tick: false,
         updates: [],
+        watches: [],
         reflects: [],
         renderer: {
             transparent: true,
@@ -50,6 +51,7 @@ ww.postMessage(instanceInit({
         active: true,
         tick: false,
         updates: [],
+        watches: ['x', 'y'],
         reflects: [],
         scenes: ['test-scene'],
         resource: 'linktexture',
@@ -102,6 +104,7 @@ ww.postMessage(instanceInit({
         active: true,
         tick: true,
         updates: [],
+        watches: [],
         reflects: [],
         scenes: ['test-scene'],
         resource: 'slimesheet',
@@ -126,7 +129,8 @@ ww.postMessage(instanceInit({
         runtime: 'sprite-compass',
         active: true,
         tick: true,
-        updates: ['compass', 'animationBase', 'x', 'y'],
+        updates: [],
+        watches: ['compass', 'animationBase', 'x', 'y'],
         reflects: [],
         scenes: ['test-scene'],
         resource: 'slimesheet',
@@ -146,7 +150,7 @@ ww.postMessage(instanceInit({
         },
         worldX: 200,
         worldY: 100,
-        velocity: 0,
+        tx: 0,
         anchor: 0.5,
         scale: 1,
         rotation: 0,
@@ -176,6 +180,7 @@ ww.postMessage(instanceInit({
         active: true,
         tick: true,
         updates: [],
+        watches: [],
         reflects: [],
         scenes: ['test-scene'],
         resource: 'bgimages',
@@ -211,6 +216,7 @@ ww.postMessage(instanceInit({
         active: true,
         tick: true,
         updates: [],
+        watches: ['x', 'y'],
         reflects: [],
         scenes: ['test-scene'],
         resource: 'groundsprite',
@@ -253,7 +259,8 @@ ww.postMessage(instanceInit({
         runtime: 'sprite-animated',
         active: true,
         tick: true,
-        updates: ['x', 'y', 'velocity', 'grounded', 'scaleX'],
+        updates: [],
+        watches: ['x', 'y'],
         reflects: [],
         scenes: ['test-scene'],
         resource: 'finnsprites',
@@ -279,7 +286,7 @@ ww.postMessage(instanceInit({
         // worldY: 360,
         worldX: 32,
         worldY: 32,
-        velocity: 0,
+        tx: 0,
         scaleX: 2,
         scaleY: 2,
         rotation: 0,
@@ -296,6 +303,7 @@ ww.postMessage(systemInit({
         active: true,
         tick: true,
         updates: [],
+        watches: [],
         reflects: [],
         aspects: ['worldX', 'worldY'],
         mode: 'all',
@@ -325,17 +333,19 @@ ww.postMessage(systemInit({
     } as any
 }));
 ww.postMessage(systemInit({
-    id: 'velocity',
+    id: 'translate',
     state: {
-        id: 'velocity',
+        id: 'translate',
         category: OGOD_CATEGORY.SYSTEM,
-        runtime: 'velocity',
+        runtime: 'translate',
         active: true,
         tick: true,
         updates: [],
+        watches: [],
         reflects: [],
-        aspects: ['velocity', 'body'],
-        mode: 'all',
+        aspects: ['tx', 'ty'],
+        mode: 'any',
+        scale: 0.1,
         modifier: 'world'
     } as any
 }));
@@ -347,7 +357,7 @@ const moveInterval = setInterval(() => {
         id: 'slime2',
         changes: {
             compass: goLeft ? COMPASS.W : COMPASS.E,
-            velocity: goLeft ? -5 : 5
+            tx: goLeft ? -5 : 5
         } as any
     }));
     goLeft = !goLeft;

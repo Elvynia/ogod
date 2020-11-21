@@ -6,7 +6,7 @@ import { animationFrameScheduler, BehaviorSubject, defer, of, Subject, asyncSche
 import { bufferTime, filter, map, pairwise, repeat, withLatestFrom, tap } from "rxjs/operators";
 import { OgodCategoryRuntime } from '../util/category';
 import { watchReactiveStates } from '../util/reactive-watch';
-import { OgodRegistry } from '../util/registry';
+import { OgodRegistry, OgodRuntimeRegistry } from '../util/registry';
 
 declare var self: OgodRuntimeEngine;
 
@@ -19,7 +19,7 @@ export interface OgodRuntimeEngine<C extends OgodCategoryRuntime = OgodCategoryR
     baseHref: string;
     running: boolean;
     canvas: OffscreenCanvas;
-    registry: OgodRegistry;
+    registry: OgodRuntimeRegistry;
     intervalUpdate: number;
     debugMode: boolean;
     store: OgodStore;

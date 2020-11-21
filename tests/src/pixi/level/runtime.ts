@@ -1,6 +1,6 @@
 import { OgodStateEngine } from '@ogod/common';
-import { OgodRuntimeEngine, OgodRuntimeInstanceDefault } from '@ogod/runtime-core';
-import { PixiStateSpritesheet, PixiStateWorld, waitForResource } from '@ogod/runtime-pixi';
+import { OgodRuntimeEngine, OgodRuntimeInstanceDefault, OgodStateWorld } from '@ogod/runtime-core';
+import { PixiStateSpritesheet, waitForResource } from '@ogod/runtime-pixi';
 import * as TileMap from 'pixi-tilemap';
 import { empty, Observable, range } from 'rxjs';
 import { filter, first, map, mapTo, switchMap, tap, toArray } from 'rxjs/operators';
@@ -24,10 +24,10 @@ export class PixiRuntimeLevel extends OgodRuntimeInstanceDefault {
                 tileSize: 512,
                 width: 100,
                 height: 6,
-                flatness: 50,
+                flatness: 80,
                 gapFreq: 1,
-                gapSizeMin: 2,
-                gapSizeMax: 4,
+                gapSizeMin: 1,
+                gapSizeMax: 2,
                 worldX: 0,
                 worldY: 0
             })),
@@ -45,7 +45,7 @@ export class PixiRuntimeLevel extends OgodRuntimeInstanceDefault {
 
     update(delta: number, state: PixiStateLevel) {
         const fullState = self.store.getState();
-        const camera = (fullState.system['world'] as PixiStateWorld).camera;
+        const camera = (fullState.system['world'] as OgodStateWorld).camera;
         if (camera) {
             state.instance$.position.x = -camera.worldX;
             state.instance$.position.y = camera.height - state.instance$.height + camera.worldY;
@@ -57,9 +57,10 @@ export class PixiRuntimeLevel extends OgodRuntimeInstanceDefault {
         const tilemap: TileMap.CompositeRectTileLayer & PIXI.Sprite = new TileMap.CompositeRectTileLayer(-1, Object.values(data.textures)) as any;
         tilemap.scale.x = state.scale;
         tilemap.scale.y = state.scale;
+        tilemap.zIndex = state.index || 0;
         return tilemap;
     }
- 
+
     private createLevel(state: PixiStateLevel) {
         const ground = this.generateGround(state);
         let tiles = [];
@@ -78,12 +79,7 @@ export class PixiRuntimeLevel extends OgodRuntimeInstanceDefault {
             tiles.push(...line);
         }
         tiles.forEach((tile) => state.instance$.addFrame(tile.radar + state.tileExtension, state.tileSize * tile.x, state.tileSize * tile.y));
-        tiles.forEach((tile) => {
-            const body = this.getBody(state, tile.radar, tile.x, tile.y);
-            if (body) {
-                box2dCreateBody(this.world, body, tile.id);
-            }
-        });
+        this.createBodies(state, tiles);
     }
 
     private generateGround(state: PixiStateLevel): boolean[][] {
@@ -100,17 +96,17 @@ export class PixiRuntimeLevel extends OgodRuntimeInstanceDefault {
         while (x < state.width) {
             range(0, height).subscribe((i) => tiles[i][x] = true);
             const rChange = this.nextRand(0, 100);
-            if (rChange > state.flatness) {
+            if (rChange > state.flatness || height === 0) {
                 const rDir = this.nextRand(-100 * height, 100 * state.height / height);
                 if (rDir > 0 && height < state.height - 1) {
                     height += this.nextRand(1, Math.min(3, state.height - height));
-                } else if (height > 1) {
+                } else if (rDir < 0 && height > 1) {
                     height -= this.nextRand(1, Math.min(3, height))
                 }
             }
             const rGap = this.nextRand(0, 100);
             if (rGap < state.gapFreq) {
-                const gap = this.nextRand(state.gapSizeMin, state.gapSizeMax) + 1;
+                const gap = this.nextRand(state.gapSizeMin, state.gapSizeMax);
                 x += gap;
             } else {
                 ++x;
@@ -150,23 +146,39 @@ export class PixiRuntimeLevel extends OgodRuntimeInstanceDefault {
         return result;
     }
 
-    private getBody(state: PixiStateLevel, radar: RADAR, x: number, y: number): Box2dStateBody {
-        if (radar === 255) {
-            return null;
-        }
-        const b = {
-            x: x * state.tileSize * state.scale / WORLD_RATIO,
-            y: (state.instance$.height - (y+1) * state.tileSize * state.scale) / WORLD_RATIO,
-            friction: 0.001,
-            restitution: 0,
-            shape: {
-                x: (state.tileSize / 2) * state.scale / WORLD_RATIO,
-                y: (state.tileSize / 2) * state.scale / WORLD_RATIO,
-                centerX: 256 * state.scale / WORLD_RATIO,
-                centerY: 256 * state.scale / WORLD_RATIO
+    private createBodies(state: PixiStateLevel, tiles) {
+        const bodies: any[] = [];
+        const debugs = [];
+        tiles.forEach(({ x, y, id, radar}) => {
+            if (radar !== 255) {
+                const size = state.tileSize * state.scale / WORLD_RATIO;
+                let shape = state.resource$.data.frames[radar + '.png']?.shape;
+                console.log('tile ', x, y, id, radar)
+                if (shape) {
+                    shape = {
+                        vertices: shape.vertices.map((v) => ({ x: v.x * size, y: v.y * size }))
+                    }
+                } else {
+                    shape = {
+                        x: size / 2,
+                        y: size / 2,
+                        centerX: size / 2,
+                        centerY: size / 2
+                    };
+                    debugs.push({ x, y, id, radar });
+                }
+                bodies.push({
+                    id: id,
+                    x: x * state.tileSize * state.scale / WORLD_RATIO,
+                    y: (state.instance$.height - (y + 1) * state.tileSize * state.scale) / WORLD_RATIO,
+                    friction: 0.001,
+                    restitution: 0,
+                    shape
+                });
             }
-        } as Box2dStateBody;
-        return b;
+        });
+        bodies.sort((s1, s2) => s1.x < s2.x ? -1 : 1).forEach((body) => box2dCreateBody(this.world, body, body.id));
+        debugs.forEach(({ x, y, id, radar }) => console.log('Shape missing for tile ', x, y, id, radar));
     }
 
     private nextRand(min, max) {

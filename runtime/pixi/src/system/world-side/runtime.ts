@@ -1,10 +1,9 @@
-import { OgodRuntimeEngine } from "@ogod/runtime-core";
-import { PixiStateWorldSide } from "./state";
-import { PixiRuntimeWorld } from "../world/runtime";
+import { OgodRuntimeEngine, OgodRuntimeWorld } from '@ogod/runtime-core';
+import { PixiStateWorldSide } from './state';
 
 declare var self: OgodRuntimeEngine;
 
-export class PixiRuntimeWorldSide extends PixiRuntimeWorld {
+export class PixiRuntimeWorldSide extends OgodRuntimeWorld {
 
     update(delta: number, state: PixiStateWorldSide) {
         super.update(delta, state);
@@ -12,7 +11,8 @@ export class PixiRuntimeWorldSide extends PixiRuntimeWorld {
         const follow: any = state.follow ? fullState.instance[state.follow] : null;
         if (follow && state.backgrounds) {
             state.backgrounds.map((id) => fullState.instance[id]).forEach((bg: any) => {
-                bg.speed = -follow.velocity;
+                // FIXME: should be tx ?
+                bg.speed = -follow.velocityX;
             });
         }
     }

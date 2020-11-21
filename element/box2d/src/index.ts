@@ -28,3 +28,7 @@ export * from './system/physics/hybrid';
 export * from './system/jump/define';
 export * from './system/jump/element';
 export * from './system/jump/hybrid';
+
+export * from './system/velocity/define';
+export * from './system/velocity/element';
+export * from './system/velocity/hybrid';

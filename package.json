@@ -1,5 +1,5 @@
 {
-  "name": "@ogod/monorepo",
+  "name": "@ogod/tests",
   "version": "1.0.0",
   "description": "Workspace for @ogod packages",
   "main": "index.js",

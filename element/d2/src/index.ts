@@ -19,7 +19,3 @@ export * from './instance/size/hybrid';
 export * from './scene/default/define';
 export * from './scene/default/element';
 export * from './scene/default/hybrid';
-
-export * from './system/translate/define';
-export * from './system/translate/element';
-export * from './system/translate/hybrid';

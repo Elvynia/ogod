@@ -7,6 +7,7 @@ export interface OgodStateReactive<C extends keyof OgodCategoryState> extends Og
     running: boolean;
     tick: boolean;
     updates: Array<string>;
+    watches: Array<string>;
     reflects: Array<string>;
     sub$: Array<Subscription>;
 }

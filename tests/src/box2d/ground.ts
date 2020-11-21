@@ -16,6 +16,7 @@ export function generateGrounds(ww: Worker, sceneId: string, objects: any) {
             sizeX: obj.sizeX,
             sizeY: obj.sizeY,
             updates: [],
+            watches: [],
             reflects: [],
             tick: false,
             angle: obj.angle,

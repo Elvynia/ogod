@@ -18,7 +18,4 @@ export * from './instance/shape/state';
 export * from './scene/default/runtime';
 export * from './scene/default/state';
 
-export * from './system/translate/runtime';
-export * from './system/translate/state';
-
 export * from './registry';

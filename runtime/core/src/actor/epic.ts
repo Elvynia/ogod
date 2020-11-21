@@ -17,8 +17,8 @@ export function ogodEpicActorInit<S extends OgodStateActor<C>, A extends OgodAct
     return (action$, state$) => action$.pipe(
         ofType(ogodActionName(category, OGOD_ACTION_ACTOR.INIT)),
         mergeMap(({ state }) => {
-            if (self.registry[state.category + '.' + state.runtime]) {
-                const runtime: OgodRuntimeActor<S, A> = new self.registry[state.category + '.' + state.runtime]();
+            if (self.registry.hasRuntime(state.category, state.runtime)) {
+                const runtime: OgodRuntimeActor<S, A> = self.registry.createRuntime(state.category, state.runtime);
                 Object.assign(self.runtimes[category], { [state.id]: runtime });
                 if (postInit) {
                     postInit(state, runtime);

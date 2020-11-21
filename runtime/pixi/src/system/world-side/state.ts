@@ -1,5 +1,5 @@
-import { PixiStateWorld } from "../world/state";
+import { OgodStateWorld } from '@ogod/runtime-core';
 
-export interface PixiStateWorldSide extends PixiStateWorld {
+export interface PixiStateWorldSide extends OgodStateWorld {
     backgrounds: Array<string>;
 }

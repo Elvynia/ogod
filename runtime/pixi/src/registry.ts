@@ -7,11 +7,10 @@ import { PixiRuntimeSpriteCompass } from "./instance/sprite-compass/runtime";
 import { PixiRuntimeTexture } from "./resource/texture/runtime";
 import { PixiRuntimeTextures } from "./resource/textures/runtime";
 import { PixiRuntimeSpritesheet } from "./resource/spritesheet/runtime";
-import { PixiRuntimeWorld } from "./system/world/runtime";
 import { PixiRuntimeWorldSide } from "./system/world-side/runtime";
-import { PixiRuntimeVelocity } from "./system/velocity/runtime";
+import { OgodRegistry } from "@ogod/runtime-core";
 
-export const OgodPixiRegistry = {
+export const OgodPixiRegistry: OgodRegistry = {
     'scene.default': PixiRuntimeScene,
     'instance.parallax': PixiRuntimeParallax,
     'instance.sprite': PixiRuntimeSprite,
@@ -21,7 +20,5 @@ export const OgodPixiRegistry = {
     'resource.texture': PixiRuntimeTexture,
     'resource.textures': PixiRuntimeTextures,
     'resource.spritesheet': PixiRuntimeSpritesheet,
-    'system.world': PixiRuntimeWorld,
-    'system.world-side': PixiRuntimeWorldSide,
-    'system.velocity': PixiRuntimeVelocity
+    'system.world-side': PixiRuntimeWorldSide
 };
