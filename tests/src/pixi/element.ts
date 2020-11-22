@@ -1,7 +1,7 @@
 import {
     ogodDefineEngine, ogodFactoryInstanceProperty, ogodFactoryInstanceChildren,
     ogodDefineKeys, ogodDefineKey, ogodFactoryInstanceBoolean, ogodFactorySceneProperty,
-    ogodDefineArea, ogodDefineCamera
+    ogodDefineArea, ogodDefineCamera, ogodDefineRouter
 } from "@ogod/element-core";
 import {
     pixiDefineScene, pixiDefineParallax, pixiDefineSprite, pixiDefineRenderer,
@@ -12,12 +12,26 @@ import {
     box2dDefinePhysics, box2dDefineBody, box2dHybridInstanceBody, box2dDefineShapeBox, box2dHybridInstanceJump,
     box2dDefineJump, box2dDefineDebug, box2dDefineVelocity, box2dDefineFixture, box2dDefineSensor
 } from "@ogod/element-box2d";
+import { dispatch } from "hybrids";
+import { demoDefineMenu } from "./menu/define";
 
 ogodDefineEngine();
 ogodDefineKeys();
 ogodDefineKey();
 ogodDefineArea();
 ogodDefineCamera();
+ogodDefineRouter(null, [{
+    init: {
+        connect: (host) => {
+            host.switch = {
+                next: (...args) => {
+                    console.log(args)
+                }
+            }
+            dispatch(host, 'ogod-router', { bubbles: true });
+        }
+    } 
+}]);
 pixiDefineRenderer();
 pixiDefineScene();
 pixiDefineParallax();
@@ -47,3 +61,4 @@ box2dDefineSensor();
 box2dDefineDebug(null, [{
     worldId: ogodFactorySceneProperty('world')
 }]);
+demoDefineMenu();

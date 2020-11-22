@@ -1,9 +1,11 @@
 import { b2Vec2 } from '@flyover/box2d';
+import { OgodActionInstance } from '@ogod/common';
 import { WORLD_RATIO } from '@ogod/runtime-box2d';
 import { ogodAnimateDistance, ogodAnimateDuration$, OgodRuntimeEngine } from '@ogod/runtime-core';
 import { PixiRuntimeSpriteAnimated } from '@ogod/runtime-pixi';
-import { map, distinctUntilChanged, take } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import { PixiStateHero } from './state';
+import { Observable } from 'rxjs';
 
 declare var self: OgodRuntimeEngine;
 
@@ -31,11 +33,6 @@ function sineIn(t) {
 }
 
 export class PixiRuntimeHero extends PixiRuntimeSpriteAnimated {
-
-    // update(delta: number, state: PixiStateHero) {
-
-    //     super.update(delta, state);
-    // }
 
     updateStateKeys(delta: number, state: PixiStateHero) {
         const left = this.getKeyPressed(state, 'left');

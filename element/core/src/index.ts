@@ -52,6 +52,7 @@ export * from './resource/define';
 export * from './resource/element';
 export * from './resource/hybrid';
 
+export * from './router/define';
 export * from './router/element';
 export * from './router/hybrid';
 

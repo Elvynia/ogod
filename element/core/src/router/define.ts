@@ -1,7 +1,8 @@
-import { define } from 'hybrids';
+import { Hybrids } from 'hybrids';
+import { ogodDefineElement } from '../define';
 import { OgodElementRouter } from "./element";
 import { ogodHybridRouter } from './hybrid';
 
-export function ogodDefineRouter(): hybrids.HybridElement<OgodElementRouter> {
-    return define('ogod-router', ogodHybridRouter());
+export function ogodDefineRouter(tagName?: string, overrideHybrids?: Hybrids<any>[]): hybrids.HybridElement<OgodElementRouter> {
+    return ogodDefineElement(tagName || 'ogod-router', ogodHybridRouter(), [], overrideHybrids);
 }
