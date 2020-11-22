@@ -31,7 +31,7 @@
         <pixi-textures id="forest" path-prefix="assets/bg_forest/bg_forest_"
             path-start="1" path-count="10"></pixi-textures>
         <pixi-world-side id="world" follow="hero" aspects="worldX worldY" mode="all" backgrounds="bg" tick>
-            <ogod-area min-x="-1000" max-x="12800" min-y="-1000" max-y="1000"></ogod-area>
+            <!-- <ogod-area min-x="-1000" max-x="12800" min-y="-1000" max-y="1000"></ogod-area> -->
             <ogod-camera x="0" y="0" width="1920" height="1080">
                 <ogod-area min-x="160" min-y="600" max-x="360" max-y="800"></ogod-area>
             </ogod-ogod>
@@ -61,7 +61,7 @@
                 </pixi-sprite-animated>
                 <demo-menu></demo-menu>
             </pixi-scene>
-            <box2d-debug id="debug" slot="ui-before" physics-id="physics" tick></box2d-debug>
+            <box2d-debug id="debug" slot="ui-before" physics-id="physics" active tick></box2d-debug>
         </pixi-renderer>
     </ogod-engine>
 </body>

@@ -23,7 +23,7 @@ export function demoDefineMenu() {
     return define('demo-menu', {
         engine: ogodFactoryParent('engine'),
         debugId: property('debug'),
-        debugActive: false,
+        debugActive: true,
         heroId: property('hero'),
         menuOff: property(true, (host) => {
             const listener = switchMenuListener(host);
