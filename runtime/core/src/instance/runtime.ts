@@ -17,7 +17,7 @@ export abstract class OgodRuntimeInstanceDefault implements OgodRuntimeInstance 
             state: {
                 ...state,
                 scenes: state.scenes || [],
-                sub$: new Array(),
+                sub$: {},
                 loading: false,
                 loaded: true
             }
@@ -27,7 +27,7 @@ export abstract class OgodRuntimeInstanceDefault implements OgodRuntimeInstance 
     start(state: OgodStateInstance, state$: Observable<OgodStateEngine>) {
         console.log('[INSTANCE] Start', state.id);
         state.running = true;
-        state.sub$.push(ogodReactiveUpdate(this, state));
+        state.sub$['ogodReactiveUpdate'] = ogodReactiveUpdate(this, state);
     }
 
     changes(changes: Partial<OgodStateInstance>, state: OgodStateInstance): Observable<OgodActionInstance> {
@@ -40,7 +40,7 @@ export abstract class OgodRuntimeInstanceDefault implements OgodRuntimeInstance 
     stop(state: OgodStateInstance) {
         console.log('[INSTANCE] Stop', state.id);
         state.running = false;
-        state.sub$.forEach((sub) => sub.unsubscribe());
+        Object.values(state.sub$).forEach((sub) => sub.unsubscribe());
     }
 
     destroy({ id }: OgodStateInstance): Observable<OgodActionInstance> {

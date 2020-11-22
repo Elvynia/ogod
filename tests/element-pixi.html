@@ -45,9 +45,12 @@
                 <pixi-sprite id="level" runtime="level" resource="ground" index="1" tick></pixi-sprite>
                 <pixi-sprite-animated id="hero" runtime="hero" scale-x="1.6" scale-y="1.6"
                     index="2" anchor="0.5" resource="adventurer" animation="idle/1" duration="600"
-                    bindings="x$ y$ keys$ grounded$ velocityY$" playing loop tick sensor-y="-2.5">
-                    <box2d-body x="11" y="10" density="5" friction="0.001" restitution="0" dynamic>
-                        <box2d-shape-box x="1" y="2.5"></box2d-shape-box>
+                    bindings="x$ y$ tx$ keys$ grounded$ jumping$ velocityY$" playing loop tick sensor-y="-2.5">
+                    <box2d-sensor y="-2.49" width="1" height="0.1"></box2d-sensor>
+                    <box2d-body x="11" y="10" dynamic>
+                        <box2d-fixture density="5" friction="0.001" restitution="0" >
+                            <box2d-shape-box x="1" y="2.5"></box2d-shape-box>
+                        </box2d-fixture>
                     </box2d-body>
                     <ogod-keys active>
                         <ogod-key code="KeyA" name="left"></ogod-key>
@@ -56,7 +59,7 @@
                     </ogod-keys>
                 </pixi-sprite-animated>
             </pixi-scene>
-            <!-- <box2d-debug slot="ui-before" physics-id="physics" active tick></box2d-debug> -->
+            <box2d-debug slot="ui-before" physics-id="physics" active tick></box2d-debug>
         </pixi-renderer>
     </ogod-engine>
 </body>

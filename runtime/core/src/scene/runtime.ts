@@ -24,7 +24,7 @@ export abstract class OgodRuntimeSceneDefault implements OgodRuntimeScene {
             state: {
                 ...state,
                 entities: state.entities || [],
-                sub$: new Array(),
+                sub$: {},
                 loading: false,
                 loaded: true
             }
@@ -37,7 +37,7 @@ export abstract class OgodRuntimeSceneDefault implements OgodRuntimeScene {
     start(state: OgodStateScene, state$: Observable<OgodStateEngine>) {
         console.log('[SCENE] Start', state.id);
         state.running = true;
-        state.sub$.push(self.update$.pipe(
+        state.sub$['ogodContainerUpdate'] = self.update$.pipe(
             withLatestFrom(state$.pipe(
                 pluck('instance'),
                 map((instances) => Object.values(instances)
@@ -65,8 +65,8 @@ export abstract class OgodRuntimeSceneDefault implements OgodRuntimeScene {
                 const instance = self.store.getState().instance[id] as OgodStateInstance;
                 this.remove(state, id, instance);
             });
-        }));
-        state.sub$.push(ogodReactiveUpdate(this, state));
+        });
+        state.sub$['ogodReactiveUpdate'] = ogodReactiveUpdate(this, state);
     }
 
     add(state: OgodStateScene, child: OgodStateInstance): void {
@@ -90,7 +90,7 @@ export abstract class OgodRuntimeSceneDefault implements OgodRuntimeScene {
         console.log('[SCENE] Stop', state.id);
         state.running = false;
         state.entities = [];
-        state.sub$.forEach((sub) => sub.unsubscribe());
+        Object.values(state.sub$).forEach((sub) => sub.unsubscribe());
     }
 
     destroy({ id }: OgodStateScene): Observable<OgodActionScene> {

@@ -20,22 +20,30 @@
         <d2-scene active clear>
             <d2-ball id="ball" size="20" color="#00da00" reflects="y">
                 <box2d-body x="40" y="0" dynamic>
-                    <box2d-shape-circle x="0" y="0" angle="1"></box2d-shape-circle>
+                    <box2d-fixture>
+                        <box2d-shape-circle x="0" y="0"></box2d-shape-circle>
+                    </box2d-fixture>
                 </box2d-body>
             </d2-ball>
             <d2-ground id="ground_R" x="600" y="400" size-x="600" size-y="10" color="grey" angle="-0.6">
                 <box2d-body x="90" y="40.5">
-                    <box2d-shape-box x="30" y="0.5" angle="-0.6"></box2d-shape-box>
+                    <box2d-fixture>
+                        <box2d-shape-box x="30" y="0.5" angle="-0.6"></box2d-shape-box>
+                    </box2d-fixture>
                 </box2d-body>
             </d2-ground>
             <d2-ground id="slide_L" x="0" y="400" size-x="600" size-y="10" color="grey" angle="0.6">
                 <box2d-body x="30" y="40.5">
-                    <box2d-shape-box x="30" y="0.5" angle="0.6"></box2d-shape-box>
+                    <box2d-fixture>
+                        <box2d-shape-box x="30" y="0.5" angle="0.6"></box2d-shape-box>
+                    </box2d-fixture>
                 </box2d-body>
             </d2-ground>
             <d2-ground id="ground" x="0" y="758" size-x="1280" size-y="10" color="grey">
                 <box2d-body x="64" y="76.3">
-                    <box2d-shape-box x="64" y="0.5"></box2d-shape-box>
+                    <box2d-fixture>
+                        <box2d-shape-box x="64" y="0.5"></box2d-shape-box>
+                    </box2d-fixture>
                 </box2d-body>
             </d2-ground>
         </d2-scene>

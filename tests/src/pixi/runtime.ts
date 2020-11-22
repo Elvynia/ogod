@@ -266,6 +266,12 @@ ww.postMessage(instanceInit({
         resource: 'finnsprites',
         jumping: false,
         grounded: false,
+        jumpSensor: {
+            x: 0,
+            y: -2,
+            width: 1,
+            height: 0.1
+        },
         playing: true,
         loop: true,
         animation: 'stand',
@@ -281,7 +287,6 @@ ww.postMessage(instanceInit({
                 y: 1.7
             }
         },
-        sensorY: -2,
         // worldX: 32,
         // worldY: 360,
         worldX: 32,

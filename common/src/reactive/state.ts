@@ -9,5 +9,5 @@ export interface OgodStateReactive<C extends keyof OgodCategoryState> extends Og
     updates: Array<string>;
     watches: Array<string>;
     reflects: Array<string>;
-    sub$: Array<Subscription>;
+    sub$: { [id: string]: Subscription };
 }

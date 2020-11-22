@@ -8,7 +8,10 @@ import {
     pixiDefineSpriteAnimated, pixiDefineSpriteCompass, pixiDefineWorldSide,
     pixiDefineSpriteTiled, pixiDefineTexture, pixiDefineTextures, pixiDefineSpritesheet
 } from "@ogod/element-pixi";
-import { box2dDefinePhysics, box2dDefineBody, box2dDefineShapeBox, box2dDefineJump, box2dDefineDebug, box2dDefineVelocity } from "@ogod/element-box2d";
+import {
+    box2dDefinePhysics, box2dDefineBody, box2dHybridInstanceBody, box2dDefineShapeBox, box2dHybridInstanceJump,
+    box2dDefineJump, box2dDefineDebug, box2dDefineVelocity, box2dDefineFixture, box2dDefineSensor
+} from "@ogod/element-box2d";
 
 ogodDefineEngine();
 ogodDefineKeys();
@@ -20,14 +23,12 @@ pixiDefineScene();
 pixiDefineParallax();
 pixiDefineSprite();
 pixiDefineSpriteAnimated(null, [{
+    ...box2dHybridInstanceJump(),
+    ...box2dHybridInstanceBody(),
     worldX: ogodFactoryInstanceProperty(0),
     worldY: ogodFactoryInstanceProperty(0),
     tx: ogodFactoryInstanceProperty(0),
-    body: ogodFactoryInstanceChildren('body'),
     keys: ogodFactoryInstanceChildren('keys'),
-    grounded: ogodFactoryInstanceBoolean(false),
-    jumping: ogodFactoryInstanceBoolean(false),
-    sensorY: ogodFactoryInstanceProperty(0),
     maxSpeed: ogodFactoryInstanceProperty(140),
 }]);
 pixiDefineSpriteCompass();
@@ -40,7 +41,9 @@ box2dDefinePhysics();
 box2dDefineJump();
 box2dDefineVelocity();
 box2dDefineBody();
+box2dDefineFixture();
 box2dDefineShapeBox();
+box2dDefineSensor();
 box2dDefineDebug(null, [{
     worldId: ogodFactorySceneProperty('world')
 }]);

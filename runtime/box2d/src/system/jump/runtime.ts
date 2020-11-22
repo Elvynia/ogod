@@ -38,7 +38,6 @@ export class JumpContactListener extends b2ContactListener {
 export class Box2dRuntimeJump extends OgodRuntimeSystemDefault {
 
     initialize(state: Box2dStateJump, state$: Observable<OgodStateEngine>): Observable<OgodActionSystem> {
-        state.subscriptions = {};
         return state$.pipe(
             skipWhile((fs) => !fs.system[state.physicsId] || !(fs.system[state.physicsId] as Box2dStatePhysics).world$),
             map((fs) => (fs.system[state.physicsId] as Box2dStatePhysics).world$),
@@ -53,20 +52,9 @@ export class Box2dRuntimeJump extends OgodRuntimeSystemDefault {
     add(state: Box2dStateJump, instance: Box2dStateInstanceJump): void {
         super.add(state, instance);
         const body = instance.body$;
-        state.subscriptions[instance.id] = self.update$.pipe(
-            map(() => ({ jumping: instance.jumping, grounded: instance.grounded, body: instance.body$ })),
-            distinctUntilChanged((a, b) => a.jumping === b.jumping && a.grounded === b.grounded),
-            // tap((i) => console.log('CHECK JUMP %s:', instance.id, i)),
-            filter((instance) => instance.jumping && instance.grounded),
-            // FIXME: Delay when falling on ground before jumping again, wait velocityY === 0 ?
-            // delay(10)
-        ).subscribe(() => {
-            const impulse = instance.body$.GetMass() * state.force;
-            body.ApplyLinearImpulse(new b2Vec2(0, impulse), body.GetWorldCenter());
-        });
         const fd = new b2FixtureDef();
         const box = new b2PolygonShape();
-        box.SetAsBox(1, 0.1, new b2Vec2(0, instance.sensorY || 0));
+        box.SetAsBox(instance.jumpSensor.width, instance.jumpSensor.height, new b2Vec2(instance.jumpSensor.x, instance.jumpSensor.y));
         fd.shape = box;
         fd.density = 1;
         fd.isSensor = true;
@@ -79,6 +67,16 @@ export class Box2dRuntimeJump extends OgodRuntimeSystemDefault {
 
     remove(state: Box2dStateJump, id: string, instance: Box2dStateInstanceJump): void {
         super.remove(state, id, instance);
-        // FIXME: Remove footSensor !
+        if (instance && instance.body$) {
+            let fx = instance.body$.GetFixtureList();
+            while (fx != null) {
+                if (fx.GetUserData()?.footSensor) {
+                    break;
+                }
+            }
+            if (fx) {
+                instance.body$.DestroyFixture(fx);
+            }
+        }
     }
 }

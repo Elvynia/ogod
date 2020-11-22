@@ -1,4 +1,5 @@
-import { Box2dElementShape } from "../shape/element";
+import { Box2dStateFixture } from '@ogod/runtime-box2d';
+import { OgodElementInstance, ogodFactoryInstanceChildren } from '@ogod/element-core';
 
 export interface Box2dElementBody extends HTMLElement {
     category: 'body';
@@ -9,5 +10,9 @@ export interface Box2dElementBody extends HTMLElement {
     friction?: number;
     restitution?: number;
     fixedRotation: boolean;
-    shape: Box2dElementShape;
+    fixtures: Box2dStateFixture[];
+}
+
+export interface Box2dElementInstanceBody extends OgodElementInstance {
+    body: Box2dElementBody;
 }

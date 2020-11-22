@@ -1,6 +1,5 @@
-import { OgodStateInstance } from '@ogod/common';
 
-export interface OgodStateSizeable extends OgodStateInstance {
+export interface OgodStateSizeable {
     width: number;
     height: number;
 }

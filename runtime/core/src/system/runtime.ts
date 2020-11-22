@@ -32,7 +32,7 @@ export class OgodRuntimeSystemDefault implements OgodRuntimeSystem {
             state: {
                 ...state,
                 entities: [],
-                sub$: new Array(),
+                sub$: {},
                 loading: false,
                 loaded: true,
             }
@@ -43,7 +43,7 @@ export class OgodRuntimeSystemDefault implements OgodRuntimeSystem {
         console.log('[SYSTEM] Start', state.id);
         state.running = true;
         if (state.aspects) {
-            state.sub$.push(self.update$.pipe(
+            state.sub$['ogodContainerUpdate'] = self.update$.pipe(
                 withLatestFrom(state$.pipe(
                     pluck('instance'),
                     map((instances) => Object.values(instances)
@@ -71,9 +71,9 @@ export class OgodRuntimeSystemDefault implements OgodRuntimeSystem {
                     const instance = self.store.getState().instance[id];
                     this.remove(state, id, instance);
                 });
-            }));
+            });
         }
-        state.sub$.push(ogodReactiveUpdate(this, state));
+        state.sub$['ogodReactiveUpdate'] = ogodReactiveUpdate(this, state);
     }
 
     add(state: OgodStateSystem, child: OgodStateInstance) {
@@ -97,7 +97,7 @@ export class OgodRuntimeSystemDefault implements OgodRuntimeSystem {
         console.log('[SYSTEM] Stop', state.id);
         state.running = false;
         state.entities = [];
-        state.sub$.forEach((sub) => sub.unsubscribe());
+        Object.values(state.sub$).forEach((sub) => sub.unsubscribe());
     }
 
     destroy({ id }: OgodStateSystem): Observable<OgodActionSystem> {

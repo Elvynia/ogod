@@ -2,6 +2,17 @@ export * from './instance/body/define';
 export * from './instance/body/element';
 export * from './instance/body/hybrid';
 
+export * from './instance/fixture/define';
+export * from './instance/fixture/element';
+export * from './instance/fixture/hybrid';
+
+export * from './instance/jump/element';
+export * from './instance/jump/hybrid';
+
+export * from './instance/sensor/define';
+export * from './instance/sensor/element';
+export * from './instance/sensor/hybrid';
+
 export * from './instance/shape/element';
 export * from './instance/shape/hybrid';
 

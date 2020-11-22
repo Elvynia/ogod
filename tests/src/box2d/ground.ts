@@ -23,13 +23,15 @@ export function generateGrounds(ww: Worker, sceneId: string, objects: any) {
             body: {
                 x: obj.x / WORLD_RATIO + obj.sizeX / (2 * WORLD_RATIO),
                 y: obj.y / WORLD_RATIO + obj.sizeY / (2 * WORLD_RATIO),
-                friction: 0.1,
-                restitution: 0.2,
-                shape: {
-                    angle: obj.angle,
-                    x: obj.sizeX / (2 * WORLD_RATIO),
-                    y: obj.sizeY / (2 * WORLD_RATIO),
-                }
+                fixtures: [{
+                    friction: 0.1,
+                    restitution: 0.2,
+                    shape: {
+                        angle: obj.angle,
+                        x: obj.sizeX / (2 * WORLD_RATIO),
+                        y: obj.sizeY / (2 * WORLD_RATIO),
+                    }
+                }]
             }
         } as any
     })));

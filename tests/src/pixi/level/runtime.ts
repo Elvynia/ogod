@@ -147,13 +147,13 @@ export class PixiRuntimeLevel extends OgodRuntimeInstanceDefault {
     }
 
     private createBodies(state: PixiStateLevel, tiles) {
-        const bodies: any[] = [];
+        const bodies: { id: string, body: Box2dStateBody }[] = [];
         const debugs = [];
-        tiles.forEach(({ x, y, id, radar}) => {
+        tiles.forEach(({ x, y, id, radar }) => {
             if (radar !== 255) {
                 const size = state.tileSize * state.scale / WORLD_RATIO;
                 let shape = state.resource$.data.frames[radar + '.png']?.shape;
-                console.log('tile ', x, y, id, radar)
+                // console.log('tile ', x, y, id, radar)
                 if (shape) {
                     shape = {
                         vertices: shape.vertices.map((v) => ({ x: v.x * size, y: v.y * size }))
@@ -168,16 +168,20 @@ export class PixiRuntimeLevel extends OgodRuntimeInstanceDefault {
                     debugs.push({ x, y, id, radar });
                 }
                 bodies.push({
-                    id: id,
-                    x: x * state.tileSize * state.scale / WORLD_RATIO,
-                    y: (state.instance$.height - (y + 1) * state.tileSize * state.scale) / WORLD_RATIO,
-                    friction: 0.001,
-                    restitution: 0,
-                    shape
+                    id,
+                    body: {
+                        x: Math.round(x * state.tileSize * state.scale) / WORLD_RATIO,
+                        y: Math.round(state.instance$.height - (y + 1) * state.tileSize * state.scale) / WORLD_RATIO,
+                        fixtures: [{
+                            friction: 0.001,
+                            restitution: 0,
+                            shape
+                        }]
+                    }
                 });
             }
         });
-        bodies.sort((s1, s2) => s1.x < s2.x ? -1 : 1).forEach((body) => box2dCreateBody(this.world, body, body.id));
+        bodies.forEach(({ body, id }) => box2dCreateBody(this.world, body, id));
         debugs.forEach(({ x, y, id, radar }) => console.log('Shape missing for tile ', x, y, id, radar));
     }
 

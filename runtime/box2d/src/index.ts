@@ -3,6 +3,8 @@ export * from './instance/body/runtime';
 
 export * from './instance/jump/state';
 
+export * from './instance/fixture/state';
+
 export * from './instance/shape-box/state';
 
 export * from './instance/shape-circle/state';

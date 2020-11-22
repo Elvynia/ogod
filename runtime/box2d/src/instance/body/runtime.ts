@@ -11,29 +11,34 @@ export function box2dCreateBody(world: b2World, body: Box2dStateBody, id: string
         bd.fixedRotation = body.fixedRotation || false;
     }
     const b = world.CreateBody(bd);
-    let shape: b2Shape;
-    if (isShapeBox(body.shape)) {
-        const boxShape = new b2PolygonShape();
-        boxShape.SetAsBox(body.shape.x, body.shape.y, {
-            x: body.shape.centerX || 0,
-            y: body.shape.centerY || 0
-        }, body.shape.angle);
-        shape = boxShape;
-    } else if (isShapeCircle(body.shape)) {
-        const circleShape = new b2CircleShape(body.shape.radius);
-        circleShape.Set({ x: body.shape.x, y: body.shape.y });
-        shape = circleShape;
-    } else {
-        const polyShape = new b2PolygonShape();
-        polyShape.Set(body.shape.vertices);
-        shape = polyShape;
+    for (let fx of body.fixtures) {
+        let shape: b2Shape;
+        if (isShapeBox(fx.shape)) {
+            const boxShape = new b2PolygonShape();
+            boxShape.SetAsBox(fx.shape.x, fx.shape.y, {
+                x: fx.shape.centerX || 0,
+                y: fx.shape.centerY || 0
+            }, fx.shape.angle);
+            shape = boxShape;
+        } else if (isShapeCircle(fx.shape)) {
+            const circleShape = new b2CircleShape(fx.shape.radius);
+            circleShape.Set({ x: fx.shape.x, y: fx.shape.y });
+            shape = circleShape;
+        } else {
+            const polyShape = new b2PolygonShape();
+            polyShape.Set(fx.shape.vertices);
+            shape = polyShape;
+        }
+        const fd = new b2FixtureDef();
+        fd.shape = shape;
+        fd.density = fx.density || fd.density;
+        fd.friction = fx.friction || fd.friction;
+        fd.restitution = fx.restitution || fd.restitution;
+        b.CreateFixture(fd);
     }
-    const fd = new b2FixtureDef();
-    fd.shape = shape;
-    fd.density = body.density || 1;
-    fd.friction = body.friction || fd.friction;
-    fd.restitution = body.restitution || fd.restitution;
-    b.CreateFixture(fd);
+    if (body.angle) {
+        b.SetAngle(body.angle);
+    }
     b.SetUserData({
         id
     });

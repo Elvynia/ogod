@@ -82,14 +82,16 @@ ww.postMessage(instanceInit({
             dynamic: true,
             x: 20,
             y: 0,
-            density: 10,
-            friction: 0.1,
-            restitution: 0.2,
-            shape: {
-                x: 0,
-                y: 0,
-                radius: 1
-            }
+            fixtures: [{
+                density: 10,
+                friction: 0.1,
+                restitution: 0.2,
+                shape: {
+                    x: 0,
+                    y: 0,
+                    radius: 1
+                }
+            }]
         }
     } as any
 }));
@@ -169,14 +171,16 @@ window.addEventListener('mousedown', (e) => {
                     dynamic: true,
                     x: Math.floor(Math.random() * 100),
                     y: 0,
-                    density: 10,
-                    friction: 0.1,
-                    restitution: 0.2,
-                    shape: {
-                        x: 0,
-                        y: 0,
-                        radius: 1
-                    }
+                    fixtures: [{
+                        density: 10,
+                        friction: 0.1,
+                        restitution: 0.2,
+                        shape: {
+                            x: 0,
+                            y: 0,
+                            radius: 1
+                        }
+                    }]
                 }
             } as any
         }));

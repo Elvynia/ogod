@@ -1,6 +1,5 @@
-import { OgodStateInstance } from '@ogod/common';
 
-export interface OgodStatePositionable extends OgodStateInstance {
+export interface OgodStatePositionable {
     x: number;
     y: number;
 }

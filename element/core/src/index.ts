@@ -21,6 +21,18 @@ export * from './instance/define';
 export * from './instance/element';
 export * from './instance/hybrid';
 
+export * from './instance/in-world/element';
+export * from './instance/in-world/hybrid';
+
+export * from './instance/positionable/element';
+export * from './instance/positionable/hybrid';
+
+export * from './instance/sizeable/element';
+export * from './instance/sizeable/hybrid';
+
+export * from './instance/translatable/element';
+export * from './instance/translatable/hybrid';
+
 export * from './instance-ref/define';
 export * from './instance-ref/element';
 export * from './instance-ref/hybrid';
