@@ -23,8 +23,8 @@ export function ogodReducerSystem(initialState: OgodStateSystems = {}) {
             return { ...states };
         }),
         ogodReducerOn(systemDestroySuccess, systemDestroyError, systemInitError, (states: OgodStateSystems, { id }) => {
-            if (self.runtimes[OGOD_CATEGORY.SYSTEM][id]) {
-                delete self.runtimes[OGOD_CATEGORY.SYSTEM][id];
+            if (self.runtimes.system[id]) {
+                delete self.runtimes.system[id];
             }
             const { [id]: removed, ...remaining } = states;
             return { ...remaining };

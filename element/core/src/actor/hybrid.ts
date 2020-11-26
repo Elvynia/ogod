@@ -4,7 +4,7 @@ import { ogodFactoryParent } from '../factory/parent';
 import { ogodFactoryId } from './../factory/id';
 import { OgodElementActor } from './element';
 
-export function ogodHybridActor<C extends keyof OgodCategoryState>(category: C): Hybrids<OgodElementActor<C>> {
+export function ogodHybridActor<C extends string>(category: C): Hybrids<OgodElementActor<C>> {
     return {
         category,
         runtime: property('default'),

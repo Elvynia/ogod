@@ -12,7 +12,7 @@ export function generateGrounds(ww: Worker, sceneId: string, objects: any) {
             active: true,
             x: obj.x,
             y: obj.y,
-            color: '#626c66',
+            color: '#335C81',
             sizeX: obj.sizeX,
             sizeY: obj.sizeY,
             updates: [],

@@ -10,7 +10,8 @@ const canvas = (document.getElementById('test-canvas') as HTMLCanvasElement).tra
 const ww = new Worker('./box2dWorker.js', { type: 'module' });
 // Initialize worker engine.
 ww.postMessage(engineInit({
-    id: 'test-engine'
+    id: 'test-engine',
+    categories: Object.values(OGOD_CATEGORY)
 }));
 // Add systems.
 ww.postMessage(systemInit({
@@ -72,7 +73,7 @@ ww.postMessage(instanceInit({
         type: 'circle',
         x: 200,
         y: 0,
-        color: '#626c66',
+        color: '#5899E2',
         size: 20,
         updates: [],
         watches: [],
@@ -161,7 +162,7 @@ window.addEventListener('mousedown', (e) => {
                 runtime: 'default',
                 active: true,
                 type: 'circle',
-                color: '#626c66',
+                color: '#5899E2',
                 size: 20,
                 updates: [],
                 watches: [],

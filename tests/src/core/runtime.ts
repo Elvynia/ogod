@@ -6,7 +6,8 @@ const canvas = (document.getElementById('test-canvas') as HTMLCanvasElement).tra
 const ww = new Worker('./coreWorker.js', { type: 'module' });
 // Initialize worker engine.
 ww.postMessage(engineInit({
-    id: 'test-engine'
+    id: 'test-engine',
+    categories: Object.values(OGOD_CATEGORY)
 }));
 
 const sceneId = 'test-scene';

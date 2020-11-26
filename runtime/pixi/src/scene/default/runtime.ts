@@ -1,19 +1,20 @@
-import { skipWhile, map, take, switchMap } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { OgodActionScene } from '@ogod/common';
 import { OgodRuntimeSceneDefault } from '@ogod/runtime-core';
-import { PixiStateScene } from './state';
-import { OgodStateEngine, OgodActionScene } from '@ogod/common';
+import { Observable } from 'rxjs';
+import { map, skipWhile, switchMap, take, filter, tap } from 'rxjs/operators';
+import { PixiRuntimeEngine } from '../../engine/runtime';
+import { PixiStateEngine } from '../../engine/state';
 import { PixiStateInstance } from '../../instance/default/state';
+import { PixiStateScene } from './state';
+
+declare var self: PixiRuntimeEngine;
 
 export class PixiRuntimeScene extends OgodRuntimeSceneDefault {
 
-    initialize(state: PixiStateScene, state$: Observable<OgodStateEngine>): Observable<OgodActionScene> {
+    initialize(state: PixiStateScene, state$: Observable<PixiStateEngine>): Observable<OgodActionScene> {
         state.container$ = new PIXI.Container();
-        if (state.renderer$) {
-            return super.initialize(state, state$);
-        }
         return state$.pipe(
-            skipWhile((engine) => (engine.scene[state.id] as PixiStateScene).renderer$ != null),
+            filter((fs) => fs.renderer?.renderer$ != null),
             map((engine) => engine.scene[state.id]),
             take(1),
             switchMap((initState) => super.initialize({
@@ -21,17 +22,6 @@ export class PixiRuntimeScene extends OgodRuntimeSceneDefault {
                 ...initState
             }, state$))
         );
-    }
-
-    nextCanvas(state: PixiStateScene, canvas: OffscreenCanvas, lastCanvas: OffscreenCanvas): Partial<PixiStateScene> {
-        // FIXME: Pixi Worker support.
-        (canvas as any).style = {};
-        return {
-            renderer$: new PIXI.Renderer({
-                ...state.renderer,
-                view: canvas as any
-            })
-        };
     }
 
     add(state: PixiStateScene, child: PixiStateInstance) {
@@ -48,6 +38,7 @@ export class PixiRuntimeScene extends OgodRuntimeSceneDefault {
     }
 
     render(state: PixiStateScene) {
-        state.renderer$.render(state.container$);
+        const renderer = self.store.getState().renderer.renderer$;
+        renderer.render(state.container$);
     }
 }

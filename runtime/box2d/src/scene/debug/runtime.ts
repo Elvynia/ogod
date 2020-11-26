@@ -1,4 +1,4 @@
-import { b2CircleShape, b2PolygonShape, b2Vec2, b2Body, b2Fixture } from '@flyover/box2d';
+import { b2Body, b2CircleShape, b2Fixture, b2PolygonShape, b2Vec2 } from '@flyover/box2d';
 import { OgodActionScene, OgodStateEngine } from "@ogod/common";
 import { OgodRuntimeEngine, OgodRuntimeSceneDefault } from "@ogod/runtime-core";
 import { Observable, of } from "rxjs";
@@ -17,9 +17,9 @@ export class Box2dRuntimeDebug extends OgodRuntimeSceneDefault {
             map((fs) => (fs.system[state.physicsId] as Box2dStatePhysics).world$),
             take(1),
             switchMap((world) => {
-                if (state.draw && !state.context$) {
+                if (state.draw && !(self.store.getState() as any).context$) {
                     return state$.pipe(
-                        filter((fs) => !!(fs.scene[state.id] as Box2dStateDebug).context$),
+                        filter((fs: any) => !!fs.context$),
                         map((fs) => ({
                             ...fs.scene[state.id],
                             world$: world
@@ -39,33 +39,25 @@ export class Box2dRuntimeDebug extends OgodRuntimeSceneDefault {
         );
     }
 
-    nextCanvas(state: Box2dStateDebug, canvas: OffscreenCanvas, lastCanvas: OffscreenCanvas) {
-        if (state.draw) {
-            return {
-                context$: canvas.getContext('2d')
-            } as Box2dStateDebug;
-        }
-        return;
-    }
-
     render(state: Box2dStateDebug) {
-        if (state.draw && state.context$) {
+        const context = (self.store.getState() as any).context$;
+        if (state.draw && context) {
             for (let graphic of Object.values(state.graphics)) {
-                state.context$.fillStyle = 'rgba(255, 0, 0, 0.2)';
-                state.context$.strokeStyle = 'rgba(255, 0, 0, 0.6)';
-                state.context$.beginPath();
+                context.fillStyle = 'rgba(255, 0, 0, 0.2)';
+                context.strokeStyle = 'rgba(255, 0, 0, 0.6)';
+                context.beginPath();
                 if (graphic.vertices) {
-                    state.context$.moveTo(graphic.position.x + graphic.vertices[0].x * WORLD_RATIO, graphic.position.y + graphic.vertices[0].y * WORLD_RATIO);
+                    context.moveTo(graphic.position.x + graphic.vertices[0].x * WORLD_RATIO, graphic.position.y + graphic.vertices[0].y * WORLD_RATIO);
                     for (let i = 1; i < graphic.vertices.length; i++) {
-                        state.context$.lineTo(graphic.position.x + graphic.vertices[i].x * WORLD_RATIO, graphic.position.y + graphic.vertices[i].y * WORLD_RATIO);
+                        context.lineTo(graphic.position.x + graphic.vertices[i].x * WORLD_RATIO, graphic.position.y + graphic.vertices[i].y * WORLD_RATIO);
                     }
                 } else if (graphic.radius) {
-                    state.context$.moveTo(graphic.position.x, graphic.position.y);
-                    state.context$.arc(graphic.position.x, graphic.position.y, graphic.radius, graphic.angle, graphic.angle + Math.PI * 2);
+                    context.moveTo(graphic.position.x, graphic.position.y);
+                    context.arc(graphic.position.x, graphic.position.y, graphic.radius, graphic.angle, graphic.angle + Math.PI * 2);
                 }
-                state.context$.closePath();
-                state.context$.stroke();
-                state.context$.fill();
+                context.closePath();
+                context.stroke();
+                context.fill();
             }
         }
     }

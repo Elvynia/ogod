@@ -2,10 +2,8 @@ import { OGOD_ACTION_ACTOR, ogodActionCreatorActor, OgodActionActor } from './..
 import { OGOD_CATEGORY } from '../util/category';
 import { OgodStateScene } from './state';
 import { ogodActionCreator, ogodActionName, ogodActionParams } from '../util/action';
-import { OgodActionReactive } from '../reactive/action';
 
-export interface OgodActionScene extends OgodActionActor<OgodStateScene, OGOD_CATEGORY.SCENE>,
-    OgodActionReactive<OgodStateScene> { };
+export interface OgodActionScene extends OgodActionActor<OgodStateScene, OGOD_CATEGORY.SCENE> { };
 
 export const sceneInit = ogodActionCreatorActor(OGOD_CATEGORY.SCENE, OGOD_ACTION_ACTOR.INIT,
     ogodActionParams<{ id: string, state: OgodStateScene }>());

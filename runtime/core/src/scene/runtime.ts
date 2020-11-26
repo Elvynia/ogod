@@ -12,7 +12,6 @@ import { OgodRuntimeContainer } from './../container/runtime';
 declare var self: OgodRuntimeEngine;
 
 export interface OgodRuntimeScene extends OgodRuntimeContainer<OgodStateScene, OgodActionScene> {
-    nextCanvas(state: OgodStateScene, canvas: OffscreenCanvas, lastCanvas: OffscreenCanvas): Partial<OgodStateScene> | void;
     render(state: OgodStateScene): void;
 }
 
@@ -31,7 +30,6 @@ export abstract class OgodRuntimeSceneDefault implements OgodRuntimeScene {
         }));
     }
 
-    abstract nextCanvas(state: OgodStateScene, canvas: OffscreenCanvas, lastCanvas: OffscreenCanvas): Partial<OgodStateScene> | void;
     abstract render(state: OgodStateScene): void;
 
     start(state: OgodStateScene, state$: Observable<OgodStateEngine>) {

@@ -3,7 +3,6 @@ export * from './actor/state';
 
 export * from './container/state';
 
-export * from './reactive/action';
 export * from './reactive/state';
 
 export * from './engine/action';

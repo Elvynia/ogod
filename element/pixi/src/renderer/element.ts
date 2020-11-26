@@ -1,5 +1,6 @@
-export interface PixiElementRenderer extends HTMLElement {
-    category: string;
+import { OgodElementActor } from "@ogod/element-core";
+
+export interface PixiElementRenderer extends OgodElementActor<'renderer'> {
     transparent: boolean;
     width: number;
     height: number;

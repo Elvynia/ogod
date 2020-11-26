@@ -6,8 +6,8 @@ export declare interface TypedAction<T extends string> extends Action {
 
 export type ActionCreator<T extends string = string, P extends object = object> = ((props?: P) => P & TypedAction<T>) & TypedAction<T>;
 
-export function ogodActionName<T extends string>(category: string, name: string) {
-    return `[OGOD][${category}] ${name}`;
+export function ogodActionName<T extends string>(category: string, name: string, prefix: string = 'OGOD') {
+    return `[${prefix}][${category}] ${name}`;
 }
 
 export function ogodActionParams<P extends object>(): P { return {} as P; };

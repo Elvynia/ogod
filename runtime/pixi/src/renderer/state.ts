@@ -1,4 +1,6 @@
-export interface PixiStateRenderer {
+import { OgodStateActor } from "@ogod/common";
+
+export interface PixiStateRenderer extends OgodStateActor<'renderer'> {
     width: number;
     height: number;
     transparent?: boolean;
@@ -9,4 +11,5 @@ export interface PixiStateRenderer {
     preserveDrawingBuffer?: boolean;
     backgroundColor?: number;
     powerPreference?: string;
+    renderer$?: PIXI.Renderer;
 }

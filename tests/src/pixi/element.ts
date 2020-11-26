@@ -1,21 +1,23 @@
 import {
-    ogodDefineEngine, ogodFactoryInstanceProperty, ogodFactoryInstanceChildren,
-    ogodDefineKeys, ogodDefineKey, ogodFactoryInstanceBoolean, ogodFactorySceneProperty,
-    ogodDefineArea, ogodDefineCamera, ogodDefineRouter
+    box2dDefineBody,
+    box2dDefineDebug, box2dDefineFixture, box2dDefineJump, box2dDefinePhysics,
+    box2dDefineSensor, box2dDefineShapeBox,
+    box2dDefineVelocity, box2dHybridInstanceBody, box2dHybridInstanceJump
+} from "@ogod/element-box2d";
+import {
+    ogodDefineArea, ogodDefineCamera, ogodDefineKey, ogodDefineKeys,
+    ogodDefineRouter, ogodFactoryInstanceChildren, ogodFactoryInstanceProperty,
+    ogodFactorySceneProperty
 } from "@ogod/element-core";
 import {
-    pixiDefineScene, pixiDefineParallax, pixiDefineSprite, pixiDefineRenderer,
-    pixiDefineSpriteAnimated, pixiDefineSpriteCompass, pixiDefineWorldSide,
-    pixiDefineSpriteTiled, pixiDefineTexture, pixiDefineTextures, pixiDefineSpritesheet
+    pixiDefineEngine, pixiDefineParallax, pixiDefineRenderer, pixiDefineScene, pixiDefineSprite,
+    pixiDefineSpriteAnimated, pixiDefineSpriteCompass,
+    pixiDefineSpritesheet, pixiDefineSpriteTiled, pixiDefineTexture, pixiDefineTextures, pixiDefineWorldSide
 } from "@ogod/element-pixi";
-import {
-    box2dDefinePhysics, box2dDefineBody, box2dHybridInstanceBody, box2dDefineShapeBox, box2dHybridInstanceJump,
-    box2dDefineJump, box2dDefineDebug, box2dDefineVelocity, box2dDefineFixture, box2dDefineSensor
-} from "@ogod/element-box2d";
 import { dispatch } from "hybrids";
+import { demoDefineDummy } from "./dummy";
 import { demoDefineMenu } from "./menu/define";
 
-ogodDefineEngine();
 ogodDefineKeys();
 ogodDefineKey();
 ogodDefineArea();
@@ -32,11 +34,13 @@ ogodDefineRouter(null, [{
         }
     } 
 }]);
+pixiDefineEngine();
 pixiDefineRenderer();
 pixiDefineScene();
 pixiDefineParallax();
 pixiDefineSprite();
-pixiDefineSpriteAnimated(null, [{
+pixiDefineSpriteAnimated();
+pixiDefineSpriteAnimated('pixi-hero', [{
     ...box2dHybridInstanceJump(),
     ...box2dHybridInstanceBody(),
     worldX: ogodFactoryInstanceProperty(0),
@@ -44,7 +48,7 @@ pixiDefineSpriteAnimated(null, [{
     tx: ogodFactoryInstanceProperty(0),
     keys: ogodFactoryInstanceChildren('keys'),
     maxSpeed: ogodFactoryInstanceProperty(140),
-}]);
+}], [{ runtime: 'hero' }]);
 pixiDefineSpriteCompass();
 pixiDefineSpriteTiled();
 pixiDefineTexture();
@@ -62,3 +66,4 @@ box2dDefineDebug(null, [{
     worldId: ogodFactorySceneProperty('world')
 }]);
 demoDefineMenu();
+demoDefineDummy();

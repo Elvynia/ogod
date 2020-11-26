@@ -5,6 +5,8 @@ import { map, mergeMap, take, filter } from 'rxjs/operators';
 import { ogodEpicActorChanges, ogodEpicActorInit } from '../actor/epic';
 import { OgodRuntimeInstance } from "./runtime";
 import { OgodRuntimeEngine } from "../engine/runtime";
+import { OgodRuntimeSystem } from "../system/runtime";
+import { OgodRuntimeScene } from "../scene/runtime";
 
 declare var self: OgodRuntimeEngine;
 
@@ -23,16 +25,16 @@ export const epicInstanceDestroy: Epic<any, any, OgodStateEngine> = (actions$, s
         }))
     )),
     mergeMap(({ state, scenes, systems }) => {
-        const runtime: OgodRuntimeInstance = self.runtimes.instance[state.id] as any;
+        const runtime = self.getRuntime<OgodRuntimeInstance>('instance', state.id);
         if (state.running) {
             state.active = false;
             runtime.stop(state);
         }
         for (let system of systems) {
-            self.runtimes.system[system.id].remove(system, state.id, state);
+            self.getRuntime<OgodRuntimeSystem>('system', system.id).remove(system, state.id, state);
         }
         for (let scene of scenes) {
-            self.runtimes.scene[scene.id].remove(scene, state.id, state);
+            self.getRuntime<OgodRuntimeScene>('scene', scene.id).remove(scene, state.id, state);
         }
         return runtime.destroy(state);
     })

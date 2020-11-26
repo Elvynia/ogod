@@ -1,4 +1,4 @@
-import { engineCanvas, engineDestroy, engineInit, engineReflectChanges, engineReflectUpdates, engineStart, engineStop } from '@ogod/common';
+import { engineCanvas, engineDestroy, engineInit, engineReflectChanges, engineReflectUpdates, engineStart, engineStop, OGOD_CATEGORY } from '@ogod/common';
 import { html, Hybrids, property } from 'hybrids';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { OgodElementEngine } from './element';
@@ -7,7 +7,7 @@ const nextCanvas = ({ worker }, target) => worker.postMessage(engineCanvas({ can
 const startEngine = (worker) => worker.postMessage(engineStart());
 const stopEngine = (worker) => worker.postMessage(engineStop());
 
-export function ogodHybridEngine(): Hybrids<OgodElementEngine> {
+export function ogodHybridEngine(categories: string[]): Hybrids<OgodElementEngine> {
     return {
         category: 'engine',
         workerPath: './worker.js',
@@ -15,7 +15,7 @@ export function ogodHybridEngine(): Hybrids<OgodElementEngine> {
         worker: {
             connect: (host) => {
                 host.worker = new Worker(host.workerPath, { type: 'module' });
-                host.worker.postMessage(engineInit({ id: host.id }));
+                host.worker.postMessage(engineInit({ id: host.id, categories }));
                 return () => host.worker.postMessage(engineDestroy());
             }
         },

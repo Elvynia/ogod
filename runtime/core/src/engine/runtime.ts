@@ -1,20 +1,21 @@
 import {
-    OgodStateEngine, OgodStore, OGOD_CATEGORY, sceneChangesCanvas, engineReflectUpdates,
-    engineInit, engineCanvas, engineStart, engineStop, engineDestroy
+    engineCanvas, engineDestroy, engineInit, engineReflectUpdates,
+    engineStart, engineStop, OgodStateEngine, OgodStore, OGOD_CATEGORY
 } from '@ogod/common';
-import { animationFrameScheduler, BehaviorSubject, defer, of, Subject, asyncScheduler } from 'rxjs';
-import { bufferTime, filter, map, pairwise, repeat, withLatestFrom, tap } from "rxjs/operators";
-import { OgodCategoryRuntime } from '../util/category';
+import { animationFrameScheduler, asyncScheduler, BehaviorSubject, defer, of, Subject } from 'rxjs';
+import { bufferTime, filter, map, pairwise, repeat, withLatestFrom } from "rxjs/operators";
+import { OgodRuntimeActor } from '../actor/runtime';
 import { watchReactiveStates } from '../util/reactive-watch';
-import { OgodRegistry, OgodRuntimeRegistry } from '../util/registry';
+import { OgodRuntimeRegistry } from '../util/registry';
+import { OgodRuntimeScene } from '../scene/runtime';
 
 declare var self: OgodRuntimeEngine;
 
-export type OgodRuntimes<C extends OgodCategoryRuntime = OgodCategoryRuntime> = {
-    [K in keyof C]: { [id: string]: C[K] };
+export type OgodRuntimes = {
+    [category: string]: { [id: string]: OgodRuntimeActor<any, any> };
 }
 
-export interface OgodRuntimeEngine<C extends OgodCategoryRuntime = OgodCategoryRuntime> extends Worker {
+export interface OgodRuntimeEngine extends Worker {
     id: string;
     baseHref: string;
     running: boolean;
@@ -23,7 +24,8 @@ export interface OgodRuntimeEngine<C extends OgodCategoryRuntime = OgodCategoryR
     intervalUpdate: number;
     debugMode: boolean;
     store: OgodStore;
-    runtimes: OgodRuntimes<C>;
+    runtimes: OgodRuntimes;
+    getRuntime: <R extends OgodRuntimeActor<any, any, C>, C extends string = string>(category: C, id: string) => R;
     reflect$: Subject<{ id: string, state: any }>;
     state$: BehaviorSubject<OgodStateEngine>;
     update$: Subject<number>;
@@ -39,31 +41,15 @@ export const requestAnimationFrame$ = defer(() =>
     )
 );
 
-export const initEngine = (id, categories: string[] = Object.values(OGOD_CATEGORY)) => {
+export const initEngine = ({ id, categories }) => {
     console.log('[ENGINE] Initialize');
+    self.id = id;
     self.running = false;
     self.runtimes = categories
         .map((category) => ({ [category]: {} }))
         .reduce((a, b) => Object.assign(a, b), {}) as any;
-    self.id = id;
-}
-
-export const nextCanvas = (canvas) => {
-    Object.entries(self.runtimes['scene'])
-        .map(([id, scene]) => ({
-            runtime: scene,
-            state: self.store.getState().scene[id]
-        }))
-        .forEach((scene) => {
-            const changes = scene.runtime.nextCanvas(scene.state, canvas, self.canvas);
-            if (changes) {
-                self.store.dispatch(sceneChangesCanvas({
-                    id: scene.state.id,
-                    changes
-                }));
-            }
-        });
-    self.canvas = canvas;
+    self.getRuntime = <R extends OgodRuntimeActor<any, any, C>, C extends string>(category: C, id: string) =>
+        self.runtimes[category][id] as R;
 }
 
 export const start = () => {
@@ -80,7 +66,7 @@ export const start = () => {
             map((fs) => Object.values(fs.scene).filter((scene) => scene.loaded))
         ))
     ).subscribe(([delta, scenes]) => {
-        scenes.filter((scene) => scene.running).forEach((scene) => self.runtimes['scene'][scene.id].render(scene));
+        scenes.filter((scene) => scene.running).forEach((scene) => self.getRuntime<OgodRuntimeScene>('scene', scene.id).render(scene));
     });
     self.reflect$.pipe(
         // bufferTime(self.intervalUpdate, animationFrameScheduler), FIXME: scheduler
@@ -100,10 +86,11 @@ export const stop = () => {
 export function ogodRuntimeEngineDefault(evt: any) {
     switch (evt.data.type) {
         case engineInit.type:
-            initEngine(evt.data.id);
+            initEngine(evt.data);
             break;
         case engineCanvas.type:
-            nextCanvas(evt.data.canvas);
+            self.canvas = evt.data.canvas;
+            self.store.dispatch({ ...evt.data });
             break;
         case engineStart.type:
             if (!self.running) {

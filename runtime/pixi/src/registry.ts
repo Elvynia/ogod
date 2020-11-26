@@ -9,6 +9,7 @@ import { PixiRuntimeTextures } from "./resource/textures/runtime";
 import { PixiRuntimeSpritesheet } from "./resource/spritesheet/runtime";
 import { PixiRuntimeWorldSide } from "./system/world-side/runtime";
 import { OgodRegistry } from "@ogod/runtime-core";
+import { PixiRuntimeRenderer } from "./renderer/runtime";
 
 export const OgodPixiRegistry: OgodRegistry = {
     'scene.default': PixiRuntimeScene,
@@ -20,5 +21,6 @@ export const OgodPixiRegistry: OgodRegistry = {
     'resource.texture': PixiRuntimeTexture,
     'resource.textures': PixiRuntimeTextures,
     'resource.spritesheet': PixiRuntimeSpritesheet,
-    'system.world-side': PixiRuntimeWorldSide
+    'system.world-side': PixiRuntimeWorldSide,
+    'renderer.default': PixiRuntimeRenderer
 };

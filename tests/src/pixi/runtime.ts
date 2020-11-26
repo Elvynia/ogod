@@ -1,5 +1,5 @@
 import { engineInit, sceneInit, OGOD_CATEGORY, resourceInit, instanceInit, engineCanvas, engineStart, systemInit, instanceChanges } from '@ogod/common';
-import { COMPASS } from '@ogod/runtime-pixi';
+import { COMPASS, rendererInit } from '@ogod/runtime-pixi';
 import { range } from 'rxjs';
 import { map, toArray } from 'rxjs/operators';
 import { configurePlayer } from './player';
@@ -8,7 +8,11 @@ const canvas = (document.getElementById('test-canvas') as HTMLCanvasElement).tra
 const ww = new Worker('./pixiWorker.js', { type: 'module' });
 // Initialize worker engine.
 ww.postMessage(engineInit({
-    id: 'test-engine'
+    id: 'test-engine',
+    categories: [
+        ...Object.values(OGOD_CATEGORY),
+        'renderer'
+    ]
 }));
 // Add a scene.
 ww.postMessage(sceneInit({
@@ -22,12 +26,19 @@ ww.postMessage(sceneInit({
         updates: [],
         watches: [],
         reflects: [],
-        renderer: {
-            transparent: true,
-            width: canvas.width,
-            height: canvas.height
-        }
     } as any
+}));
+// Add a texture.
+ww.postMessage(rendererInit({
+    id: 'default',
+    state: {
+        id: 'default',
+        category: 'renderer',
+        runtime: 'default',
+        transparent: true,
+        width: canvas.width,
+        height: canvas.height
+    }
 }));
 // Add a texture.
 ww.postMessage(resourceInit({

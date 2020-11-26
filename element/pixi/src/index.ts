@@ -1,3 +1,5 @@
+export * from './engine/define';
+
 export * from './instance/default/element';
 export * from './instance/default/hybrid';
 
@@ -25,9 +27,9 @@ export * from './resource/texture/define';
 export * from './resource/textures/define';
 export * from './resource/spritesheet/define';
 
-export * from './scene/renderer/define';
-export * from './scene/renderer/element';
-export * from './scene/renderer/hybrid';
+export * from './renderer/define';
+export * from './renderer/element';
+export * from './renderer/hybrid';
 
 export * from './scene/default/define';
 export * from './scene/default/element';

@@ -1,17 +1,17 @@
 import { OgodRuntimeReactive } from '../reactive/runtime';
-import { OgodStateReactive, OgodActionReactive, OgodCategoryState, OgodStateActor } from '@ogod/common';
+import { OgodStateReactive, OgodActionActor, OgodCategoryState, OgodStateActor } from '@ogod/common';
 import { Observable, Subscription } from 'rxjs';
 import { tap, map, scan } from 'rxjs/operators';
 import { OgodRuntimeEngine } from '../engine/runtime';
 
 declare var self: OgodRuntimeEngine;
 
-export type OgodUpdateFunction<S extends OgodStateActor<C>, C extends keyof OgodCategoryState = S['category']> = (delta: number, state: S) => void;
+export type OgodUpdateFunction<S extends OgodStateActor<C>, C extends string = S['category']> = (delta: number, state: S) => void;
 
 export function ogodReactiveUpdate<
     S extends OgodStateReactive<C>,
-    A extends OgodActionReactive<S>,
-    C extends keyof OgodCategoryState = S['category']
+    A extends OgodActionActor<S>,
+    C extends string = S['category']
 >(runtime: OgodRuntimeReactive<S, A>, state: S): Subscription {
     let source: Observable<any> = self.update$.asObservable();
     let sub: Subscription;

@@ -1,11 +1,11 @@
+import { ActionCreator } from "@ogod/common";
 import { Hybrids } from 'hybrids';
-import { ogodFactoryState$ } from "../../factory/state-observable";
-import { ogodFactoryState } from "../../factory/state";
 import { ogodFactoryInitialize$ } from "../../factory/initialize";
-import { ActionCreator, OgodCategoryState } from "@ogod/common";
+import { ogodFactoryState } from "../../factory/state";
+import { ogodFactoryState$ } from "../../factory/state-observable";
 import { OgodElementState } from './element';
 
-export function ogodHybridStateReactive<C extends keyof OgodCategoryState>(
+export function ogodHybridStateReactive<C extends string>(
     defaultKeys: string[], initCreator: ActionCreator, destroyCreator: ActionCreator): Hybrids<OgodElementState<C>> {
     return {
         initialize$: ogodFactoryInitialize$(),

@@ -1,4 +1,4 @@
-import { OgodStateEngine, OgodStateResource, OgodActionResource, resourceInitSuccess, resourceDestroySuccess } from '@ogod/common';
+import { OgodStateEngine, OgodStateResource, OgodActionResource, resourceInitSuccess, resourceChangesSuccess, resourceDestroySuccess } from '@ogod/common';
 import { Observable, of } from 'rxjs';
 import { OgodRuntimeActor } from '../actor/runtime';
 
@@ -15,6 +15,13 @@ export class OgodRuntimeResourceDefault implements OgodRuntimeResource {
                 loading: false,
                 loaded: true
             }
+        }));
+    }
+
+    changes(changes: Partial<OgodStateResource>, state: OgodStateResource): Observable<OgodActionResource> {
+        return of(resourceChangesSuccess({
+            id: state.id,
+            changes
         }));
     }
 

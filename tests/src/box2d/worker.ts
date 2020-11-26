@@ -1,11 +1,11 @@
 import { OgodBox2dRegistry } from '@ogod/runtime-box2d';
-import { ogodWorkerStream, OgodRuntimeEngine, OgodDefaultRegistry } from '@ogod/runtime-core';
-import { OgodD2Registry } from '@ogod/runtime-d2';
+import { OgodDefaultRegistry, OgodRuntimeEngine } from '@ogod/runtime-core';
+import { d2WorkerStream, OgodD2Registry } from '@ogod/runtime-d2';
 
 declare var self: OgodRuntimeEngine;
 
 self.debugMode = true;
-self.onmessage = ogodWorkerStream({
+self.onmessage = d2WorkerStream({
     ...OgodDefaultRegistry,
     ...OgodD2Registry,
     ...OgodBox2dRegistry

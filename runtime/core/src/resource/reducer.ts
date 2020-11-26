@@ -1,6 +1,6 @@
 import {
     OgodStateResources, OgodActionResource, resourceInit, resourceInitSuccess,
-    resourceDestroySuccess, resourceDestroyError, resourceInitError, OGOD_CATEGORY
+    resourceDestroySuccess, resourceDestroyError, resourceInitError, OGOD_CATEGORY, resourceChangesSuccess
 } from '@ogod/common';
 import { OgodRuntimeEngine } from '../engine/runtime';
 import { ogodReducerCreator, ogodReducerOn } from '../util/reducer';
@@ -18,9 +18,13 @@ export function ogodReducerResource(initialState: OgodStateResources = {}) {
             loading: false,
             loaded: true
         }})),
+        ogodReducerOn(resourceChangesSuccess, (state: OgodStateResources, action) => {
+            Object.assign(state[action.id], action.changes);
+            return { ...state };
+        }),
         ogodReducerOn(resourceDestroySuccess, resourceDestroyError, resourceInitError, (states: OgodStateResources, { id }) => {
-            if (self.runtimes[OGOD_CATEGORY.RESOURCE][id]) {
-                delete self.runtimes[OGOD_CATEGORY.RESOURCE][id];
+            if (self.runtimes.resource[id]) {
+                delete self.runtimes.resource[id];
             }
             const { [id]: removed, ...remaining } = states;
             return { ...remaining };

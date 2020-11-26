@@ -5,7 +5,7 @@ import { ogodFactoryReactiveArrayString } from '../factory/array';
 import { OgodElementReactive } from './element';
 import { ogodFactoryReactiveBoolean } from '../factory/boolean';
 
-export function ogodHybridReactive<C extends keyof OgodCategoryState>(changesCreator: ActionCreator, active: boolean = true): Hybrids<OgodElementReactive<C>> {
+export function ogodHybridReactive<C extends string>(changesCreator: ActionCreator, active: boolean = true): Hybrids<OgodElementReactive<C>> {
     return {
         active: ogodFactoryReactiveBoolean(active, changesCreator),
         tick: ogodFactoryReactiveProperty(false, changesCreator),

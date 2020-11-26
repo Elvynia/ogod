@@ -1,13 +1,13 @@
 import { OgodCategoryState } from './../util/category';
 
-export interface OgodStateActor<C extends keyof OgodCategoryState> {
+export interface OgodStateActor<C extends string> {
     category: C;
     id: string;
-    loading: boolean;
-    loaded: boolean;
     runtime: string;
+    loading?: boolean;
+    loaded?: boolean;
 }
 
-export interface OgodStateActors<C extends keyof OgodCategoryState> {
+export interface OgodStateActors<C extends string> {
     [id: string]: OgodStateActor<C>;
 }

@@ -2,7 +2,7 @@ import { Epic, ofType } from "redux-observable";
 import {
     OgodActionActor, OgodStateEngine, systemInitSuccess, sceneInitSuccess,
     instanceInitSuccess, sceneChangesSuccess, instanceChangesSuccess, systemChangesSuccess,
-    resourceInitSuccess, OgodActionReactive, engineReflectChanges
+    resourceInitSuccess, engineReflectChanges
 } from "@ogod/common";
 import { tap, switchMapTo, bufferTime, filter } from "rxjs/operators";
 import { empty, animationFrameScheduler } from "rxjs";
@@ -24,7 +24,7 @@ export const epicDebugActions: Epic<OgodActionActor<any>, any, OgodStateEngine> 
     switchMapTo(empty())
 );
 
-export const epicEngineReflectChanges: Epic<OgodActionReactive<any>, any, OgodStateEngine> = (action$) => action$.pipe(
+export const epicEngineReflectChanges: Epic<OgodActionActor<any>, any, OgodStateEngine> = (action$) => action$.pipe(
     ofType(systemInitSuccess.type, sceneInitSuccess.type, instanceInitSuccess.type,
         systemChangesSuccess.type, sceneChangesSuccess.type, instanceChangesSuccess.type,
         resourceInitSuccess.type),

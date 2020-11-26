@@ -20,7 +20,7 @@ export class OgodRuntimeRegistry {
     createRuntime<
         R extends OgodRuntimeActor<S, OgodActionActor<S>>,
         S extends OgodStateActor<C>,
-        C extends keyof OgodCategoryState = S['category']
+        C extends string = S['category']
     >(category: C, runtimeName: string, updates?: Array<string>) {
         const id = `${category}.${runtimeName}`;
         const runtime = new this.registry[id]() as R;

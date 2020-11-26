@@ -1,45 +1,38 @@
-import { OgodActionScene, OgodStateEngine } from '@ogod/common';
-import { OgodRuntimeEngine, OgodRuntimeInstance, OgodRuntimeSceneDefault } from '@ogod/runtime-core';
+import { OgodActionScene } from '@ogod/common';
+import { OgodRuntimeInstance, OgodRuntimeSceneDefault } from '@ogod/runtime-core';
 import { Observable } from 'rxjs';
-import { filter, map, switchMap, take, tap } from 'rxjs/operators';
+import { filter, switchMapTo, take } from 'rxjs/operators';
+import { D2RuntimeEngine } from '../../engine/runtime';
+import { D2StateEngine } from '../../engine/state';
 import { D2StateScene } from './state';
 
-declare var self: OgodRuntimeEngine;
+declare var self: D2RuntimeEngine;
 
 export class D2RuntimeScene extends OgodRuntimeSceneDefault {
 
-    initialize(state: D2StateScene, state$: Observable<OgodStateEngine>): Observable<OgodActionScene> {
-        if (state.context$) {
-            return super.initialize(state, state$);
+    initialize(state: D2StateScene, state$: Observable<D2StateEngine>): Observable<OgodActionScene> {
+        if (self.store.getState().context$) {
+            super.initialize(state, state$);
         }
         return state$.pipe(
-            filter((fs) => fs.scene[state.id] && (fs.scene[state.id] as D2StateScene).context$ != null),
+            filter((fs) => fs.context$ != null),
             take(1),
-            map((fs) => ({
-                ...state,
-                ...fs.scene[state.id]
-            })),
-            switchMap((initState) => super.initialize(initState, state$))
+            switchMapTo(super.initialize(state, state$))
         );
-    }
-    
-    nextCanvas(state: D2StateScene, canvas: OffscreenCanvas, lastCanvas: OffscreenCanvas): Partial<D2StateScene> {
-        return {
-            context$: canvas.getContext('2d')
-        };
     }
 
     render(state: D2StateScene) {
+        const context = self.store.getState().context$;
         if (state.clear) {
-            state.context$.clearRect(0, 0, state.context$.canvas.width, state.context$.canvas.height);
+            context.clearRect(0, 0, context.canvas.width, context.canvas.height);
         }
         if (state.bgColor) {
-            state.context$.fillStyle = state.bgColor;
-            state.context$.fillRect(0, 0, state.context$.canvas.width, state.context$.canvas.height);
+            context.fillStyle = state.bgColor;
+            context.fillRect(0, 0, context.canvas.width, context.canvas.height);
         }
         const fullState = self.store.getState();
         state.entities
-            .map((key) => [key, self.runtimes['instance'][key]] as [string, OgodRuntimeInstance])
-            .forEach(([key, child]) => (child as any).render(state.context$, fullState.instance[key]));
+            .map((key) => [key, self.getRuntime('instance', key)] as [string, OgodRuntimeInstance])
+            .forEach(([key, child]) => (child as any).render(context, fullState.instance[key]));
     }
 }

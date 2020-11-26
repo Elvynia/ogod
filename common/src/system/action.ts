@@ -1,11 +1,9 @@
 import { OGOD_CATEGORY } from '../util/category';
-import { OgodActionReactive } from '../reactive/action';
 import { ogodActionParams } from '../util/action';
 import { OgodActionActor, ogodActionCreatorActor, OGOD_ACTION_ACTOR } from './../actor/action';
 import { OgodStateSystem } from './state';
 
-export interface OgodActionSystem extends OgodActionActor<OgodStateSystem, OGOD_CATEGORY.SYSTEM>,
-    OgodActionReactive<OgodStateSystem> { };
+export interface OgodActionSystem extends OgodActionActor<OgodStateSystem, OGOD_CATEGORY.SYSTEM> { };
 
 export const systemInit = ogodActionCreatorActor(OGOD_CATEGORY.SYSTEM, OGOD_ACTION_ACTOR.INIT,
     ogodActionParams<{ id: string, state: OgodStateSystem }>());

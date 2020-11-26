@@ -1,6 +1,6 @@
 import { epicSystemInit, epicSystemChanges, epicSystemDestroy } from './system/epic';
 import { epicSceneInit, epicSceneChanges, epicSceneDestroy } from './scene/epic';
-import { epicResourceInit, epicResourceDestroy } from './resource/epic';
+import { epicResourceInit, epicResourceDestroy, epicResourceChanges } from './resource/epic';
 import { epicInstanceInit, epicInstanceChanges, epicInstanceDestroy } from './instance/epic';
 import { OgodStateEngine } from '@ogod/common';
 import { Epic } from 'redux-observable';
@@ -11,6 +11,7 @@ export const ogodEpics: Epic<any, any, OgodStateEngine>[] = [
     epicInstanceChanges,
     epicInstanceDestroy,
     epicResourceInit,
+    epicResourceChanges,
     epicResourceDestroy,
     epicSceneInit,
     epicSceneChanges,

@@ -23,8 +23,8 @@ export function ogodReducerScene(initialState: OgodStateScenes = {}) {
             return { ...states };
         }),
         ogodReducerOn(sceneDestroySuccess, sceneDestroyError, sceneInitError, (states: OgodStateScenes, { id }) => {
-            if (self.runtimes[OGOD_CATEGORY.SCENE][id]) {
-                delete self.runtimes[OGOD_CATEGORY.SCENE][id];
+            if (self.runtimes.scene[id]) {
+                delete self.runtimes.scene[id];
             }
             const { [id]: removed, ...remaining } = states;
             return { ...remaining };

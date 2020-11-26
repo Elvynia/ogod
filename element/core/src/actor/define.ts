@@ -7,7 +7,7 @@ import { ogodHybridStateReactive } from '../state/reactive/hybrid';
 import { ogodHybridReactive } from '../reactive/hybrid';
 import { ogodHybridActor } from './hybrid';
 
-export function ogodDefineActorReactive<E extends OgodElementActor<C>, C extends keyof OgodCategoryState>(tagName: string, category: C,
+export function ogodDefineActorReactive<E extends OgodElementActor<C>, C extends string>(tagName: string, category: C,
     baseHybrid: Hybrids<OgodElementActor<C>>, stateHybrids: Hybrids<any>[] = [], overrideHybrids: Hybrids<any>[] = [],
     defaultKeys: string[], initCreator: ActionCreator, changesCreator: ActionCreator,
     destroyCreator: ActionCreator, active: boolean = true): hybrids.HybridElement<E> {
