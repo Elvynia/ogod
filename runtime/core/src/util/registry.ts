@@ -1,29 +1,30 @@
-import { OgodActionActor, OgodCategoryState, OgodStateActor } from "@ogod/common";
+import { OgodActionActor, OgodStateActor } from "@ogod/common";
 import { OgodRuntimeActor } from "../actor/runtime";
-import { OgodUpdateFunction } from "./reactive-update";
 
 export interface OgodRegistry {
-    [key: string]: new () => OgodRuntimeActor<OgodStateActor<any>, OgodActionActor<any>>
+    [key: string]: new () => OgodRuntimeActor<OgodStateActor<any>, OgodActionActor<any>> | any;
 }
 
 export class OgodRuntimeRegistry {
-    registry: OgodRegistry;
+    entries: OgodRegistry;
 
     constructor(registry: OgodRegistry) {
-        this.registry = registry;
+        this.entries = registry;
     }
 
     hasRuntime(category: string, runtime: string) {
-        return this.registry[`${category}.${runtime}`] != null;
+        return this.entries[`${category}.${runtime}`] != null;
     }
 
-    createRuntime<
+    createRuntime<R>(category: string, runtimeName: string) {
+        return new this.entries[`${category}.${runtimeName}`]() as R;
+    }
+
+    createActorRuntime<
         R extends OgodRuntimeActor<S, OgodActionActor<S>>,
         S extends OgodStateActor<C>,
         C extends string = S['category']
-    >(category: C, runtimeName: string, updates?: Array<string>) {
-        const id = `${category}.${runtimeName}`;
-        const runtime = new this.registry[id]() as R;
-        return runtime;
+    >(category: C, runtimeName: string) {
+        return new this.entries[`${category}.${runtimeName}`]() as R;
     }
 }

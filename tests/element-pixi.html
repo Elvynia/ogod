@@ -39,7 +39,6 @@
         </pixi-world-side>
         <box2d-physics id="physics" gravity-y="-9.8" modifier="world" tick></box2d-physics>
         <box2d-velocity tick></box2d-velocity>
-        <box2d-jump physics-id="physics" force="18"></box2d-jump>
         <pixi-renderer width="1920" height="1080"></pixi-renderer>
         <pixi-scene id="level">
             <pixi-parallax id="bg" resource="forest" width="1920" height="1080" index="0" ratio="1" speed-factor="2"
@@ -47,8 +46,8 @@
             <pixi-sprite id="level" runtime="level" resource="ground" index="1" tick></pixi-sprite>
             <pixi-hero id="hero" scale-x="1.6" scale-y="1.6" index="2" anchor="0.5"
                 resource="adventurer" animation="idle/1" duration="600"
-                bindings="x$ y$ tx$ keys$ grounded$ jumping$ velocityY$" playing loop tick>
-                <box2d-sensor y="-2.49" width="1" height="0.1"></box2d-sensor>
+                bindings="x$ y$ tx$ keys$ grounded$ jumping$ hanging$ velocityY$" playing loop tick>
+                <box2d-sensor y="-2.25" width="1" height="0.25"></box2d-sensor>
                 <box2d-body x="11" y="10" dynamic>
                     <box2d-fixture density="5" friction="0.001" restitution="0">
                         <box2d-shape-box x="1" y="2.5"></box2d-shape-box>
@@ -58,6 +57,8 @@
                     <ogod-key code="KeyA" name="left"></ogod-key>
                     <ogod-key code="KeyD" name="right"></ogod-key>
                     <ogod-key code="Space" name="jump"></ogod-key>
+                    <ogod-key code="KeyS" name="down"></ogod-key>
+                    <ogod-key code="KeyW" name="up"></ogod-key>
                 </ogod-keys>
             </pixi-hero>
             <demo-menu></demo-menu>

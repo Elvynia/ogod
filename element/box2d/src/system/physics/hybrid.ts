@@ -4,6 +4,7 @@ import { ogodFactorySystemProperty } from '@ogod/element-core';
 
 export function box2dHybridPhysics(): Hybrids<Box2dElementPhysics> {
     return {
+        contactListener: ogodFactorySystemProperty('default'),
         gravityX: ogodFactorySystemProperty(0),
         gravityY: ogodFactorySystemProperty(0),
         modifier: ogodFactorySystemProperty(''),

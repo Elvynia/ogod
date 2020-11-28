@@ -1,8 +1,8 @@
 import {
     box2dDefineBody,
-    box2dDefineDebug, box2dDefineFixture, box2dDefineJump, box2dDefinePhysics,
+    box2dDefineDebug, box2dDefineFixture, box2dDefinePhysics,
     box2dDefineSensor, box2dDefineShapeBox,
-    box2dDefineVelocity, box2dHybridInstanceBody, box2dHybridInstanceJump
+    box2dDefineVelocity, box2dHybridInstanceBody
 } from "@ogod/element-box2d";
 import {
     ogodDefineArea, ogodDefineCamera, ogodDefineKey, ogodDefineKeys,
@@ -41,7 +41,6 @@ pixiDefineParallax();
 pixiDefineSprite();
 pixiDefineSpriteAnimated();
 pixiDefineSpriteAnimated('pixi-hero', [{
-    ...box2dHybridInstanceJump(),
     ...box2dHybridInstanceBody(),
     worldX: ogodFactoryInstanceProperty(0),
     worldY: ogodFactoryInstanceProperty(0),
@@ -56,7 +55,6 @@ pixiDefineTextures();
 pixiDefineSpritesheet();
 pixiDefineWorldSide();
 box2dDefinePhysics();
-box2dDefineJump();
 box2dDefineVelocity();
 box2dDefineBody();
 box2dDefineFixture();

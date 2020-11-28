@@ -1,11 +1,14 @@
-import { b2Body } from '@flyover/box2d';
+import { Box2dStateInstanceBody } from '@ogod/runtime-box2d';
 import { PixiStateSpriteAnimated } from '@ogod/runtime-pixi';
-import { Box2dStateInstanceBody, Box2dStateInstanceJump } from '@ogod/runtime-box2d';
 
-export interface PixiStateHero extends PixiStateSpriteAnimated, Box2dStateInstanceBody, Box2dStateInstanceJump {
+export interface PixiStateHero extends PixiStateSpriteAnimated, Box2dStateInstanceBody {
+    grounded: boolean;
+    jumping: boolean;
+    hanging: boolean;
     velocityX: number;
     velocityY: number;
     tx: number;
+    ty: number;
     maxSpeed: number;
     worldX: number;
     worldY: number;

@@ -1,6 +1,6 @@
 import { b2Vec2 } from '@flyover/box2d';
 import { OgodActionInstance } from '@ogod/common';
-import { WORLD_RATIO } from '@ogod/runtime-box2d';
+import { Box2dStateContact, WORLD_RATIO } from '@ogod/runtime-box2d';
 import { ogodAnimateDistance, ogodAnimateDuration$, OgodRuntimeEngine } from '@ogod/runtime-core';
 import { PixiRuntimeSpriteAnimated } from '@ogod/runtime-pixi';
 import { map, take } from 'rxjs/operators';
@@ -32,16 +32,46 @@ function sineIn(t) {
     else return 1 - v
 }
 
+const isGroundContact = (contact: Box2dStateContact) => contact.target.toLowerCase().includes('level') && contact.normal.y === -1;
+const isWallContact = (contact: Box2dStateContact) => contact.target.toLowerCase().includes('level') && contact.normal.y === 0;
+
 export class PixiRuntimeHero extends PixiRuntimeSpriteAnimated {
+
+    update(delta: number, state: PixiStateHero) {
+        if (Object.values(state.contacts).find(isGroundContact)) {
+            state.grounded = true;
+        } else {
+            state.grounded = false;
+        }
+        if (Object.values(state.contacts).find(isWallContact)) {
+            state.hanging = true;
+        } else {
+            state.hanging = false;
+        }
+        super.update(delta, state);
+    }
+
+    updateStateHanging(delta: number, state: PixiStateHero) {
+        if (state.hanging && !state.grounded) {
+            this.checkAnimation(delta, state);
+        }
+    }
 
     updateStateKeys(delta: number, state: PixiStateHero) {
         const left = this.getKeyPressed(state, 'left');
         const right = this.getKeyPressed(state, 'right');
         const jump = this.getKeyPressed(state, 'jump');
+        const up = this.getKeyPressed(state, 'up');
+        const down = this.getKeyPressed(state, 'down');
         if (right || left) {
             state.tx = right ? state.maxSpeed : -state.maxSpeed;
         } else {
             state.tx = 0;
+        }
+        if (up || down) {
+            state.ty = up ? state.maxSpeed : -state.maxSpeed;
+        } else {
+            state.ty = 0;
         }
         state.jumping = jump;
         this.checkAnimation(delta, state);
@@ -107,6 +137,11 @@ export class PixiRuntimeHero extends PixiRuntimeSpriteAnimated {
                     state.animation = 'run/1';
                     this.updateStateAnimation(_, state);
                 }
+            } else if (state.ty < 0) {
+                if (state.animation !== 'crouch') {
+                    state.animation = 'crouch';
+                    this.updateStateAnimation(_, state);
+                }
             } else if (state.animation !== 'idle/1') {
                 state.animation = 'idle/1';
                 this.updateStateAnimation(_, state);
@@ -114,6 +149,11 @@ export class PixiRuntimeHero extends PixiRuntimeSpriteAnimated {
             if (!state.loop) {
                 state.loop = true;
                 this.updateStateLoop(_, state);
+            }
+        } else if (state.hanging && state.ty > 0) {
+            if (state.animation !== 'corner_grab') {
+                state.animation = 'corner_grab';
+                this.updateStateAnimation(_, state);
             }
         } else if (state.body$.GetLinearVelocity().y > 0) {
             if (state.animation !== 'jump') {

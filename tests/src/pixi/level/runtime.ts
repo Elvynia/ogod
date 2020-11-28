@@ -151,7 +151,7 @@ export class PixiRuntimeLevel extends OgodRuntimeInstanceDefault {
         const debugs = [];
         tiles.forEach(({ x, y, id, radar }) => {
             if (radar !== 255) {
-                const size = state.tileSize * state.scale / WORLD_RATIO;
+                const size = Math.round(state.tileSize * state.scale) / WORLD_RATIO;
                 let shape = state.resource$.data.frames[radar + '.png']?.shape;
                 // console.log('tile ', x, y, id, radar)
                 if (shape) {
@@ -181,7 +181,7 @@ export class PixiRuntimeLevel extends OgodRuntimeInstanceDefault {
                 });
             }
         });
-        bodies.forEach(({ body, id }) => box2dCreateBody(this.world, body, id));
+        bodies.forEach(({ body, id }) => box2dCreateBody(this.world, { id, body } as any));
         debugs.forEach(({ x, y, id, radar }) => console.log('Shape missing for tile ', x, y, id, radar));
     }
 

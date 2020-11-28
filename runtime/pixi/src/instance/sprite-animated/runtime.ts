@@ -1,7 +1,7 @@
 import { PixiStateSpriteAnimated } from "./state";
 import { PixiStateSpritesheet } from "../../resource/spritesheet/state";
 import { waitForResource } from "../default/runtime";
-import { map } from "rxjs/operators";
+import { filter, first, map, switchMap } from "rxjs/operators";
 import { Observable } from "rxjs";
 import { OgodStateEngine } from "@ogod/common";
 import { PixiRuntimeSprite } from "../sprite/runtime";
@@ -10,10 +10,15 @@ export class PixiRuntimeSpriteAnimated extends PixiRuntimeSprite {
 
     initializeSprite(state: PixiStateSpriteAnimated, state$: Observable<OgodStateEngine>): Observable<PixiStateSpriteAnimated> {
         return waitForResource<PixiStateSpritesheet>(state, state$).pipe(
-            map((data) => ({
-                ...state,
-                resource$: data,
-            })),
+            switchMap((data) => state$.pipe(
+                map((fs) => fs.instance[state.id] as PixiStateSpriteAnimated),
+                filter((initState) => initState && !!initState.animation),
+                first(),
+                map((initState) => ({
+                    ...initState,
+                    resource$: data
+                }))
+            )),
             map((initState) => ({
                 ...initState,
                 instance$: new PIXI.AnimatedSprite(this.getAnimation(initState), false)

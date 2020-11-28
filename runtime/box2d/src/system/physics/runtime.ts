@@ -1,5 +1,5 @@
 import { map, filter } from 'rxjs/operators';
-import { b2World, b2Vec2 } from '@flyover/box2d';
+import { b2World, b2Vec2, b2ContactListener } from '@flyover/box2d';
 import { OgodRuntimeSystemDefault, OgodRuntimeEngine } from '@ogod/runtime-core';
 import { Box2dStatePhysics } from './state';
 import { OgodStateEngine, OgodActionSystem } from '@ogod/common';
@@ -19,13 +19,17 @@ export class Box2dRuntimePhysics extends OgodRuntimeSystemDefault {
     initialize(state: Box2dStatePhysics, state$: Observable<OgodStateEngine>): Observable<OgodActionSystem> {
         this.time = 0;
         state.world$ = new b2World(new b2Vec2(state.gravityX || 0, state.gravityY || 0));
+        if (state.contactListener && self.registry.hasRuntime('contact-listener', state.contactListener)) {
+            const listener = self.registry.createRuntime<b2ContactListener>('contact-listener', state.contactListener);
+            state.world$.SetContactListener(listener);
+        }
         this.refreshModifiers(state);
         return super.initialize(state, state$);
     }
 
     add(state: Box2dStatePhysics, instance: Box2dStateInstanceBody) {
         super.add(state, instance);
-        instance.body$ = box2dCreateBody(state.world$, instance.body, instance.id);
+        instance.body$ = box2dCreateBody(state.world$, instance);
     }
 
     remove(state: Box2dStatePhysics, id: string, instance: Box2dStateInstanceBody) {

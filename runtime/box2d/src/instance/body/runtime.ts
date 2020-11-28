@@ -1,9 +1,11 @@
-import { b2World, b2Body, b2BodyType, b2BodyDef, b2FixtureDef, b2PolygonShape, b2CircleShape, b2Shape } from '@flyover/box2d';
-import { Box2dStateBody } from './state';
+import { b2Body, b2BodyDef, b2BodyType, b2CircleShape, b2FixtureDef, b2PolygonShape, b2Shape, b2World } from '@flyover/box2d';
 import { isShapeBox } from '../shape-box/state';
 import { isShapeCircle } from '../shape-circle/state';
+import { Box2dStateInstanceBody } from './state';
 
-export function box2dCreateBody(world: b2World, body: Box2dStateBody, id: string): b2Body {
+export function box2dCreateBody(world: b2World, state: Box2dStateInstanceBody): b2Body {
+    const body = state.body;
+    state.contacts = {};
     const bd = new b2BodyDef();
     bd.position.Set(body.x, body.y);
     if (body.dynamic) {
@@ -39,8 +41,6 @@ export function box2dCreateBody(world: b2World, body: Box2dStateBody, id: string
     if (body.angle) {
         b.SetAngle(body.angle);
     }
-    b.SetUserData({
-        id
-    });
+    b.SetUserData(state);
     return b;
 }

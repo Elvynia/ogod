@@ -1,8 +1,20 @@
 import { ogodFactoryParent } from '@ogod/element-core';
 import { define, html, render } from 'hybrids';
 
-// const changeAnimation = (host) => host.animation = 'run/1';
-const changeAnimation = (host) => host.duration = 1200;
+const ANIMS = ['air_attack/1', 'air_attack/2' , 'air_attack/3',
+    'attack/1', 'attack/2', 'attack/3',
+    'bow', 'cast', 'corner_climb', 'corner_grab', 'corner_jump',
+    'crouch', 'die', 'draw', 'drop_kick', 'fall', 'get_up', 'hurt',
+    'idle/1', 'idle/2', 'idle/3', 'item', 'jump', 'jump_bow', 'kick',
+    'knock_down', 'ladder_climb', 'run/1', 'run/2', 'run/3', 'run_punch',
+    'sheath', 'slide', 'somersault', 'walk', 'wall_run', 'wall_slide'];
+const changeAnimation = (host, e) => host.animation = e.target.value;
+const changeDuration = (host, e) => {
+    const val = e.target.value;
+    if (val > 0) {
+        host.duration = val;
+    }
+}
 
 export function demoDefineDummy() {
     return define('demo-dummy', {
@@ -12,11 +24,30 @@ export function demoDefineDummy() {
         playing: true,
         loop: true,
         render: render<any>(({ duration, animation, playing, loop }) => html`
-        <div class="container">
-            <button class="btn btn-secondary" onclick=${changeAnimation}>Change</button>
+        <style>
+            div.dummy {
+                width: 300px;
+                color: white;
+                font-weight: bold;
+                padding: 2rem;
+                background-color: #0000004D;
+            }
+        </style>
+        <div class="container dummy">
+            <div class="form-group">
+                <label>Animation</label>
+                <select class="form-control" onchange=${changeAnimation}>
+                    ${ ANIMS.map((anim) => html`<option value=${anim} selected=${anim === animation ? 'selected' : ''}>${anim}</option>`)}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Duration</label>
+                <input type="number" class="form-control" step="100" value=${duration}
+                    oninput=${changeDuration}>
+            </div>
         </div>
         <pixi-sprite-animated id="dummy" scale-x="2" scale-y="2" index="5" resource="adventurer"
-            animation="idle/1" duration="600" duration=${duration} playing loop tick>
+            animation=${animation} duration=${duration} playing loop bindings="animation$" tick>
         </pixi-sprite-animated>
         `, { shadowRoot: false })
     } as any);

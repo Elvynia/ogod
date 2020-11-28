@@ -18,7 +18,7 @@ export function ogodEpicActorInit<S extends OgodStateActor<C>, A extends OgodAct
         ofType(ogodActionName(category, OGOD_ACTION_ACTOR.INIT)),
         mergeMap(({ state }) => {
             if (self.registry.hasRuntime(state.category, state.runtime)) {
-                const runtime: OgodRuntimeActor<S, A> = self.registry.createRuntime(state.category, state.runtime);
+                const runtime: OgodRuntimeActor<S, A> = self.registry.createActorRuntime(state.category, state.runtime);
                 Object.assign(self.runtimes[category], { [state.id]: runtime });
                 return runtime.initialize(state, state$, action$);
             } else {
@@ -34,7 +34,7 @@ export function ogodEpicActorChanges<S extends OgodStateReactive<string>, A exte
     return (action$, state$) => action$.pipe(
         ofType(ogodActionName(category, OGOD_ACTION_ACTOR.CHANGES)),
         mergeMap(({ id, changes }) => state$.pipe(
-            filter((state) => state[category][id] && state[category][id].loaded),
+            filter((state) => state[category][id]),
             map((state) => ({
                 id,
                 changes,

@@ -1,5 +1,5 @@
+import { OgodElementInstance } from '@ogod/element-core';
 import { Box2dStateFixture } from '@ogod/runtime-box2d';
-import { OgodElementInstance, ogodFactoryInstanceChildren } from '@ogod/element-core';
 
 export interface Box2dElementBody extends HTMLElement {
     category: 'body';

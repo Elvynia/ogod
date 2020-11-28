@@ -6,9 +6,6 @@ export * from './instance/fixture/define';
 export * from './instance/fixture/element';
 export * from './instance/fixture/hybrid';
 
-export * from './instance/jump/element';
-export * from './instance/jump/hybrid';
-
 export * from './instance/sensor/define';
 export * from './instance/sensor/element';
 export * from './instance/sensor/hybrid';
@@ -35,10 +32,6 @@ export * from './scene/debug/hybrid';
 export * from './system/physics/define';
 export * from './system/physics/element';
 export * from './system/physics/hybrid';
-
-export * from './system/jump/define';
-export * from './system/jump/element';
-export * from './system/jump/hybrid';
 
 export * from './system/velocity/define';
 export * from './system/velocity/element';
