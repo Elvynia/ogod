@@ -14,6 +14,7 @@ export class DefaultContactListener extends b2ContactListener {
         const normal = contact.GetManifold().localNormal.Clone();
         if (contact.GetManifold().type === b2ManifoldType.e_faceB) {
             normal.Set(-normal.x, -normal.y);
+            // FIXME: Interpolate localPoint from B to A.
         }
         if (idA && idB) {
             stateA.contacts[idB] = {
