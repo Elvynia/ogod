@@ -4,6 +4,12 @@ export * from './instance/body/runtime';
 export * from './instance/contact/state';
 
 export * from './instance/fixture/state';
+export * from './instance/fixture/runtime';
+
+export * from './instance/sensor/state';
+export * from './instance/sensor/runtime';
+
+export * from './instance/shape/runtime';
 
 export * from './instance/shape-box/state';
 

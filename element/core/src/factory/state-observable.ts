@@ -1,16 +1,18 @@
 import { Subject, merge } from "rxjs";
-import { filter, pluck } from "rxjs/operators";
+import { filter, pluck, tap } from "rxjs/operators";
 
 export function ogodFactoryState$() {
     return {
         get: () => new Subject(),
         connect: (host) => {
             const engine = host.engine;
-            const state$ = merge(engine.state$, engine.update$).pipe(
-                filter((action: any) => action.id === host.id),
-                pluck('state'),
-                // tap((state) => console.log('update for %s : ', host.id, state))
-            );
+            const state$ = merge(engine.state$.pipe(
+                pluck(host.id),
+                filter((state) => !!state)
+            ), engine.update$.pipe(
+                filter((state: any) => state.id === host.id),
+                pluck('state')
+            ));
             state$.subscribe(host.state$);
         }
     };

@@ -1,11 +1,10 @@
-import { b2Vec2 } from '@flyover/box2d';
-import { OgodActionInstance } from '@ogod/common';
+import { b2Vec2, b2World, b2WeldJointDef } from '@flyover/box2d';
 import { Box2dStateContact, WORLD_RATIO } from '@ogod/runtime-box2d';
 import { ogodAnimateDistance, ogodAnimateDuration$, OgodRuntimeEngine } from '@ogod/runtime-core';
 import { PixiRuntimeSpriteAnimated } from '@ogod/runtime-pixi';
-import { map, take } from 'rxjs/operators';
-import { PixiStateHero } from './state';
 import { Observable } from 'rxjs';
+import { map, take, filter, switchMap, switchMapTo, tap } from 'rxjs/operators';
+import { PixiStateHero } from './state';
 
 declare var self: OgodRuntimeEngine;
 
@@ -32,10 +31,21 @@ function sineIn(t) {
     else return 1 - v
 }
 
-const isGroundContact = (contact: Box2dStateContact) => contact.target.toLowerCase().includes('level') && contact.normal.y === -1;
-const isWallContact = (contact: Box2dStateContact) => contact.target.toLowerCase().includes('level') && contact.normal.y === 0;
+const isGroundContact = (contact: Box2dStateContact) => contact.target.id.toLowerCase().includes('level') && contact.normal.y === -1;
+const isWallContact = (contact: Box2dStateContact) => contact.target.id.toLowerCase().includes('level') && contact.normal.y === 0;
 
 export class PixiRuntimeHero extends PixiRuntimeSpriteAnimated {
+    world: b2World;
+    joint: any;
+
+    initialize(state: PixiStateHero, state$: Observable<any>) {
+        return state$.pipe(
+            filter((fs) => fs.system['physics'] && fs.system['physics'].world$),
+            tap((fs) => this.world = fs.system['physics'].world$),
+            take(1),
+            switchMapTo(super.initialize(state, state$))
+        );
+    }
 
     update(delta: number, state: PixiStateHero) {
         if (Object.values(state.contacts).find(isGroundContact)) {
@@ -43,10 +53,28 @@ export class PixiRuntimeHero extends PixiRuntimeSpriteAnimated {
         } else {
             state.grounded = false;
         }
-        if (Object.values(state.contacts).find(isWallContact)) {
-            state.hanging = true;
+        const wallContacts = Object.values(state.contacts).filter(isWallContact);
+        const wallLeft = wallContacts.find((contact) => contact.normal.x === -1 && contact.normal.y === 0);
+        const wallRight = wallContacts.find((contact) => contact.normal.x === 1 && contact.normal.y === 0);
+        state.wallLeft = wallLeft != null;
+        state.wallRight = wallRight != null;
+        if (state.climbing) {
+            if (!state.wallLeft && !state.wallRight) {
+                state.climbing = false;
+                state.body$.SetLinearVelocity(new b2Vec2(10, 0));
+            }
         } else {
-            state.hanging = false;
+            if (!state.hanging && (wallLeft && state.tx < 0 && state.sensors.find((sensor) => sensor.id === 'hang_left').contacts === 0
+                || wallRight && state.tx > 0 && state.sensors.find((sensor) => sensor.id === 'hang_right').contacts === 0)) {
+                state.hanging = wallLeft?.target || wallRight.target;
+            } else if (state.tx === 0) {
+                state.hanging = null;
+            } else if (state.hanging && state.ty > 0) {
+                state.hanging = null;
+                state.climbing = true;
+                this.world.DestroyJoint(this.joint);
+                state.body$.SetLinearVelocity(new b2Vec2(0, 10));
+            }
         }
         super.update(delta, state);
     }
@@ -54,6 +82,19 @@ export class PixiRuntimeHero extends PixiRuntimeSpriteAnimated {
     updateStateHanging(delta: number, state: PixiStateHero) {
         if (state.hanging && !state.grounded) {
             this.checkAnimation(delta, state);
+            const joint = new b2WeldJointDef();
+            joint.bodyA = state.body$;
+            joint.localAnchorA.Set(1, 2.5);
+            joint.bodyB = state.hanging.body$;
+            const size = 512 * 0.25 / WORLD_RATIO;
+            joint.localAnchorB.Set(0.25 * size, 0.75 * size);
+            joint.referenceAngle = 0;
+            joint.frequencyHz = 3;
+            joint.dampingRatio = 0.1;
+            this.joint = this.world.CreateJoint(joint);
+            joint.collideConnected = true;
+        } else if (this.joint) {
+            this.world.DestroyJoint(this.joint);
         }
     }
 
@@ -150,7 +191,12 @@ export class PixiRuntimeHero extends PixiRuntimeSpriteAnimated {
                 state.loop = true;
                 this.updateStateLoop(_, state);
             }
-        } else if (state.hanging && state.ty > 0) {
+        } else if (state.climbing) {
+            if (state.animation !== 'corner_climb') {
+                state.animation = 'corner_climb';
+                this.updateStateAnimation(_, state);
+            }
+        } else if (state.hanging) {
             if (state.animation !== 'corner_grab') {
                 state.animation = 'corner_grab';
                 this.updateStateAnimation(_, state);

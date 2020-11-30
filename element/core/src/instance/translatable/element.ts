@@ -1,6 +1,4 @@
-import { OgodElementInstance } from './../element';
-
-export interface OgodElementTranslatable extends OgodElementInstance {
+export interface OgodElementTranslatable extends HTMLElement {
     tx: number;
     ty: number;
 }

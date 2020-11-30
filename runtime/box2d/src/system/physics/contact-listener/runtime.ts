@@ -16,18 +16,25 @@ export class DefaultContactListener extends b2ContactListener {
             normal.Set(-normal.x, -normal.y);
             // FIXME: Interpolate localPoint from B to A.
         }
-        if (idA && idB) {
+        if (contact.GetFixtureA().IsSensor() || contact.GetFixtureB().IsSensor()) {
+            if (contact.GetFixtureA().IsSensor()) {
+                ++stateFxA.contacts;
+            }
+            if (contact.GetFixtureB().IsSensor()) {
+                ++stateFxB.contacts;
+            }
+        } else if (idA && idB) {
             stateA.contacts[idB] = {
-                target: idB,
-                fxSource: stateFxA?.id,
-                fxTarget: stateFxB?.id,
+                target: stateB,
+                fxSource: stateFxA,
+                fxTarget: stateFxB,
                 normal,
                 origin: contact.GetManifold().localPoint.Clone()
             };
             stateB.contacts[idA] = {
-                target: idA,
-                fxSource: stateFxB?.id,
-                fxTarget: stateFxA?.id,
+                target: stateA,
+                fxSource: stateFxB,
+                fxTarget: stateFxA,
                 normal: new b2Vec2(-normal.x, -normal.y),
                 origin: contact.GetManifold().localPoint.Clone()
             };
@@ -41,7 +48,14 @@ export class DefaultContactListener extends b2ContactListener {
         const stateFxB = contact.GetFixtureB().GetUserData();
         const idA = stateFxA?.id || stateA?.id;
         const idB = stateFxB?.id || stateB?.id;
-        if (idA && idB) {
+        if (contact.GetFixtureA().IsSensor() || contact.GetFixtureB().IsSensor()) {
+            if (contact.GetFixtureA().IsSensor()) {
+                --stateFxA.contacts;
+            }
+            if (contact.GetFixtureB().IsSensor()) {
+                --stateFxB.contacts;
+            }
+        } else if (idA && idB) {
             delete stateA.contacts[idB];
             delete stateB.contacts[idA];
         }

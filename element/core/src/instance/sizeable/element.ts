@@ -1,6 +1,4 @@
-import { OgodElementInstance } from './../element';
-
-export interface OgodElementSizeable extends OgodElementInstance {
+export interface OgodElementSizeable extends HTMLElement {
     width: number;
     height: number;
 }

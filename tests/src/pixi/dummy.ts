@@ -15,15 +15,15 @@ const changeDuration = (host, e) => {
         host.duration = val;
     }
 }
+const changeLoop = (host, e) => host.loop = e.target.checked;
 
 export function demoDefineDummy() {
     return define('demo-dummy', {
         engine: ogodFactoryParent('engine'),
         duration: 600,
         animation: 'idle/1',
-        playing: true,
-        loop: true,
-        render: render<any>(({ duration, animation, playing, loop }) => html`
+        loop: false,
+        render: render<any>(({ duration, animation, loop }) => html`
         <style>
             div.dummy {
                 width: 300px;
@@ -35,19 +35,24 @@ export function demoDefineDummy() {
         </style>
         <div class="container dummy">
             <div class="form-group">
-                <label>Animation</label>
-                <select class="form-control" onchange=${changeAnimation}>
+                <label for="inputAnim">Animation</label>
+                <select id="inputAnim" class="form-control" onchange=${changeAnimation}>
                     ${ ANIMS.map((anim) => html`<option value=${anim} selected=${anim === animation ? 'selected' : ''}>${anim}</option>`)}
                 </select>
             </div>
             <div class="form-group">
-                <label>Duration</label>
-                <input type="number" class="form-control" step="100" value=${duration}
+                <label for="inputDuration">Duration</label>
+                <input id="inputDuration" type="number" class="form-control" step="100" value=${duration}
                     oninput=${changeDuration}>
+            </div>
+            <div class="form-group ml-3">
+                <input id="inputLoop" type="checkbox" class="form-check-input" checked=${loop}
+                    onchange=${changeLoop}>
+                <label class="form-check-label" for="inputLoop">Loop</label>
             </div>
         </div>
         <pixi-sprite-animated id="dummy" scale-x="2" scale-y="2" index="5" resource="adventurer"
-            animation=${animation} duration=${duration} playing loop bindings="animation$" tick>
+            animation=${animation} duration=${duration} playing loop=${loop} bindings="loop$ animation$" tick>
         </pixi-sprite-animated>
         `, { shadowRoot: false })
     } as any);

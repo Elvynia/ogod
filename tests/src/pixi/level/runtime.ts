@@ -181,7 +181,10 @@ export class PixiRuntimeLevel extends OgodRuntimeInstanceDefault {
                 });
             }
         });
-        bodies.forEach(({ body, id }) => box2dCreateBody(this.world, { id, body } as any));
+        bodies.forEach(({ body, id }) => {
+            const state: any = { id, body };
+            state.body$ = box2dCreateBody(this.world, state);
+        });
         debugs.forEach(({ x, y, id, radar }) => console.log('Shape missing for tile ', x, y, id, radar));
     }
 

@@ -1,45 +1,40 @@
-import { ActionCreator } from "@ogod/common";
+import { property } from 'hybrids';
+import { ActionCreator, sceneChanges, instanceChanges, systemChanges } from "@ogod/common";
+import { ogodDispatchChildChanges } from "./async";
 
+// FIXME: add attribute support for init, maybe also changes.
 export function ogodFactoryReactiveBoolean(defaultValue: boolean, changesCreator: ActionCreator, connect?, observe?) {
-    let propName;
+    let engine, propName;
     return {
-        get: (host, value) => {
-            return value;
-        },
-        set: (host, value, lastValue) => {
-            host.state[propName] = value;
-            return value;
-        },
-        connect: (host: HTMLElement, key: string, invalidate) => {
+        ...property(defaultValue, (host: any, key: string, invalidate) => {
+            if (connect) {
+                connect(host, key, invalidate);
+            }
             propName = key;
-            if (host.hasAttribute(key) && !defaultValue) {
-                defaultValue = true;
-            }
-            host[key] = defaultValue;
-            const observer = new MutationObserver((records) => {
-                console.log(...records);
-                if (host.hasAttribute(key) && !host[key]) {
-                    host[key] = true;
-                } else if (host[key]) {
-                    host[key] = false;
-                }
-            });
-            observer.observe(host, {
-                attributes: true,
-                attributeFilter: [key]
-            });
-            const disconnect = connect && connect(host, key, invalidate);
-            return () => {
-                observer.disconnect();
-                if (disconnect) {
-                    disconnect();
+            host.state[propName] = host[key];
+            engine = host.engine;
+        }),
+        observe: (host, value, old) => {
+            // console.log('[%s] Observe %s detected changes from %s to %s with state=%s', host.id, propName, old, value, host.state[propName]);
+            if (value !== host.state[propName]) {
+                if (engine) {
+                    engine.worker.postMessage(changesCreator({
+                        id: host.id,
+                        changes: {
+                            [propName]: value
+                        }
+                    }));
+                } else {
+                    // console.log('child value changed from %s to %s', host.state[propName], value);
+                    host.state[propName] = value;
+                    ogodDispatchChildChanges(host, host.category);
                 }
             }
-        },
-        observe
-    }
+            observe && observe(host, value, old)
+        }
+    };
 }
 
-export const ogodFactorySceneBoolean = (defaultValue: boolean, connect?, observe?) => ogodFactoryReactiveBoolean(defaultValue, connect, observe);
-export const ogodFactoryInstanceBoolean = (defaultValue: boolean, connect?, observe?) => ogodFactoryReactiveBoolean(defaultValue, connect, observe);
-export const ogodFactorySystemBoolean = (defaultValue: boolean, connect?, observe?) => ogodFactoryReactiveBoolean(defaultValue, connect, observe);
+export const ogodFactorySceneBoolean = (defaultValue: boolean, connect?, observe?) => ogodFactoryReactiveBoolean(defaultValue, sceneChanges, connect, observe);
+export const ogodFactoryInstanceBoolean = (defaultValue: boolean, connect?, observe?) => ogodFactoryReactiveBoolean(defaultValue, instanceChanges, connect, observe);
+export const ogodFactorySystemBoolean = (defaultValue: boolean, connect?, observe?) => ogodFactoryReactiveBoolean(defaultValue, systemChanges, connect, observe);

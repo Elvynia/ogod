@@ -1,18 +1,18 @@
 import { PixiElementRenderer } from './element';
 import { Hybrids } from 'hybrids';
-import { ogodFactorySceneProperty } from '@ogod/element-core';
+import { ogodFactoryInstanceBoolean, ogodFactorySceneProperty } from '@ogod/element-core';
 
 export function pixiHybridRenderer(): Hybrids<PixiElementRenderer> {
     return {
         category: 'renderer',
-        transparent: ogodFactorySceneProperty(false),
+        transparent: ogodFactoryInstanceBoolean(false),
         width: ogodFactorySceneProperty(800),
         height: ogodFactorySceneProperty(600),
-        autoDensity: ogodFactorySceneProperty(false),
-        antialias: ogodFactorySceneProperty(false),
+        autoDensity: ogodFactoryInstanceBoolean(false),
+        antialias: ogodFactoryInstanceBoolean(false),
         resolution: ogodFactorySceneProperty(1),
-        clearBeforeRender: ogodFactorySceneProperty(true),
-        preserveDrawingBuffer: ogodFactorySceneProperty(false),
+        clearBeforeRender: ogodFactoryInstanceBoolean(true),
+        preserveDrawingBuffer: ogodFactoryInstanceBoolean(false),
         backgroundColor: ogodFactorySceneProperty(0xdadada),
         powerPreference: ogodFactorySceneProperty(undefined)
     };

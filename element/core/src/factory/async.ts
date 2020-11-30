@@ -1,5 +1,4 @@
 import { dispatch } from 'hybrids';
-import { ogodFactoryInitialize$ } from './initialize';
 
 export const OGOD_ASYNC_CHILD_READY = 'OGOD_ASYNC_CHILD_READY';
 export const OGOD_ASYNC_CHILD_CHANGES = 'OGOD_ASYNC_CHILD_CHANGES';

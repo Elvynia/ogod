@@ -1,6 +1,4 @@
-import { OgodElementInstance } from './../element';
-
-export interface OgodElementPositionable extends OgodElementInstance {
+export interface OgodElementPositionable extends HTMLElement {
     x: number;
     y: number;
 }
