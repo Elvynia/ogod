@@ -50,7 +50,6 @@ export class PixiRuntimeLevel extends OgodRuntimeInstanceDefault {
             state.instance$.position.x = -camera.worldX;
             state.instance$.position.y = camera.height - state.instance$.height + camera.worldY;
         }
-        return empty();
     }
 
     private createTilemap(state: PixiStateLevel, data: PIXI.Spritesheet): TileMap.CompositeRectTileLayer & PIXI.Sprite {
