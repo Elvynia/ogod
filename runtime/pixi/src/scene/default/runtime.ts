@@ -25,11 +25,13 @@ export class PixiRuntimeScene extends OgodRuntimeSceneDefault {
     }
 
     add(state: PixiStateScene, child: PixiStateInstance) {
+        super.add(state, child);
         state.container$.addChild(child.instance$);
         state.container$.sortChildren();
     }
 
     remove(state: PixiStateScene, id: string, child: PixiStateInstance) {
+        super.remove(state, id, child);
         if (child && child.instance$) {
             state.container$.removeChild(child.instance$);
         } else {

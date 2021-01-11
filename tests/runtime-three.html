@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>OGOD Engine test</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+        }
+        div.menu {
+            display: flex;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="menu">
+        <div>
+            <input id="pointCheck" type="checkbox">
+            <label for="pointCheck">Point light</label>
+        </div>
+        <div>
+            <input id="spotCheck" type="checkbox" checked>
+            <label for="spotCheck">Spot light</label>
+        </div>
+        <div>
+            <input id="ambientCheck" type="checkbox">
+            <label for="ambientCheck">Ambient light</label>
+        </div>
+    </div>
+    <canvas id="test-canvas" width="1200" height="768"></canvas>
+    <script src="threeRuntime.js"></script>
+</body>
+
+</html>

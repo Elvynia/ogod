@@ -7,13 +7,14 @@ import { filter, first, map, mapTo, switchMap, tap, toArray } from 'rxjs/operato
 import { RADAR } from '../radar';
 import { PixiStateLevel } from './state';
 import { Box2dStateBody, WORLD_RATIO, box2dCreateBody } from '@ogod/runtime-box2d';
+import { ActionsObservable } from 'redux-observable';
 
 declare var self: OgodRuntimeEngine;
 
 export class PixiRuntimeLevel extends OgodRuntimeInstanceDefault {
     world: any;
 
-    initialize(state: PixiStateLevel, state$: Observable<OgodStateEngine>) {
+    initialize(state: PixiStateLevel, state$: Observable<OgodStateEngine>, action$: ActionsObservable<any>) {
         state.scale = 0.25;
         return waitForResource<PixiStateSpritesheet>(state as any, state$).pipe(
             map((data) => ({
@@ -39,7 +40,7 @@ export class PixiRuntimeLevel extends OgodRuntimeInstanceDefault {
                 mapTo(initState)
             )),
             tap((initState) => this.createLevel(initState)),
-            switchMap((initState) => super.initialize(initState, state$))
+            switchMap((initState) => super.initialize(initState, state$, action$))
         );
     }
 

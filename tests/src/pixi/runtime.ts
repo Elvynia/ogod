@@ -28,7 +28,7 @@ ww.postMessage(sceneInit({
         reflects: [],
     } as any
 }));
-// Add a texture.
+// Add a renderer.
 ww.postMessage(rendererInit({
     id: 'default',
     state: {

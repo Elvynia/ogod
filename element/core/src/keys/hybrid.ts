@@ -1,5 +1,5 @@
 import { Hybrids } from 'hybrids';
-import { OgodElementKeys, OgodInstanceKeys } from './element';
+import { OgodElementKeys, OgodElementInstanceKeys } from './element';
 import { ogodFactoryInstanceProperty } from '../factory/property';
 import { ogodFactoryInstanceChildren } from '../factory/children';
 
@@ -30,7 +30,7 @@ export function ogodHybridKeys(): Hybrids<OgodElementKeys> {
     };
 }
 
-export function ogodHybridInstanceKeys(): Hybrids<OgodInstanceKeys> {
+export function ogodHybridInstanceKeys(): Hybrids<OgodElementInstanceKeys> {
     return {
         keys: ogodFactoryInstanceChildren('keys')
     };

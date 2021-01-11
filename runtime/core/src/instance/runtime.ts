@@ -2,6 +2,7 @@ import {
     instanceChangesSuccess, instanceDestroySuccess, instanceInitSuccess, OgodActionInstance,
     OgodStateEngine, OgodStateInstance
 } from "@ogod/common";
+import { ActionsObservable } from "redux-observable";
 import { Observable, of } from "rxjs";
 import { OgodRuntimeReactive } from "../reactive/runtime";
 import { ogodReactiveUpdate } from '../util/reactive-update';
@@ -11,7 +12,7 @@ export interface OgodRuntimeInstance extends OgodRuntimeReactive<OgodStateInstan
 
 export abstract class OgodRuntimeInstanceDefault implements OgodRuntimeInstance {
 
-    initialize(state: OgodStateInstance, state$: Observable<OgodStateEngine>): Observable<OgodActionInstance> {
+    initialize(state: OgodStateInstance, state$: Observable<OgodStateEngine>, action$: ActionsObservable<any>): Observable<OgodActionInstance> {
         return of(instanceInitSuccess({
             id: state.id,
             state: {

@@ -6,6 +6,6 @@ export interface OgodElementKeys extends HTMLElement {
     active: boolean;
 }
 
-export interface OgodInstanceKeys extends HTMLElement {
+export interface OgodElementInstanceKeys extends HTMLElement {
     keys: OgodElementKeys[];
 }

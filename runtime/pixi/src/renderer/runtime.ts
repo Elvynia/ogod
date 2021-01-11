@@ -1,13 +1,12 @@
-import { OgodActionActor } from './../../../../common/lib/actor/action.d';
+import { engineCanvas, OgodActionActor } from '@ogod/common';
 import { OgodRuntimeActor } from '@ogod/runtime-core';
-import { PixiStateRenderer } from "./state";
-import { Observable, of } from "rxjs";
-import { PixiStateEngine } from "../engine/state";
-import { rendererInitSuccess, rendererDestroySuccess, rendererChangesSuccess } from "./action";
-import { filter, take, map, pluck, tap } from "rxjs/operators";
 import { ActionsObservable, ofType } from 'redux-observable';
-import { engineCanvas } from '@ogod/common';
+import { Observable, of } from "rxjs";
+import { map, pluck, take, tap } from "rxjs/operators";
 import { PixiRuntimeEngine } from '../engine/runtime';
+import { PixiStateEngine } from "../engine/state";
+import { rendererChangesSuccess, rendererDestroySuccess, rendererInitSuccess } from "./action";
+import { PixiStateRenderer } from "./state";
 
 declare var self: PixiRuntimeEngine;
 
