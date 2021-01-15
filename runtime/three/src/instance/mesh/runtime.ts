@@ -1,7 +1,7 @@
 import { OgodActionInstance, OgodStateEngine } from "@ogod/common";
 import { ActionsObservable } from 'redux-observable';
 import { Observable } from 'rxjs';
-import { BoxBufferGeometry, Mesh, MeshBasicMaterial, MeshPhongMaterial } from 'three';
+import { Mesh } from 'three';
 import { threeCreateGeometry } from "../geometry/runtime";
 import { threeCreateMaterial } from "../material/runtime";
 import { ThreeRuntimeInstance } from './../default/runtime';

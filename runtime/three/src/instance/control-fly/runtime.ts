@@ -8,7 +8,6 @@ import { ThreeRuntimeInstance } from './../default/runtime';
 import { ThreeStateControlFly } from "./state";
 
 const EPS = 0.000001;
-const changeEvent = { type: 'change' };
 
 export class ThreeRuntimeControlFly extends ThreeRuntimeInstance {
     lastQuaternion = new Quaternion();
@@ -46,18 +45,17 @@ export class ThreeRuntimeControlFly extends ThreeRuntimeInstance {
         var moveMult = delta * speed / 1000;
         var rotMult = delta * state.rollSpeed / 1000;
 
-        state.object$.translateX(state.translation.x * moveMult);
-        state.object$.translateY(state.translation.y * moveMult);
-        state.object$.translateZ(state.translation.z * moveMult);
+        state.object$.translateX(state.translate.x * moveMult);
+        state.object$.translateY(state.translate.y * moveMult);
+        state.object$.translateZ(state.translate.z * moveMult);
 
-        state.tmpQuaternion.set(state.rotation.x * rotMult, state.rotation.y * rotMult, state.rotation.z * rotMult, 1).normalize();
+        state.tmpQuaternion.set(state.rotate.x * rotMult, state.rotate.y * rotMult, state.rotate.z * rotMult, 1).normalize();
         state.object$.quaternion.multiply(state.tmpQuaternion);
 
         if (
             this.lastPosition.distanceToSquared(state.object$.position) > EPS ||
             8 * (1 - this.lastQuaternion.dot(state.object$.quaternion)) > EPS
         ) {
-            // state.dispatchEvent(changeEvent);
             this.lastQuaternion.copy(state.object$.quaternion);
             this.lastPosition.copy(state.object$.position);
 
@@ -65,13 +63,13 @@ export class ThreeRuntimeControlFly extends ThreeRuntimeInstance {
     }
 
     updateStateKeys(delta: number, state: ThreeStateControlFly) {
-		var forward = ( state.keys.forward || ( state.autoForward && ! state.keys.back ) ) ? 1 : 0;
+        var forward = (state.keys.forward || (state.autoForward && !state.keys.back)) ? 1 : 0;
 
-		state.translation.x = ( - state.keys.left + state.keys.right );
-		state.translation.y = ( - state.keys.down + state.keys.up );
-		state.translation.z = ( - forward + state.keys.back );
-		state.rotation.x = ( - state.keys.pitchDown + state.keys.pitchUp );
-		state.rotation.y = ( - state.keys.yawRight + state.keys.yawLeft );
-		state.rotation.z = ( - state.keys.rollRight + state.keys.rollLeft );
+        state.translate.x = (- state.keys.left + state.keys.right);
+        state.translate.y = (- state.keys.down + state.keys.up);
+        state.translate.z = (- forward + state.keys.back);
+        state.rotate.x = (- state.keys.pitchDown + state.keys.pitchUp);
+        state.rotate.y = (- state.keys.yawRight + state.keys.yawLeft);
+        state.rotate.z = (- state.keys.rollRight + state.keys.rollLeft);
     }
 }

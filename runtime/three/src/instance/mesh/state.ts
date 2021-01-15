@@ -1,4 +1,3 @@
-import { Vector3 } from "three";
 import { ThreeStateInstance } from "../default/state";
 import { ThreeStateGeometry } from "../geometry/state";
 import { ThreeStateMaterial } from "../material/state";

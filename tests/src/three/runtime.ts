@@ -1,6 +1,8 @@
+import { range } from 'rxjs';
 import { engineInit, OGOD_CATEGORY, sceneInit, instanceInit, engineStart, engineCanvas, instanceChanges } from '@ogod/common';
 import { rendererInit, ThreeStateScene } from '@ogod/runtime-three';
-import { DoubleSide } from 'three';
+import { DoubleSide, MathUtils } from 'three';
+import { reduce } from 'rxjs/operators';
 
 const canvas = (document.getElementById('test-canvas') as HTMLCanvasElement).transferControlToOffscreen();
 const ww = new Worker('./threeWorker.js', { type: 'module' });
@@ -63,7 +65,7 @@ ww.postMessage(instanceInit({
             buffered: true,
             args: [1, 1, 1]
         },
-        rotation: {
+        rotate: {
             x: 1,
             y: 1.5,
             z: 0.2
@@ -174,6 +176,37 @@ ww.postMessage(instanceInit({
         color: 0xffaaaa
     } as any
 }));
+// Add Points (particles).
+const randPos = () => MathUtils.randFloatSpread(2000);
+let particlesVertices;
+range(0, 10000).pipe(
+    reduce((arr, i) => arr.concat([randPos(), randPos(), randPos()]), [])
+).subscribe((vertices) => particlesVertices = vertices);
+ww.postMessage(instanceInit({
+    id: 'particles',
+    state: {
+        id: 'particles',
+        scenes: ['scene'],
+        category: OGOD_CATEGORY.INSTANCE,
+        runtime: 'points',
+        active: true,
+        updates: [],
+        watches: [],
+        reflects: [],
+        tick: true,
+        params: {
+            color: 0xff0000,
+            size: 10,
+            
+        },
+        vertices: particlesVertices,
+        translate: {
+            x: 0,
+            y: 0,
+            z: 5,
+        }
+    } as any
+}));
 // Add fly controls.
 let keys = {
     shift: false, up: 0, down: 0, left: 0, right: 0, forward: 0, back: 0,
@@ -196,8 +229,8 @@ ww.postMessage(instanceInit({
         rollSpeed: 0.005,
         keys,
         position: { x: 0, y: 0, z: 5 },
-        rotation: { x: 0, y: 0, z: 0 },
-        translation: { x: 0, y: 0, z: 0 }
+        rotate: { x: 0, y: 0, z: 0 },
+        translate: { x: 0, y: 0, z: 0 }
     } as any
 }));
 // Add a canvas to render to.
@@ -244,7 +277,7 @@ window.addEventListener('keydown', (e) => {
 window.addEventListener('keyup', (e) => {
     let changes = keys;
     switch (e.keyCode) {
-        case 16: /*SHIFT*/ if (!changes.shift) changes = { ...changes, shift: false }; break;
+        case 16: /*SHIFT*/ if (changes.shift) changes = { ...changes, shift: false }; break;
         case 90: /*Z*/ if (changes.forward) changes = { ...changes, forward: 0 }; break;
         case 83: /*S*/ if (changes.back) changes = { ...changes, back: 0 }; break;
         case 81: /*Q*/ if (changes.left) changes = { ...changes, left: 0 }; break;

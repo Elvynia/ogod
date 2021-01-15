@@ -5,5 +5,7 @@ import { ThreeStateVec3 } from "../vec3/state";
 export interface ThreeStateInstance extends OgodStateInstance {
     position: ThreeStateVec3;
     rotation: ThreeStateVec3;
+    translate: ThreeStateVec3;
+    rotate: ThreeStateVec3;
     object$: Object3D;
 }
