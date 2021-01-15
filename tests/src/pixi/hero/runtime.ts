@@ -2,6 +2,7 @@ import { b2Vec2, b2World, b2WeldJointDef } from '@flyover/box2d';
 import { Box2dStateContact, WORLD_RATIO } from '@ogod/runtime-box2d';
 import { ogodAnimateDistance, ogodAnimateDuration$, OgodRuntimeEngine } from '@ogod/runtime-core';
 import { PixiRuntimeSpriteAnimated } from '@ogod/runtime-pixi';
+import { ActionsObservable } from 'redux-observable';
 import { Observable } from 'rxjs';
 import { map, take, filter, switchMap, switchMapTo, tap } from 'rxjs/operators';
 import { PixiStateHero } from './state';
@@ -38,12 +39,12 @@ export class PixiRuntimeHero extends PixiRuntimeSpriteAnimated {
     world: b2World;
     joint: any;
 
-    initialize(state: PixiStateHero, state$: Observable<any>) {
+    initialize(state: PixiStateHero, state$: Observable<any>, action$: ActionsObservable<any>) {
         return state$.pipe(
             filter((fs) => fs.system['physics'] && fs.system['physics'].world$),
             tap((fs) => this.world = fs.system['physics'].world$),
             take(1),
-            switchMapTo(super.initialize(state, state$))
+            switchMapTo(super.initialize(state, state$, action$))
         );
     }
 

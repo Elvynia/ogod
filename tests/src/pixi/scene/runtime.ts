@@ -28,7 +28,7 @@ export class PixiRuntimeDebugBox2d extends Box2dRuntimeDebug {
                     camera
                 }))
             )),
-            switchMap((initState) => super.initialize(initState, state$ as any))
+            switchMap((initState) => super.initialize(initState, state$))
         );
     }
 

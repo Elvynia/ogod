@@ -4,6 +4,7 @@ import { tap, switchMap, pluck, take, map, filter } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { PixiStateInstance } from './state';
 import { OgodActionInstance, OgodStateEngine } from '@ogod/common';
+import { ActionsObservable } from 'redux-observable';
 
 export function waitForResource<T extends PixiStateResource>(state: PixiStateInstance, state$: Observable<OgodStateEngine>): Observable<T['data$']> {
     return state$.pipe(
@@ -16,10 +17,10 @@ export function waitForResource<T extends PixiStateResource>(state: PixiStateIns
 
 export abstract class PixiRuntimeInstance extends OgodRuntimeInstanceDefault {
 
-    initialize(state: PixiStateInstance, state$: Observable<OgodStateEngine>): Observable<OgodActionInstance> {
+    initialize(state: PixiStateInstance, state$: Observable<OgodStateEngine>, action$: ActionsObservable<any>): Observable<OgodActionInstance> {
         return this.initializeSprite(state, state$).pipe(
             tap((initState) => this.initializeProperties(initState)),
-            switchMap((initState) => super.initialize(initState, state$))
+            switchMap((initState) => super.initialize(initState, state$, action$))
         );
     }
 
