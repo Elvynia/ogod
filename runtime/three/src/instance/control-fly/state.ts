@@ -1,6 +1,5 @@
 import { Quaternion } from 'three';
 import { ThreeStateInstance } from '../default/state';
-import { ThreeStateVec3 } from '../vec3/state';
 
 export interface ThreeStateControlFly extends ThreeStateInstance {
     // keys: OgodStateKeys;

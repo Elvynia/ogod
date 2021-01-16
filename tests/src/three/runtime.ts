@@ -1,5 +1,5 @@
 import { range } from 'rxjs';
-import { engineInit, OGOD_CATEGORY, sceneInit, instanceInit, engineStart, engineCanvas, instanceChanges } from '@ogod/common';
+import { engineInit, OGOD_CATEGORY, sceneInit, instanceInit, engineStart, engineCanvas, instanceChanges, resourceInit } from '@ogod/common';
 import { rendererInit, ThreeStateScene } from '@ogod/runtime-three';
 import { DoubleSide, MathUtils } from 'three';
 import { reduce } from 'rxjs/operators';
@@ -43,6 +43,15 @@ ww.postMessage(sceneInit({
         background: 0x5B8E7D
     } as ThreeStateScene
 }));
+ww.postMessage(resourceInit({
+    id: 'crate',
+    state: {
+        id: 'crate',
+        category: OGOD_CATEGORY.RESOURCE,
+        runtime: 'texture',
+        path: '/assets/crate.gif'
+    }
+}));
 // Add an instance into the scene.
 ww.postMessage(instanceInit({
     id: 'box',
@@ -74,7 +83,8 @@ ww.postMessage(instanceInit({
             x: 0,
             y: 0,
             z: 0
-        }
+        },
+        resource: 'crate'
     } as any
 }));
 // Add an instance into the scene.

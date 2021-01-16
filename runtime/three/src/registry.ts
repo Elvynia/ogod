@@ -6,6 +6,7 @@ import { ThreeRuntimeLightSpot } from './instance/light-spot/runtime';
 import { ThreeRuntimeMesh } from './instance/mesh/runtime';
 import { ThreeRuntimePoints } from './instance/points/runtime';
 import { ThreeRuntimeRenderer } from './renderer/default/runtime';
+import { ThreeRuntimeTexture } from './resource/texture/runtime';
 import { ThreeRuntimeScene } from './scene/default/runtime';
 
 export const OgodThreeRegistry: OgodRegistry = {
@@ -16,5 +17,6 @@ export const OgodThreeRegistry: OgodRegistry = {
     'instance.light-ambient': ThreeRuntimeLightAmbient,
     'instance.light-point': ThreeRuntimeLightPoint,
     'instance.light-spot': ThreeRuntimeLightSpot,
-    'instance.control-fly': ThreeRuntimeControlFly
+    'instance.control-fly': ThreeRuntimeControlFly,
+    'resource.texture': ThreeRuntimeTexture
 };

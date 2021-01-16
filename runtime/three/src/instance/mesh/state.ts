@@ -5,4 +5,5 @@ import { ThreeStateMaterial } from "../material/state";
 export interface ThreeStateMesh extends ThreeStateInstance {
     material: ThreeStateMaterial;
     geometry: ThreeStateGeometry;
+    resource: string;
 }

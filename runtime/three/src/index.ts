@@ -16,7 +16,7 @@ export * from './instance/material/runtime';
 export * from './instance/material/state';
 export * from './instance/mesh/runtime';
 export * from './instance/mesh/state';
-export * from './instance/vec3/state';
+export * from './instance/vector/state';
 
 export * from './scene/camera/state';
 export * from './scene/default/runtime';
@@ -27,6 +27,9 @@ export * from './renderer/epic';
 export * from './renderer/reducer';
 export * from './renderer/default/runtime';
 export * from './renderer/default/state';
+
+export * from './resource/texture/runtime';
+export * from './resource/texture/state';
 
 export * from './registry';
 export * from './worker';
