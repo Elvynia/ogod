@@ -26,7 +26,7 @@ export function ogodFactoryReactiveProperty(defaultValue: any, changesCreator: A
                 } else {
                     // console.log('child value changed from %s to %s', host.state[propName], value);
                     host.state[propName] = value;
-                    ogodDispatchChildChanges(host, host.category);
+                    ogodDispatchChildChanges(host, host.category, propName);
                 }
             }
             observe && observe(host, value, old)
