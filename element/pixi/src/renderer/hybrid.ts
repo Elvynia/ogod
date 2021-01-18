@@ -1,19 +1,20 @@
-import { PixiElementRenderer } from './element';
+import { ogodFactoryReactiveBoolean, ogodFactoryReactiveProperty } from '@ogod/element-core';
+import { rendererChanges } from '@ogod/runtime-pixi';
 import { Hybrids } from 'hybrids';
-import { ogodFactoryInstanceBoolean, ogodFactorySceneProperty } from '@ogod/element-core';
+import { PixiElementRenderer } from './element';
 
 export function pixiHybridRenderer(): Hybrids<PixiElementRenderer> {
     return {
         category: 'renderer',
-        transparent: ogodFactoryInstanceBoolean(false),
-        width: ogodFactorySceneProperty(800),
-        height: ogodFactorySceneProperty(600),
-        autoDensity: ogodFactoryInstanceBoolean(false),
-        antialias: ogodFactoryInstanceBoolean(false),
-        resolution: ogodFactorySceneProperty(1),
-        clearBeforeRender: ogodFactoryInstanceBoolean(true),
-        preserveDrawingBuffer: ogodFactoryInstanceBoolean(false),
-        backgroundColor: ogodFactorySceneProperty(0xdadada),
-        powerPreference: ogodFactorySceneProperty(undefined)
+        transparent: ogodFactoryReactiveBoolean(false, rendererChanges),
+        width: ogodFactoryReactiveProperty(800, rendererChanges),
+        height: ogodFactoryReactiveProperty(600, rendererChanges),
+        autoDensity: ogodFactoryReactiveBoolean(false, rendererChanges),
+        antialias: ogodFactoryReactiveBoolean(false, rendererChanges),
+        resolution: ogodFactoryReactiveProperty(1, rendererChanges),
+        clearBeforeRender: ogodFactoryReactiveBoolean(true, rendererChanges),
+        preserveDrawingBuffer: ogodFactoryReactiveBoolean(false, rendererChanges),
+        backgroundColor: ogodFactoryReactiveProperty(0xdadada, rendererChanges),
+        powerPreference: ogodFactoryReactiveProperty(undefined, rendererChanges)
     };
 }
