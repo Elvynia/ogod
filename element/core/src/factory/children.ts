@@ -37,7 +37,7 @@ export const ogodFactoryReactiveChildren = (category: string, changesCreator: Ac
                             }
                         }));
                     } else {
-                        ogodDispatchChildChanges(host, host.category);
+                        ogodDispatchChildChanges(host, host.category, propName);
                     }
                 }
             }
@@ -76,10 +76,10 @@ export const ogodFactoryReactiveChildren = (category: string, changesCreator: Ac
         },
         observe: (host, values: Array<any>, lastValue) => {
             if (!(host.initialize$ as BehaviorSubject<any>).isStopped) {
-                forkJoin(...values.map((v) => v.initialize$)).subscribe({
+                forkJoin([...values.map((v) => v.initialize$)]).subscribe({
                     complete: () => {
                         updateReactiveChildState(host, propName, multiple);
-                        dispatchAsyncChildReady(host, propName);
+                        dispatchAsyncChildReady(host, host.category, propName);
                     }
                 });
             } else {

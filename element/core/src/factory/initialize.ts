@@ -15,10 +15,13 @@ export const ogodFactoryInitialize$ = () => ({
                     }
                 });
                 const listener = (e) => {
-                    host.initialize$.next({
-                        ...host.initialize$.value,
-                        [e.detail.referer]: true
-                    });
+                    console.log(host.category, e.detail);
+                    if (e.detail.referer === host.category) {
+                        host.initialize$.next({
+                            ...host.initialize$.value,
+                            [e.detail.key]: true
+                        });
+                    }
                 };
                 host.addEventListener(OGOD_ASYNC_CHILD_READY, listener);
                 return () => {

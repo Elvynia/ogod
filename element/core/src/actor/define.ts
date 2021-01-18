@@ -1,10 +1,10 @@
+import { ActionCreator } from "@ogod/common";
 import { Hybrids } from 'hybrids';
 import { ogodDefineElement } from "../define";
-import { OgodElementActor } from "./element";
-import { OgodCategoryState, ActionCreator } from "@ogod/common";
+import { ogodHybridReactive } from '../reactive/hybrid';
 import { ogodHybridStateAsync } from '../state/async/hybrid';
 import { ogodHybridStateReactive } from '../state/reactive/hybrid';
-import { ogodHybridReactive } from '../reactive/hybrid';
+import { OgodElementActor } from "./element";
 import { ogodHybridActor } from './hybrid';
 
 export function ogodDefineActorReactive<E extends OgodElementActor<C>, C extends string>(tagName: string, category: C,
