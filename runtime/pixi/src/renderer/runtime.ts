@@ -38,7 +38,7 @@ export class PixiRuntimeRenderer implements OgodRuntimeActor<PixiStateRenderer, 
 
     changes(changes: Partial<PixiStateRenderer>, state: PixiStateRenderer): Observable<OgodActionActor<PixiStateRenderer>> {
         if (changes.width || changes.height) {
-            state.renderer$.resize(changes.width, changes.height);
+            state.renderer$.resize(changes.width || state.width, changes.height || state.height);
         }
         return of(rendererChangesSuccess({
             id: state.id,
