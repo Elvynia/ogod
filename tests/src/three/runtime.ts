@@ -74,7 +74,7 @@ ww.postMessage(instanceInit({
             buffered: true,
             args: [1, 1, 1]
         },
-        rotate: {
+        rotator: {
             x: 1,
             y: 1.5,
             z: 0.2
@@ -210,7 +210,7 @@ ww.postMessage(instanceInit({
             
         },
         vertices: particlesVertices,
-        translate: {
+        translator: {
             x: 0,
             y: 0,
             z: 5,
@@ -238,9 +238,7 @@ ww.postMessage(instanceInit({
         speedMultiplier: 10,
         rollSpeed: 0.005,
         keys,
-        position: { x: 0, y: 0, z: 5 },
-        rotate: { x: 0, y: 0, z: 0 },
-        translate: { x: 0, y: 0, z: 0 }
+        position: { x: 0, y: 0, z: 5 }
     } as any
 }));
 // Add a canvas to render to.

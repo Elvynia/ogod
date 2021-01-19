@@ -14,6 +14,8 @@ export class ThreeRuntimeControlFly extends ThreeRuntimeInstance {
     lastPosition = new Vector3();
 
     initialize(state: ThreeStateControlFly, state$: Observable<OgodStateEngine>, action$: ActionsObservable<any>): Observable<OgodActionInstance> {
+        state.translator = state.translator || { x: 0, y: 0, z: 0 };
+        state.rotator = state.rotator || { x: 0, y: 0, z: 0 };
         return state$.pipe(
             filter((fs) => state.scenes.length > 0 && fs.scene[state.scenes[0]].loaded),
             first(),
@@ -45,31 +47,27 @@ export class ThreeRuntimeControlFly extends ThreeRuntimeInstance {
         var moveMult = delta * speed / 1000;
         var rotMult = delta * state.rollSpeed / 1000;
 
-        state.object$.translateX(state.translate.x * moveMult);
-        state.object$.translateY(state.translate.y * moveMult);
-        state.object$.translateZ(state.translate.z * moveMult);
+        state.object$.translateX(state.translator.x * moveMult);
+        state.object$.translateY(state.translator.y * moveMult);
+        state.object$.translateZ(state.translator.z * moveMult);
 
-        state.tmpQuaternion.set(state.rotate.x * rotMult, state.rotate.y * rotMult, state.rotate.z * rotMult, 1).normalize();
+        state.tmpQuaternion.set(state.rotator.x * rotMult, state.rotator.y * rotMult, state.rotator.z * rotMult, 1).normalize();
         state.object$.quaternion.multiply(state.tmpQuaternion);
 
-        if (
-            this.lastPosition.distanceToSquared(state.object$.position) > EPS ||
-            8 * (1 - this.lastQuaternion.dot(state.object$.quaternion)) > EPS
-        ) {
+        if (this.lastPosition.distanceToSquared(state.object$.position) > EPS
+            || 8 * (1 - this.lastQuaternion.dot(state.object$.quaternion)) > EPS) {
             this.lastQuaternion.copy(state.object$.quaternion);
             this.lastPosition.copy(state.object$.position);
-
         }
     }
 
     updateStateKeys(delta: number, state: ThreeStateControlFly) {
         var forward = (state.keys.forward || (state.autoForward && !state.keys.back)) ? 1 : 0;
-
-        state.translate.x = (- state.keys.left + state.keys.right);
-        state.translate.y = (- state.keys.down + state.keys.up);
-        state.translate.z = (- forward + state.keys.back);
-        state.rotate.x = (- state.keys.pitchDown + state.keys.pitchUp);
-        state.rotate.y = (- state.keys.yawRight + state.keys.yawLeft);
-        state.rotate.z = (- state.keys.rollRight + state.keys.rollLeft);
+        state.translator.x = (- state.keys.left + state.keys.right);
+        state.translator.y = (- state.keys.down + state.keys.up);
+        state.translator.z = (- forward + state.keys.back);
+        state.rotator.x = (- state.keys.pitchDown + state.keys.pitchUp);
+        state.rotator.y = (- state.keys.yawRight + state.keys.yawLeft);
+        state.rotator.z = (- state.keys.rollRight + state.keys.rollLeft);
     }
 }

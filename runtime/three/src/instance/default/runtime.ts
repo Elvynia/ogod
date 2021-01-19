@@ -22,15 +22,15 @@ export class ThreeRuntimeInstance extends OgodRuntimeInstanceDefault {
     }
 
     update(delta: number, state: ThreeStateInstance) {
-        if (state.translate) {
-            state.object$.position.x += delta * state.translate.x / 1000;
-            state.object$.position.y += delta * state.translate.y / 1000;
-            state.object$.position.z += delta * state.translate.z / 1000;
+        if (state.translator) {
+            state.object$.position.x += delta * state.translator.x / 1000;
+            state.object$.position.y += delta * state.translator.y / 1000;
+            state.object$.position.z += delta * state.translator.z / 1000;
         }
-        if (state.rotate) {
-            state.object$.rotation.x += delta * state.rotate.x / 1000;
-            state.object$.rotation.y += delta * state.rotate.y / 1000;
-            state.object$.rotation.z += delta * state.rotate.z / 1000;
+        if (state.rotator) {
+            state.object$.rotation.x += delta * state.rotator.x / 1000;
+            state.object$.rotation.y += delta * state.rotator.y / 1000;
+            state.object$.rotation.z += delta * state.rotator.z / 1000;
         }
     }
 
