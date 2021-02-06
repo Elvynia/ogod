@@ -15,10 +15,16 @@ export class ThreeRuntimeScene extends OgodRuntimeSceneDefault {
     initialize(state: ThreeStateScene, state$: Observable<ThreeStateEngine>): Observable<OgodActionScene> {
         state.scene$ = new Scene();
         state.scene$.background = new Color(state.background);
-        state.camera$ = new PerspectiveCamera(state.camera.fov, state.camera.ratio, state.camera.near, state.camera.far);
-        state.camera$.position.z = 5;
+        let ratio = state.camera.ratio;
+        if (ratio === 0) {
+            ratio = self.canvas.width / self.canvas.height;
+        }
+        state.camera$ = new PerspectiveCamera(state.camera.fov, ratio, state.camera.near, state.camera.far);
+        if (state.camera.position) {
+            state.camera$.position.set(state.camera.position.x, state.camera.position.y, state.camera.position.z);
+        }
         return state$.pipe(
-            filter((fs) => fs.renderer?.renderer$ != null),
+            filter((fs) => fs.renderer?.loaded),
             map((engine) => engine.scene[state.id]),
             take(1),
             switchMap((initState) => super.initialize({

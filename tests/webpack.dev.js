@@ -15,6 +15,7 @@ var config = {
         box2dWorker: path.resolve(__dirname, 'src/box2d/worker.ts'),
         threeRuntime: path.resolve(__dirname, 'src/three/runtime.ts'),
         threeWorker: path.resolve(__dirname, 'src/three/worker.ts'),
+        threeElement: path.resolve(__dirname, 'src/three/element.ts'),
     },
     output: {
         path: path.resolve(__dirname, 'dist'),

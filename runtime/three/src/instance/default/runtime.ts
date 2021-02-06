@@ -1,13 +1,12 @@
-import { Observable } from 'rxjs';
+import { OgodActionInstance } from '@ogod/common';
 import { OgodRuntimeInstanceDefault } from '@ogod/runtime-core';
-import { ThreeStateInstance } from './state';
-import { OgodActionInstance, OgodStateEngine } from '@ogod/common';
-import { ActionsObservable } from 'redux-observable';
+import { Observable } from 'rxjs';
 import { Vector3 } from 'three';
+import { ThreeStateInstance } from './state';
 
 export class ThreeRuntimeInstance extends OgodRuntimeInstanceDefault {
 
-    initialize(state: ThreeStateInstance, state$: Observable<OgodStateEngine>, action$: ActionsObservable<any>): Observable<OgodActionInstance> {
+    initializeSuccess(state: ThreeStateInstance): Observable<OgodActionInstance> {
         if (state.position) {
             this.updateStatePosition(0, state);
         } else {
@@ -18,7 +17,18 @@ export class ThreeRuntimeInstance extends OgodRuntimeInstanceDefault {
         } else {
             state.rotation = new Vector3();
         }
-        return super.initialize(state, state$, action$);
+        return super.initializeSuccess(state);
+    }
+
+    changes(changes: Partial<ThreeStateInstance>, state: ThreeStateInstance) {
+        const all = { ...state, ...changes };
+        if (changes.position) {
+            this.updateStatePosition(0, all);
+        }
+        if (changes.rotation) {
+            this.updateStateRotation(0, all);
+        }
+        return super.changes(changes, state);
     }
 
     update(delta: number, state: ThreeStateInstance) {

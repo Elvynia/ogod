@@ -5,7 +5,7 @@ import { ThreeStateRenderer } from './default/state';
 
 export function reducerRenderer(initialState: ThreeStateRenderer = null) {
     return ogodReducerCreator<ThreeStateRenderer, Action>(initialState,
-        ogodReducerOn(rendererInitSuccess, (state, action) => action.state),
+        ogodReducerOn(rendererInitSuccess, (state, action) => ({ ...action.state, loading: false, loaded: true })),
         ogodReducerOn(rendererChangesSuccess, (state, action) => ({ ...state, ...action.changes })),
         ogodReducerOn(rendererDestroySuccess, rendererDestroyError, rendererInitError, () => null)
     );

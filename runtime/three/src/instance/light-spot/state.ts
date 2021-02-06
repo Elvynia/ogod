@@ -1,3 +1,4 @@
+import { SpotLight } from 'three';
 import { ThreeStateLight } from './../light/state';
 
 export interface ThreeStateLightSpot extends ThreeStateLight {
@@ -5,4 +6,6 @@ export interface ThreeStateLightSpot extends ThreeStateLight {
     angle: number;
     penumbra: number;
     decay: number;
+    helper: boolean;
+    object$: SpotLight;
 }

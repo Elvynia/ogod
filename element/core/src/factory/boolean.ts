@@ -27,7 +27,7 @@ export function ogodFactoryReactiveBoolean(defaultValue: boolean, changesCreator
                 } else {
                     // console.log('child value changed from %s to %s', host.state[propName], value);
                     host.state[propName] = value;
-                    ogodDispatchChildChanges(host, host.category, propName);
+                    ogodDispatchChildChanges(host, host.category, host.key);
                 }
             }
             observe && observe(host, value, old)

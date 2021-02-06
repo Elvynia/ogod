@@ -1,31 +1,75 @@
+import { ActionCreator, instanceChanges, sceneChanges, systemChanges } from "@ogod/common";
 import { Hybrids } from 'hybrids';
-import { children } from 'hybrids';
-import { ActionCreator, sceneChanges, instanceChanges, systemChanges } from "@ogod/common";
-import { ogodDispatchChildChanges, OGOD_ASYNC_CHILD_CHANGES, dispatchAsyncChildReady } from './async';
-import { from, merge, BehaviorSubject, forkJoin } from 'rxjs';
-import { switchMap, filter, map } from 'rxjs/operators';
+import { BehaviorSubject, forkJoin } from 'rxjs';
+import { dispatchAsyncChildReady, ogodDispatchChildChanges, OGOD_ASYNC_CHILD_CHANGES } from './async';
+
+const walkWithShadow = (node, fn, options, items = []) => {
+    let children = [...node.children];
+    if (node.shadowRoot) {
+        children.push(...node.shadowRoot.children);
+    }
+    Array.from(children).forEach((child: any) => {
+        const hybrids = child.constructor.hybrids;
+        if (hybrids && fn(hybrids)) {
+            items.push(child);
+            if (options.deep && options.nested) {
+                walkWithShadow(child, fn, options, items);
+            }
+        } else if (options.deep) {
+            walkWithShadow(child, fn, options, items);
+        }
+    });
+    return items;
+}
+
+export function ogodFactoryChildren(hybridsOrFn, connect?, options = { deep: false, nested: false }) {
+    const fn =
+        typeof hybridsOrFn === "function"
+            ? hybridsOrFn
+            : hybrids => hybrids === hybridsOrFn;
+    return {
+        get(host) {
+            return walkWithShadow(host, fn, options);
+        },
+        connect(host, key, invalidate) {
+            const observer = new MutationObserver(invalidate);
+            observer.observe(host, {
+                childList: true,
+                subtree: !!options.deep
+            });
+            const disconnect = connect && connect(host, key, invalidate);
+            return () => {
+                observer.disconnect();
+                if (disconnect) {
+                    disconnect();
+                }
+            };
+        },
+    };
+}
 
 const updateReactiveChildState = (host, propName: string, multiple: boolean) => {
-    const values = host[propName];
+    let value;
     if (multiple) {
-        host.state[propName] = values.map((el) => el.state);
+        value = host[propName].filter((el) => el.key === propName).map((el) => el.state);
     } else {
-        host.state[propName] = values.length ? values[0].state : null;
+        value = host[propName].length ? host[propName].find((el) => el.key === propName)?.state : null;
     }
+    // console.log('SETTING HOST %s STATE %s VALUE %s', host.id || host.category, propName, value, host[propName]);
+    host.state[propName] = value;
 }
 
 export const ogodFactoryReactiveChildren = (category: string, changesCreator: ActionCreator, multiple: boolean = false, connect?) => {
     let propName;
     return {
-        ...children((o: Hybrids<any>) => o.category === category),
-        connect(host, key, invalidate) {
+        ...ogodFactoryChildren((o: Hybrids<any>) => o.category === category, (host, key, invalidate) => {
             propName = key;
             host.initialize$.next({
                 ...host.initialize$.value,
                 [propName]: false
             });
             const changeListener = (e) => {
-                if (e.detail.referer === category) {
+                if (e.detail.referer === category && e.detail.key === propName) {
                     // console.log('changes in %s for child prop %s', host.id || host.category, propName, e);
                     // FIXME: Should not change state locally but wait sync back from changes success.
                     updateReactiveChildState(host, propName, multiple);
@@ -37,43 +81,17 @@ export const ogodFactoryReactiveChildren = (category: string, changesCreator: Ac
                             }
                         }));
                     } else {
-                        ogodDispatchChildChanges(host, host.category, propName);
+                        ogodDispatchChildChanges(host, host.category, host.key);
                     }
                 }
             }
-            const observer = new MutationObserver((e) => {
-                invalidate();
-                from(e).pipe(
-                    switchMap((record) => merge(
-                        from(record.addedNodes).pipe(
-                            filter((node: any) => node.category != null),
-                            map((node) => ({ node, removed: false }))
-                        ),
-                        from(record.removedNodes).pipe(
-                            filter((node: any) => node.category != null),
-                            map((node) => ({ node, removed: true }))
-                        )
-                    ))
-                ).subscribe(({ node, removed }) => {
-                    if (removed) {
-                        node.removeEventListener(OGOD_ASYNC_CHILD_CHANGES, changeListener);
-                    } else {
-                        node.addEventListener(OGOD_ASYNC_CHILD_CHANGES, changeListener);
-                    }
-                });
-            });
-            observer.observe(host, {
-                childList: true,
-                subtree: false // FIXME: Externalize options
-            });
+            host.addEventListener(OGOD_ASYNC_CHILD_CHANGES, changeListener);
+            if (host.render) {
+                host.render().addEventListener(OGOD_ASYNC_CHILD_CHANGES, changeListener);
+            }
             const disconnect = connect && connect(host, key, invalidate);
-            return () => {
-                observer.disconnect();
-                if (disconnect) {
-                    disconnect();
-                }
-            };
-        },
+            return () => disconnect && disconnect();
+        }),
         observe: (host, values: Array<any>, lastValue) => {
             if (!(host.initialize$ as BehaviorSubject<any>).isStopped) {
                 forkJoin([...values.map((v) => v.initialize$)]).subscribe({
@@ -83,6 +101,7 @@ export const ogodFactoryReactiveChildren = (category: string, changesCreator: Ac
                     }
                 });
             } else {
+                // ogodDispatchChildChanges(host, host.category, host.key);
                 console.warn('%s children %s changed (state changes not implemented!)', host.id || host.category, propName);
             }
         }

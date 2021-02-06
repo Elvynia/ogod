@@ -59,7 +59,7 @@ ww.postMessage(instanceInit({
         id: 'box',
         scenes: ['scene'],
         category: OGOD_CATEGORY.INSTANCE,
-        runtime: 'default',
+        runtime: 'mesh',
         active: true,
         updates: [],
         watches: [],
@@ -94,7 +94,7 @@ ww.postMessage(instanceInit({
         id: 'plane',
         scenes: ['scene'],
         category: OGOD_CATEGORY.INSTANCE,
-        runtime: 'default',
+        runtime: 'mesh',
         active: true,
         updates: [],
         watches: [],
@@ -207,7 +207,7 @@ ww.postMessage(instanceInit({
         params: {
             color: 0xff0000,
             size: 10,
-            
+
         },
         vertices: particlesVertices,
         translator: {
@@ -219,8 +219,19 @@ ww.postMessage(instanceInit({
 }));
 // Add fly controls.
 let keys = {
-    shift: false, up: 0, down: 0, left: 0, right: 0, forward: 0, back: 0,
-    pitchUp: 0, pitchDown: 0, yawLeft: 0, yawRight: 0, rollLeft: 0, rollRight: 0
+    shift: false,
+    up: false,
+    down: false,
+    left: false,
+    right: false,
+    forward: false,
+    back: false,
+    pitchUp: false,
+    pitchDown: false,
+    yawLeft: false,
+    yawRight: false,
+    rollLeft: false,
+    rollRight: false
 };
 ww.postMessage(instanceInit({
     id: 'controls',
@@ -237,7 +248,6 @@ ww.postMessage(instanceInit({
         movementSpeed: 1,
         speedMultiplier: 10,
         rollSpeed: 0.005,
-        keys,
         position: { x: 0, y: 0, z: 5 }
     } as any
 }));
@@ -264,43 +274,57 @@ window.addEventListener('keydown', (e) => {
     }
     switch (e.keyCode) {
         case 16: /*SHIFT*/ if (!changes.shift) changes = { ...changes, shift: true }; break;
-        case 90: /*Z*/ if (!changes.forward) changes = { ...changes, forward: 1 }; break;
-        case 83: /*S*/ if (!changes.back) changes = { ...changes, back: 1 }; break;
-        case 81: /*Q*/ if (!changes.left) changes = { ...changes, left: 1 }; break;
-        case 68: /*D*/ if (!changes.right) changes = { ...changes, right: 1 }; break;
-        case 82: /*R*/ if (!changes.up) changes = { ...changes, up: 1 }; break;
-        case 70: /*F*/ if (!changes.down) changes = { ...changes, down: 1 }; break;
-        case 38: /*up*/ if (!changes.pitchUp) changes = { ...changes, pitchUp: 1 }; break;
-        case 40: /*down*/ if (!changes.pitchDown) changes = { ...changes, pitchDown: 1 }; break;
-        case 37: /*left*/ if (!changes.yawLeft) changes = { ...changes, yawLeft: 1 }; break;
-        case 39: /*right*/ if (!changes.yawRight) changes = { ...changes, yawRight: 1 }; break;
-        case 65: /*A*/ if (!changes.rollLeft) changes = { ...changes, rollLeft: 1 }; break;
-        case 69: /*E*/ if (!changes.rollRight) changes = { ...changes, rollRight: 1 }; break;
+        case 90: /*Z*/ if (!changes.forward) changes = { ...changes, forward: true }; break;
+        case 83: /*S*/ if (!changes.back) changes = { ...changes, back: true }; break;
+        case 81: /*Q*/ if (!changes.left) changes = { ...changes, left: true }; break;
+        case 68: /*D*/ if (!changes.right) changes = { ...changes, right: true }; break;
+        case 82: /*R*/ if (!changes.up) changes = { ...changes, up: true }; break;
+        case 70: /*F*/ if (!changes.down) changes = { ...changes, down: true }; break;
+        case 38: /*up*/ if (!changes.pitchUp) changes = { ...changes, pitchUp: true }; break;
+        case 40: /*down*/ if (!changes.pitchDown) changes = { ...changes, pitchDown: true }; break;
+        case 37: /*left*/ if (!changes.yawLeft) changes = { ...changes, yawLeft: true }; break;
+        case 39: /*right*/ if (!changes.yawRight) changes = { ...changes, yawRight: true }; break;
+        case 65: /*A*/ if (!changes.rollLeft) changes = { ...changes, rollLeft: true }; break;
+        case 69: /*E*/ if (!changes.rollRight) changes = { ...changes, rollRight: true }; break;
     }
     if (changes !== keys) {
-        ww.postMessage(instanceChanges({ id: 'controls', changes: { keys: { ...changes } } as any}));
         keys = changes;
+        ww.postMessage(instanceChanges({
+            id: 'controls', changes: {
+                keys: {
+                    active: true,
+                    values: Object.keys(keys).map((k) => ({ name: k, pressed: keys[k] }))
+                }
+            } as any
+        }));
     }
 });
 window.addEventListener('keyup', (e) => {
     let changes = keys;
     switch (e.keyCode) {
         case 16: /*SHIFT*/ if (changes.shift) changes = { ...changes, shift: false }; break;
-        case 90: /*Z*/ if (changes.forward) changes = { ...changes, forward: 0 }; break;
-        case 83: /*S*/ if (changes.back) changes = { ...changes, back: 0 }; break;
-        case 81: /*Q*/ if (changes.left) changes = { ...changes, left: 0 }; break;
-        case 68: /*D*/ if (changes.right) changes = { ...changes, right: 0 }; break;
-        case 82: /*R*/ if (changes.up) changes = { ...changes, up: 0 }; break;
-        case 70: /*F*/ if (changes.down) changes = { ...changes, down: 0 }; break;
-        case 38: /*up*/ if (changes.pitchUp) changes = { ...changes, pitchUp: 0 }; break;
-        case 40: /*down*/ if (changes.pitchDown) changes = { ...changes, pitchDown: 0 }; break;
-        case 37: /*left*/ if (changes.yawLeft) changes = { ...changes, yawLeft: 0 }; break;
-        case 39: /*right*/ if (changes.yawRight) changes = { ...changes, yawRight: 0 }; break;
-        case 65: /*A*/ if (changes.rollLeft) changes = { ...changes, rollLeft: 0 }; break;
-        case 69: /*E*/ if (changes.rollRight) changes = { ...changes, rollRight: 0 }; break;
+        case 90: /*Z*/ if (changes.forward) changes = { ...changes, forward: false }; break;
+        case 83: /*S*/ if (changes.back) changes = { ...changes, back: false }; break;
+        case 81: /*Q*/ if (changes.left) changes = { ...changes, left: false }; break;
+        case 68: /*D*/ if (changes.right) changes = { ...changes, right: false }; break;
+        case 82: /*R*/ if (changes.up) changes = { ...changes, up: false }; break;
+        case 70: /*F*/ if (changes.down) changes = { ...changes, down: false }; break;
+        case 38: /*up*/ if (changes.pitchUp) changes = { ...changes, pitchUp: false }; break;
+        case 40: /*down*/ if (changes.pitchDown) changes = { ...changes, pitchDown: false }; break;
+        case 37: /*left*/ if (changes.yawLeft) changes = { ...changes, yawLeft: false }; break;
+        case 39: /*right*/ if (changes.yawRight) changes = { ...changes, yawRight: false }; break;
+        case 65: /*A*/ if (changes.rollLeft) changes = { ...changes, rollLeft: false }; break;
+        case 69: /*E*/ if (changes.rollRight) changes = { ...changes, rollRight: false }; break;
     }
     if (changes !== keys) {
-        ww.postMessage(instanceChanges({ id: 'controls', changes: { keys: { ...changes } } as any}));
         keys = changes;
+        ww.postMessage(instanceChanges({
+            id: 'controls', changes: {
+                keys: {
+                    active: true,
+                    values: Object.keys(keys).map((k) => ({ name: k, pressed: keys[k] }))
+                }
+            } as any
+        }));
     }
 });

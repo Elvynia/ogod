@@ -8,7 +8,6 @@ export interface AsyncState {
 }
 
 export function dispatchAsyncChildReady(host: any, referer: string, key: string) {
-    console.log('CHILD READY:', host.id, host.category, referer, key);
     return dispatch(host, OGOD_ASYNC_CHILD_READY, {
         detail: {
             referer,
@@ -18,11 +17,12 @@ export function dispatchAsyncChildReady(host: any, referer: string, key: string)
 }
 
 export function ogodDispatchChildChanges(host: any, referer: string, key: string) {
-    console.log('CHILD CHANGES:', host.id, host.category, referer, key);
+    // console.log('CHANGES EVENT:', host.id || host.category, referer, key);
     return dispatch(host, OGOD_ASYNC_CHILD_CHANGES, {
         detail: {
             referer,
             key
-        }
+        },
+        bubbles: true
     });
 }

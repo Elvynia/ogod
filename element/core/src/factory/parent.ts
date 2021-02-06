@@ -7,6 +7,7 @@ export const ogodFactoryReactiveParent = (category: string, changesAction?: stri
         ...ogodFactoryParent(category),
         connect: (host, key, invalidate) => {
             host.state[key] = host[key].state;
+            // FIXME: handle changes
             if (connect) {
                 return connect(host, key, invalidate);
             }

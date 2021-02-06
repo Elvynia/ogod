@@ -13,6 +13,10 @@ export interface OgodRuntimeInstance extends OgodRuntimeReactive<OgodStateInstan
 export abstract class OgodRuntimeInstanceDefault implements OgodRuntimeInstance {
 
     initialize(state: OgodStateInstance, state$: Observable<OgodStateEngine>, action$: ActionsObservable<any>): Observable<OgodActionInstance> {
+        return this.initializeSuccess(state);
+    }
+
+    initializeSuccess(state: OgodStateInstance): Observable<OgodActionInstance> {
         return of(instanceInitSuccess({
             id: state.id,
             state: {

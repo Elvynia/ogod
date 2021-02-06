@@ -1,4 +1,5 @@
 import { OgodActionInstance, OgodStateEngine } from "@ogod/common";
+import { ogodRuntimeKeys } from "@ogod/runtime-core";
 import { ActionsObservable } from 'redux-observable';
 import { Observable } from 'rxjs';
 import { filter, map, switchMap, first, tap } from 'rxjs/operators';
@@ -14,8 +15,8 @@ export class ThreeRuntimeControlFly extends ThreeRuntimeInstance {
     lastPosition = new Vector3();
 
     initialize(state: ThreeStateControlFly, state$: Observable<OgodStateEngine>, action$: ActionsObservable<any>): Observable<OgodActionInstance> {
-        state.translator = state.translator || { x: 0, y: 0, z: 0 };
-        state.rotator = state.rotator || { x: 0, y: 0, z: 0 };
+        state.translator = state.translator || new Vector3();
+        state.rotator = state.rotator || new Vector3();
         return state$.pipe(
             filter((fs) => state.scenes.length > 0 && fs.scene[state.scenes[0]].loaded),
             first(),
@@ -33,7 +34,8 @@ export class ThreeRuntimeControlFly extends ThreeRuntimeInstance {
 
     changes(changes: Partial<ThreeStateControlFly>, state: ThreeStateControlFly): Observable<OgodActionInstance> {
         if (changes.keys) {
-            this.updateStateKeys(0, { ...state, ...changes });
+            Object.assign(state, { keys: changes.keys });
+            this.updateStateKeys(0, state);
         }
         return super.changes(changes, state);
     }
@@ -41,7 +43,7 @@ export class ThreeRuntimeControlFly extends ThreeRuntimeInstance {
     update(delta: number, state: ThreeStateControlFly) {
         super.update(delta, state);
         let speed = state.movementSpeed;
-        if (state.keys.shift) {
+        if (state.keys$?.shift) {
             speed = state.movementSpeed * state.speedMultiplier;
         }
         var moveMult = delta * speed / 1000;
@@ -62,12 +64,15 @@ export class ThreeRuntimeControlFly extends ThreeRuntimeInstance {
     }
 
     updateStateKeys(delta: number, state: ThreeStateControlFly) {
-        var forward = (state.keys.forward || (state.autoForward && !state.keys.back)) ? 1 : 0;
-        state.translator.x = (- state.keys.left + state.keys.right);
-        state.translator.y = (- state.keys.down + state.keys.up);
-        state.translator.z = (- forward + state.keys.back);
-        state.rotator.x = (- state.keys.pitchDown + state.keys.pitchUp);
-        state.rotator.y = (- state.keys.yawRight + state.keys.yawLeft);
-        state.rotator.z = (- state.keys.rollRight + state.keys.rollLeft);
+        ogodRuntimeKeys(state);
+        if (state.keys$) {
+            var forward = (state.keys$.forward || (state.autoForward && !state.keys$.back)) ? 1 : 0;
+            state.translator.x = (- state.keys$.left + state.keys$.right);
+            state.translator.y = (- state.keys$.down + state.keys$.up);
+            state.translator.z = (- forward + state.keys$.back);
+            state.rotator.x = (- state.keys$.pitchDown + state.keys$.pitchUp);
+            state.rotator.y = (- state.keys$.yawRight + state.keys$.yawLeft);
+            state.rotator.z = (- state.keys$.rollRight + state.keys$.rollLeft);
+        }
     }
 }

@@ -8,6 +8,7 @@ import { OgodStateInstance } from '@ogod/common';
 export function ogodDefineKey(): hybrids.HybridElement<OgodElementKey & OgodElementAsync<OgodStateInstance>> {
     return define('ogod-key', {
         ...ogodHybridKey(),
-        ...ogodHybridStateAsync()
+        ...ogodHybridStateAsync(),
+        key: 'values'
     } as any);
 }

@@ -32,10 +32,10 @@
         <pixi-textures id="forest" path-prefix="assets/bg_forest/bg_forest_" path-start="1" path-count="10">
         </pixi-textures>
         <pixi-world-side id="world" follow="hero" aspects="worldX worldY" mode="all" backgrounds="bg" tick>
-            <!-- <ogod-area min-x="-1000" max-x="12800" min-y="-1000" max-y="1000"></ogod-area> -->
+            <!-- <ogod-area key="bounds" min-x="-1000" max-x="12800" min-y="-1000" max-y="1000"></ogod-area> -->
             <ogod-camera x="0" y="0" width="1920" height="1080">
-                <ogod-area min-x="160" min-y="600" max-x="360" max-y="800"></ogod-area>
-                </ogod-ogod>
+                <ogod-area key="offset" min-x="160" min-y="600" max-x="360" max-y="800"></ogod-area>
+            </ogod-camera>
         </pixi-world-side>
         <box2d-physics id="physics" gravity-y="-9.8" modifier="world" tick></box2d-physics>
         <box2d-velocity tick></box2d-velocity>
@@ -47,14 +47,14 @@
             <pixi-hero id="hero" scale-x="1.6" scale-y="1.6" index="2" anchor="0.5"
                 resource="adventurer" animation="idle/1" duration="600"
                 bindings="x$ y$ tx$ keys$ grounded$ jumping$ hanging$ velocityY$" playing loop tick>
-                <box2d-sensor id="hang_right">
+                <box2d-sensor key="sensors" id="hang_right">
                     <box2d-shape-box x="0.5" y="0.1" center-x="1" center-y="2.6"></box2d-shape-box>
                 </box2d-sensor>
-                <box2d-sensor id="hang_left">
+                <box2d-sensor key="sensors" id="hang_left">
                     <box2d-shape-box x="0.5" y="0.1" center-x="-1" center-y="2.6"></box2d-shape-box>
                 </box2d-sensor>
                 <box2d-body x="11" y="10" dynamic>
-                    <box2d-fixture density="5" friction="0.001" restitution="0">
+                    <box2d-fixture key="fixtures" density="5" friction="0.001" restitution="0">
                         <box2d-shape-box x="1" y="2.5"></box2d-shape-box>
                     </box2d-fixture>
                 </box2d-body>
