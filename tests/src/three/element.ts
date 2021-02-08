@@ -1,9 +1,10 @@
 import { ogodDefineKey, ogodDefineKeys, ogodFactoryInstanceProperty } from '@ogod/element-core';
-import { threeDefineCamera, threeDefineControlFly, threeDefineEngine, threeDefineGeometry, threeDefineLightAmbient, threeDefineLightPoint, threeDefineLightSpot, threeDefineMaterial, threeDefineMesh, threeDefineRenderer, threeDefineScene, threeDefineVec3 } from '@ogod/element-three';
+import { threeDefineCamera, threeDefineControlFly, threeDefineEngine, threeDefineGeometry, threeDefineLightAmbient, threeDefineLightPoint, threeDefineLightSpot, threeDefineMaterial, threeDefineMesh, threeDefineRenderer, threeDefineScene, threeDefineTexture, threeDefineVec3 } from '@ogod/element-three';
 
 threeDefineEngine();
 threeDefineRenderer();
 threeDefineCamera();
+threeDefineTexture();
 threeDefineScene();
 threeDefineVec3();
 threeDefineMaterial('three-material', [], [{

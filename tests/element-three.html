@@ -18,10 +18,10 @@
 <body>
     <three-engine worker-path="./threeWorker.js" running canvas>
         <three-renderer alpha antialias></three-renderer>
+        <three-texture id="crate" path="/assets/crate.gif"></three-texture>
         <three-scene background="#5B8E7D" active>
-            <three-camera>
-            </three-camera>
-            <three-mesh tick>
+            <three-camera></three-camera>
+            <three-mesh resource="crate" tick>
                 <three-material></three-material>
                 <three-geometry type="Box" args="1 1 1"></three-geometry>
                 <three-vec3 key="position" x="-1"></three-vec3>
