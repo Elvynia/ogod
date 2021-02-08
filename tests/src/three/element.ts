@@ -13,20 +13,7 @@ threeDefineMaterial('three-material', [], [{
         connect: (host, key) => host.state[key] = host[key]
     }
 }]);
-threeDefineGeometry('three-geometry', [], [{
-    type: ogodFactoryInstanceProperty('Box'),
-    args: {
-        get: () => [1, 1, 1],
-        connect: (host, key) => host.state[key] = host[key]
-    }
-}]);
-threeDefineGeometry('three-geometry-sphere', [], [{
-    type: ogodFactoryInstanceProperty('Sphere'),
-    args: {
-        get: () => [0.5, 32, 32],
-        connect: (host, key) => host.state[key] = host[key]
-    }
-}]);
+threeDefineGeometry();
 threeDefineMesh();
 threeDefineLightAmbient();
 threeDefineLightPoint();
