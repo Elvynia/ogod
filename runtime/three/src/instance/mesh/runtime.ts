@@ -24,9 +24,7 @@ export class ThreeRuntimeMesh extends ThreeRuntimeInstance {
                 take(1),
                 pluck('data$'),
                 switchMap((texture: any) => {
-                    // console.log(texture)
                     mat.map = new CanvasTexture(texture);
-                    mat.needsUpdate = true;
                     return finalizer();
                 })
             );

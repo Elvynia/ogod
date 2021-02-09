@@ -18,6 +18,7 @@
 <body>
     <three-engine worker-path="./threeWorker.js" running canvas>
         <three-renderer alpha antialias></three-renderer>
+        <three-texture id="snow1" path="/assets/snowflakes/3.png"></three-texture>
         <three-texture id="crate" path="/assets/crate.gif"></three-texture>
         <three-scene background="#5B8E7D" active>
             <three-camera></three-camera>
@@ -32,6 +33,9 @@
                 <three-geometry type="Sphere" args="0.5 32 32"></three-geometry>
                 <three-vec3 key="position" x="1" z="-1"></three-vec3>
             </three-mesh>
+            <three-points id="points1" resource="snow1" vertices="0 1 1 1 1 1 0 1 0 1 0 1 0 0 1" tick>
+                <three-vec3 key="rotator" y="1" z="1"></three-vec3>
+            </three-points>
             <three-light-ambient intensity="0.5"></three-light-ambient>
             <three-light-point distance="2" helper></three-light-point>
             <three-light-spot distance="10" color="0x00ff00" helper>
