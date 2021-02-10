@@ -1,6 +1,6 @@
 {
   "name": "@ogod/runtime-d2",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.0",
   "description": "Runtime implementations for 2D Context drawing.",
   "main": "lib/index.js",
   "module": "lib/index.js",
@@ -12,12 +12,18 @@
     "LICENSE"
   ],
   "author": "Elvynia",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-      "start": "rm -rf lib && tsc --watch"
+    "prepublish": "npm run tsc",
+    "clean": "rm -rf lib",
+    "build": "npm run clean && tsc",
+    "start": "npm run clean && tsc --watch"
   },
   "peerDependencies": {
-    "@ogod/common": "^1.0.0",
-    "@ogod/runtime-core": "^1.0.0",
+    "@ogod/common": "1.0.0-alpha.0",
+    "@ogod/runtime-core": "1.0.0-alpha.0",
     "redux": "^4.0.5",
     "redux-observable": "^1.2.0",
     "rxjs": "^6.6.3"

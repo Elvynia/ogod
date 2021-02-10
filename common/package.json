@@ -1,6 +1,6 @@
 {
   "name": "@ogod/common",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.0",
   "description": "Common code between runtime and element packages.",
   "main": "lib/index.js",
   "module": "lib/index.js",
@@ -12,8 +12,14 @@
     "LICENSE"
   ],
   "author": "Elvynia",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-      "start": "rm -rf lib && tsc --watch"
+    "prepublish": "npm run tsc",
+    "clean": "rm -rf lib",
+    "build": "npm run clean && tsc",
+    "start": "npm run clean && tsc --watch"
   },
   "peerDependencies": {
     "redux": "^4.0.5",
