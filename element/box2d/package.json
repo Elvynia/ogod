@@ -12,9 +12,6 @@
     "LICENSE"
   ],
   "author": "Elvynia",
-  "publishConfig": {
-    "access": "public"
-  },
   "scripts": {
     "prepublish": "npm run tsc",
     "clean": "rm -rf lib",
