@@ -1,6 +1,6 @@
 {
   "name": "@ogod/runtime-core",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.2",
   "description": "Game engine using Redux state to load and manage objects with update/render capabilities in a Web Worker.",
   "main": "lib/index.js",
   "module": "lib/index.js",
@@ -13,7 +13,7 @@
   ],
   "author": "Elvynia",
   "scripts": {
-    "prepublish": "npm run tsc",
+    "prepare": "npm run build",
     "clean": "rm -rf lib",
     "build": "npm run clean && tsc",
     "start": "npm run clean && tsc --watch"
