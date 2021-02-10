@@ -20,8 +20,8 @@
   },
   "peerDependencies": {
     "pixi.js": "5.3.3",
-    "@ogod/common": "1.0.0-alpha.0",
-    "@ogod/runtime-core": "1.0.0-alpha.0",
+    "@ogod/common": "^1.0.0-alpha",
+    "@ogod/runtime-core": "^1.0.0-alpha",
     "redux": "^4.0.5",
     "redux-observable": "^1.2.0",
     "rxjs": "^6.6.3"

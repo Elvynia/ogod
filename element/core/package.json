@@ -19,7 +19,7 @@
     "start": "npm run clean && tsc --watch"
   },
   "peerDependencies": {
-    "@ogod/common": "1.0.0-alpha.0",
+    "@ogod/common": "^1.0.0-alpha",
     "hybrids": "^4.3.3",
     "redux": "^4.0.5",
     "redux-observable": "^1.2.0",
