@@ -100,9 +100,13 @@ export class OgodRuntimeSystemDefault implements OgodRuntimeSystem {
         Object.values(state.sub$).forEach((sub) => sub.unsubscribe());
     }
 
-    destroy({ id }: OgodStateSystem): Observable<OgodActionSystem> {
+    destroy(state: OgodStateSystem): Observable<OgodActionSystem> {
+        if (state.running) {
+            state.active = false;
+            this.stop(state);
+        }
         return of(systemDestroySuccess({
-            id
+            id: state.id
         }));
     }
 

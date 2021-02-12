@@ -13,7 +13,8 @@ export function ogodFactoryState$() {
                 filter((state: any) => state.id === host.id),
                 pluck('state')
             ));
-            state$.subscribe(host.state$);
+            const sub = state$.subscribe(host.state$);
+            return () => sub.unsubscribe();
         }
     };
 }

@@ -42,8 +42,9 @@ export function ogodFactoryState<
                 }))
             });
             const sub = host.state$.subscribe((state: S) => {
+                // console.log('UPDATE OR CHANGES: ', state)
                 Object.assign(host.state, state);
-                // FIXME: Object.assign(host, state);
+                // Object.assign(host, state);
                 invalidate();
             });
             return () => {

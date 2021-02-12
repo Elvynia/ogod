@@ -48,9 +48,13 @@ export abstract class OgodRuntimeInstanceDefault implements OgodRuntimeInstance 
         Object.values(state.sub$).forEach((sub) => sub.unsubscribe());
     }
 
-    destroy({ id }: OgodStateInstance): Observable<OgodActionInstance> {
+    destroy(state: OgodStateInstance): Observable<OgodActionInstance> {
+        if (state.running) {
+            state.active = false;
+            this.stop(state);
+        }
         return of(instanceDestroySuccess({
-            id
+            id: state.id
         }));
     }
 }

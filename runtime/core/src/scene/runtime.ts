@@ -91,9 +91,13 @@ export abstract class OgodRuntimeSceneDefault implements OgodRuntimeScene {
         Object.values(state.sub$).forEach((sub) => sub.unsubscribe());
     }
 
-    destroy({ id }: OgodStateScene): Observable<OgodActionScene> {
+    destroy(state: OgodStateScene): Observable<OgodActionScene> {
+        if (state.running) {
+            state.active = false;
+            this.stop(state);
+        }
         return of(sceneDestroySuccess({
-            id
+            id: state.id
         }));
     }
 }

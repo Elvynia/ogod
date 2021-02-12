@@ -14,7 +14,10 @@ export class ThreeRuntimeScene extends OgodRuntimeSceneDefault {
 
     initialize(state: ThreeStateScene, state$: Observable<ThreeStateEngine>): Observable<OgodActionScene> {
         state.scene$ = new Scene();
-        state.scene$.background = new Color(state.background);
+        // FIXME: state.scene$.autoUpdate from state value.
+        if (state.background) {
+            this.updateStateBackground(0, state);
+        }
         let ratio = state.camera.ratio;
         if (ratio === 0) {
             ratio = self.canvas.width / self.canvas.height;
@@ -34,6 +37,13 @@ export class ThreeRuntimeScene extends OgodRuntimeSceneDefault {
         );
     }
 
+    changes(changes: Partial<ThreeStateScene>, state: ThreeStateScene) {
+        if (changes.background) {
+            this.updateStateBackground(0, { ...state, ...changes });
+        }
+        return super.changes(changes, state);
+    }
+
     add(state: ThreeStateScene, child: ThreeStateInstance) {
         super.add(state, child);
         state.scene$.add(child.object$);
@@ -51,5 +61,9 @@ export class ThreeRuntimeScene extends OgodRuntimeSceneDefault {
     render(state: ThreeStateScene) {
         const renderer = self.store.getState().renderer.renderer$;
         renderer.render(state.scene$, state.camera$);
+    }
+
+    updateStateBackground(delta: number, state: ThreeStateScene) {
+        state.scene$.background = new Color(state.background || 'grey');
     }
 }

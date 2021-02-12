@@ -1,11 +1,11 @@
-import { Epic, ofType } from "redux-observable";
 import {
-    OgodActionActor, OgodStateEngine, systemInitSuccess, sceneInitSuccess,
-    instanceInitSuccess, sceneChangesSuccess, instanceChangesSuccess, systemChangesSuccess,
-    resourceInitSuccess, engineReflectChanges
+    engineReflectChanges, instanceChangesSuccess, instanceInitSuccess, OgodActionActor, OgodStateEngine,
+    resourceInitSuccess, sceneChangesSuccess, sceneInitSuccess,
+    systemChangesSuccess, systemInitSuccess
 } from "@ogod/common";
-import { tap, switchMapTo, bufferTime, filter } from "rxjs/operators";
-import { empty, animationFrameScheduler } from "rxjs";
+import { Epic, ofType } from "redux-observable";
+import { animationFrameScheduler, EMPTY } from "rxjs";
+import { bufferTime, filter, switchMapTo, tap } from "rxjs/operators";
 import { OgodRuntimeEngine } from './runtime';
 
 declare var self: OgodRuntimeEngine;
@@ -21,7 +21,7 @@ export const epicDebugActions: Epic<OgodActionActor<any>, any, OgodStateEngine> 
     tap((action: any) => {
         console.log(action.type, action.id, action.state || action.changes || action.sceneId);
     }),
-    switchMapTo(empty())
+    switchMapTo(EMPTY)
 );
 
 export const epicEngineReflectChanges: Epic<OgodActionActor<any>, any, OgodStateEngine> = (action$) => action$.pipe(
@@ -33,5 +33,5 @@ export const epicEngineReflectChanges: Epic<OgodActionActor<any>, any, OgodState
     tap((actions) => self.postMessage(engineReflectChanges({
         states: actions.map(({ id, state, changes }) => ({ id: id || state.id, state: changes || removeTransients(state) }))
     }))),
-    switchMapTo(empty())
+    switchMapTo(EMPTY)
 )

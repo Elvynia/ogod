@@ -5,7 +5,7 @@ import { BehaviorSubject } from "rxjs";
 export const ogodFactoryInitialize$ = () => ({
     get: () => new BehaviorSubject<AsyncState>({}),
     connect: (host, key, invalidate) => {
-        host.initialize$.pipe(
+        const sub = host.initialize$.pipe(
             first()
         ).subscribe((state) => {
             if (Object.keys(state).length) {
@@ -36,5 +36,6 @@ export const ogodFactoryInitialize$ = () => ({
                 host.initialize$.complete();
             }
         });
+        return () => sub.unsubscribe();
     }
 });

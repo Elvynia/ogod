@@ -63,6 +63,7 @@ export const ogodFactoryReactiveChildren = (category: string, changesCreator: Ac
     let propName;
     return {
         ...ogodFactoryChildren((o: Hybrids<any>) => o.category === category, (host, key, invalidate) => {
+            const disconnect = connect && connect(host, key, invalidate);
             propName = key;
             host.initialize$.next({
                 ...host.initialize$.value,
@@ -89,11 +90,10 @@ export const ogodFactoryReactiveChildren = (category: string, changesCreator: Ac
             if (host.render) {
                 host.render().addEventListener(OGOD_ASYNC_CHILD_CHANGES, changeListener);
             }
-            const disconnect = connect && connect(host, key, invalidate);
             return () => disconnect && disconnect();
         }),
         observe: (host, values: Array<any>, lastValue) => {
-            if (!(host.initialize$ as BehaviorSubject<any>).isStopped) {
+            if (!host.initialize$.isStopped) {
                 forkJoin([...values.map((v) => v.initialize$)]).subscribe({
                     complete: () => {
                         updateReactiveChildState(host, propName, multiple);
@@ -101,8 +101,7 @@ export const ogodFactoryReactiveChildren = (category: string, changesCreator: Ac
                     }
                 });
             } else {
-                // ogodDispatchChildChanges(host, host.category, host.key);
-                console.warn('%s children %s changed (state changes not implemented!)', host.id || host.category, propName);
+                // updateReactiveChildState(host, propName, multiple);
             }
         }
     }

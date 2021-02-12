@@ -7,6 +7,7 @@ import { ThreeStateInstance } from './state';
 export class ThreeRuntimeInstance extends OgodRuntimeInstanceDefault {
 
     initializeSuccess(state: ThreeStateInstance): Observable<OgodActionInstance> {
+        state.object$.name = state.id;
         if (state.position) {
             this.updateStatePosition(0, state);
         } else {
