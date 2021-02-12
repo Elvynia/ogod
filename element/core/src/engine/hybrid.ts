@@ -86,8 +86,7 @@ export function ogodHybridEngine(categories: string[]): Hybrids<OgodElementEngin
                 messageStream.subscribe(update$);
             }
         },
-        render: ({ target }) => {
-            const bounds = target && target.getBoundingClientRect();
+        render: () => {
             return html`
                 <style>
                     :host {
@@ -100,8 +99,8 @@ export function ogodHybridEngine(categories: string[]): Hybrids<OgodElementEngin
                         position: absolute;
                         left: 0;
                         top: 0;
-                        width: ${ bounds ? bounds.width + 'px' : '100%'};
-                        height: ${ bounds ? bounds.height + 'px' : '100%'};
+                        right: 0;
+                        bottom: 0;
                     }
                     #ogod-canvas-default {
                         width: 100%;
