@@ -16,6 +16,8 @@ export * from './instance/material/runtime';
 export * from './instance/material/state';
 export * from './instance/mesh/runtime';
 export * from './instance/mesh/state';
+export * from './instance/object/runtime';
+export * from './instance/object/state';
 export * from './instance/vector/state';
 
 export * from './scene/camera/state';

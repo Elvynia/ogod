@@ -7,7 +7,6 @@ export interface ThreeStateControlFly extends ThreeStateInstance, OgodFeatureKey
     movementSpeed: number;
     rollSpeed: number;
     dragToLook: boolean;
-    autoForward: boolean;
     tmpQuaternion: Quaternion;
     speedMultiplier: number;
 }

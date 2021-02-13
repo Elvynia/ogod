@@ -66,7 +66,7 @@ export class ThreeRuntimeControlFly extends ThreeRuntimeInstance {
     updateStateKeys(delta: number, state: ThreeStateControlFly) {
         ogodRuntimeKeys(state);
         if (state.keys$) {
-            var forward = (state.keys$.forward || (state.autoForward && !state.keys$.back)) ? 1 : 0;
+            var forward = (state.keys$.forward || (state.keys$.autoForward && !state.keys$.back)) ? 1 : 0;
             state.translator.x = (- state.keys$.left + state.keys$.right);
             state.translator.y = (- state.keys$.down + state.keys$.up);
             state.translator.z = (- forward + state.keys$.back);

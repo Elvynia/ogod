@@ -72,7 +72,7 @@ ww.postMessage(instanceInit({
         geometry: {
             type: 'Box',
             buffered: true,
-            args: [1, 1, 1]
+            args: [5, 5, 5]
         },
         rotator: {
             x: 1,
@@ -81,44 +81,10 @@ ww.postMessage(instanceInit({
         },
         position: {
             x: 0,
-            y: 0,
+            y: -22,
             z: 0
         },
         resource: 'crate'
-    } as any
-}));
-// Add an instance into the scene.
-ww.postMessage(instanceInit({
-    id: 'plane',
-    state: {
-        id: 'plane',
-        scenes: ['scene'],
-        category: OGOD_CATEGORY.INSTANCE,
-        runtime: 'mesh',
-        active: true,
-        updates: [],
-        watches: [],
-        reflects: [],
-        tick: true,
-        material: {
-            type: 'MeshPhong',
-            args: [{ color: 0xF4A259, side: DoubleSide }]
-        },
-        geometry: {
-            type: 'Plane',
-            buffered: true,
-            args: [5, 20, 32]
-        },
-        // rotation: {
-        //     x: 1,
-        //     y: 1.5,
-        //     z: 0.2
-        // },
-        position: {
-            x: 0,
-            y: 0,
-            z: -2
-        }
     } as any
 }));
 // // Add a point light.
@@ -182,8 +148,7 @@ ww.postMessage(instanceInit({
         watches: [],
         reflects: [],
         tick: false,
-        intensity: 0.4,
-        color: 0xffaaaa
+        intensity: 0.4
     } as any
 }));
 // Add Points (particles).
@@ -231,7 +196,8 @@ let keys = {
     yawLeft: false,
     yawRight: false,
     rollLeft: false,
-    rollRight: false
+    rollRight: false,
+    autoForward: false
 };
 ww.postMessage(instanceInit({
     id: 'controls',
@@ -248,7 +214,7 @@ ww.postMessage(instanceInit({
         movementSpeed: 1,
         speedMultiplier: 10,
         rollSpeed: 0.005,
-        position: { x: 0, y: 0, z: 5 }
+        position: { x: 0, y: -15, z: 50 }
     } as any
 }));
 // Add a canvas to render to.
@@ -315,6 +281,7 @@ window.addEventListener('keyup', (e) => {
         case 39: /*right*/ if (changes.yawRight) changes = { ...changes, yawRight: false }; break;
         case 65: /*A*/ if (changes.rollLeft) changes = { ...changes, rollLeft: false }; break;
         case 69: /*E*/ if (changes.rollRight) changes = { ...changes, rollRight: false }; break;
+        case 87: /*W*/ changes = { ...changes, autoForward: !keys.autoForward }; break;
     }
     if (changes !== keys) {
         keys = changes;
@@ -328,3 +295,26 @@ window.addEventListener('keyup', (e) => {
         }));
     }
 });
+
+// Import objects
+
+// Add an instance into the scene.
+ww.postMessage(instanceInit({
+    id: 'room',
+    state: {
+        id: 'room',
+        scenes: ['scene'],
+        category: OGOD_CATEGORY.INSTANCE,
+        runtime: 'object',
+        active: true,
+        updates: [],
+        watches: [],
+        reflects: [],
+        path: 'assets/room_0/room_0',
+        position: {
+            x: 0,
+            y: -50,
+            z: 0
+        }
+    } as any
+}));
