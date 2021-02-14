@@ -3,7 +3,10 @@ import { html, Hybrids, property } from 'hybrids';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { OgodElementEngine } from './element';
 
-const nextCanvas = ({ worker }, target) => worker.postMessage(engineCanvas({ canvas: target }), [target]);
+const nextCanvas = (host, canvas) => {
+    host.target = canvas;
+    host.worker.postMessage(engineCanvas({ canvas }), [canvas]);
+};
 const startEngine = (worker) => worker.postMessage(engineStart());
 const stopEngine = (worker) => worker.postMessage(engineStop());
 
@@ -25,7 +28,6 @@ export function ogodHybridEngine(categories: string[]): Hybrids<OgodElementEngin
                 const slot: HTMLSlotElement = root.querySelector('slot[name="canvas"]');
                 const slotListener = (e) => {
                     const canvas = (e.target as HTMLSlotElement).assignedNodes().find((el) => el instanceof HTMLCanvasElement) as HTMLCanvasElement;
-                    host.target = canvas;
                     nextCanvas(host, canvas.transferControlToOffscreen());
                 };
                 slot.addEventListener('slotchange', slotListener);
@@ -39,7 +41,6 @@ export function ogodHybridEngine(categories: string[]): Hybrids<OgodElementEngin
                     const bounds = canvas.getBoundingClientRect();
                     canvas.width = bounds.width;
                     canvas.height = bounds.height;
-                    host.target = canvas;
                     nextCanvas(host, canvas.transferControlToOffscreen());
                 }
             }
