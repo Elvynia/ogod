@@ -25,7 +25,6 @@ export class ThreeRuntimeRenderer implements OgodRuntimeActor<ThreeStateRenderer
             }
         });
         if (self.canvas) {
-            (self.canvas as any).style = {}
             return of(initSuccess(self.canvas));
         }
         return action$.pipe(
