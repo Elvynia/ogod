@@ -213,7 +213,7 @@ ww.postMessage(instanceInit({
         tick: true,
         movementSpeed: 1,
         speedMultiplier: 10,
-        rollSpeed: 0.005,
+        rollSpeed: 0.001,
         position: { x: 0, y: -15, z: 50 }
     } as any
 }));

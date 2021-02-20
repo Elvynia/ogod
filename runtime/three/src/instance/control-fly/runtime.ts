@@ -13,8 +13,6 @@ const EPS = 0.000001;
 export class ThreeRuntimeControlFly extends ThreeRuntimeInstance {
 
     initialize(state: ThreeStateControlFly, state$: Observable<OgodStateEngine>, action$: ActionsObservable<any>): Observable<OgodActionInstance> {
-        state.translator = state.translator || new Vector3();
-        state.rotator = state.rotator || new Vector3();
         return state$.pipe(
             filter((fs) => state.scenes.length > 0 && fs.scene[state.scenes[0]].loaded),
             first(),
@@ -22,7 +20,9 @@ export class ThreeRuntimeControlFly extends ThreeRuntimeInstance {
             map((scene) => ({
                 ...state,
                 object$: scene.camera$,
-                tmpQuaternion: new Quaternion()
+                tmpQuaternion: new Quaternion(),
+                translator: state.translator || new Vector3(),
+                rotator: state.rotator || new Vector3()
             })),
             tap((initState) => this.updateStateKeys(0, initState)),
             switchMap((initState) => super.initialize(initState, state$, action$))
@@ -39,15 +39,13 @@ export class ThreeRuntimeControlFly extends ThreeRuntimeInstance {
     }
 
     update(delta: number, state: ThreeStateControlFly) {
-        const lastQuaternion = new Quaternion();
-        const lastPosition = new Vector3();
         super.update(delta, state);
         let speed = state.movementSpeed;
         if (state.keys$?.shift) {
             speed = state.movementSpeed * state.speedMultiplier;
         }
-        var moveMult = delta * speed / 1000;
-        var rotMult = delta * state.rollSpeed / 1000;
+        var moveMult = delta * speed;
+        var rotMult = delta * state.rollSpeed;
 
         state.object$.translateX(state.translator.x * moveMult);
         state.object$.translateY(state.translator.y * moveMult);
@@ -56,11 +54,12 @@ export class ThreeRuntimeControlFly extends ThreeRuntimeInstance {
         state.tmpQuaternion.set(state.rotator.x * rotMult, state.rotator.y * rotMult, state.rotator.z * rotMult, 1).normalize();
         state.object$.quaternion.multiply(state.tmpQuaternion);
 
-        if (lastPosition.distanceToSquared(state.object$.position) > EPS
-            || 8 * (1 - lastQuaternion.dot(state.object$.quaternion)) > EPS) {
-            lastQuaternion.copy(state.object$.quaternion);
-            lastPosition.copy(state.object$.position);
-        }
+        // if (this.lastPosition.distanceToSquared(state.object$.position) > EPS
+        //     || 8 * (1 - this.lastQuaternion.dot(state.object$.quaternion)) > EPS) {
+        //     this.dispatchEvent(this.changeEvent);
+        //     this.lastQuaternion.copy(state.object$.quaternion);
+        //     this.lastPosition.copy(state.object$.position);
+        // }
     }
 
     updateStateKeys(delta: number, state: ThreeStateControlFly) {

@@ -6,7 +6,7 @@ export function threeHybridControlFly() {
         keys: ogodFactoryInstanceChildren('keys'),
         mouseDown: ogodFactoryInstanceBoolean(false),
         movementSpeed: ogodFactoryInstanceProperty(1),
-        rollSpeed: ogodFactoryInstanceProperty(0.005),
+        rollSpeed: ogodFactoryInstanceProperty(0.001),
         dragToLook: ogodFactoryInstanceBoolean(false),
         autoForward: ogodFactoryInstanceBoolean(false),
         speedMultiplier: ogodFactoryInstanceProperty(10),
