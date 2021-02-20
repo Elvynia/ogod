@@ -11,8 +11,6 @@ import { ThreeStateControlFly } from "./state";
 const EPS = 0.000001;
 
 export class ThreeRuntimeControlFly extends ThreeRuntimeInstance {
-    lastQuaternion = new Quaternion();
-    lastPosition = new Vector3();
 
     initialize(state: ThreeStateControlFly, state$: Observable<OgodStateEngine>, action$: ActionsObservable<any>): Observable<OgodActionInstance> {
         state.translator = state.translator || new Vector3();
@@ -41,6 +39,8 @@ export class ThreeRuntimeControlFly extends ThreeRuntimeInstance {
     }
 
     update(delta: number, state: ThreeStateControlFly) {
+        const lastQuaternion = new Quaternion();
+        const lastPosition = new Vector3();
         super.update(delta, state);
         let speed = state.movementSpeed;
         if (state.keys$?.shift) {
@@ -56,10 +56,10 @@ export class ThreeRuntimeControlFly extends ThreeRuntimeInstance {
         state.tmpQuaternion.set(state.rotator.x * rotMult, state.rotator.y * rotMult, state.rotator.z * rotMult, 1).normalize();
         state.object$.quaternion.multiply(state.tmpQuaternion);
 
-        if (this.lastPosition.distanceToSquared(state.object$.position) > EPS
-            || 8 * (1 - this.lastQuaternion.dot(state.object$.quaternion)) > EPS) {
-            this.lastQuaternion.copy(state.object$.quaternion);
-            this.lastPosition.copy(state.object$.position);
+        if (lastPosition.distanceToSquared(state.object$.position) > EPS
+            || 8 * (1 - lastQuaternion.dot(state.object$.quaternion)) > EPS) {
+            lastQuaternion.copy(state.object$.quaternion);
+            lastPosition.copy(state.object$.position);
         }
     }
 

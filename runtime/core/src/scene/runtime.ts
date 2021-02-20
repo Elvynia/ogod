@@ -3,6 +3,7 @@ import {
     OgodStateInstance, OgodStateScene, sceneChangesSuccess, sceneDestroySuccess,
     sceneInitSuccess
 } from '@ogod/common';
+import { ActionsObservable } from 'redux-observable';
 import { Observable, of } from 'rxjs';
 import { filter, map, pluck, withLatestFrom } from 'rxjs/operators';
 import { OgodRuntimeEngine } from '../engine/runtime';
@@ -17,7 +18,7 @@ export interface OgodRuntimeScene extends OgodRuntimeContainer<OgodStateScene, O
 
 export abstract class OgodRuntimeSceneDefault implements OgodRuntimeScene {
 
-    initialize(state: OgodStateScene, state$: Observable<OgodStateEngine>): Observable<OgodActionScene> {
+    initialize(state: OgodStateScene, state$: Observable<OgodStateEngine>, action$: ActionsObservable<any>): Observable<OgodActionScene> {
         return of(sceneInitSuccess({
             id: state.id,
             state: {

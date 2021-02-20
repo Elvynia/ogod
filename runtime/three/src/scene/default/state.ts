@@ -1,6 +1,6 @@
 import { ThreeStateCamera } from './../camera/state';
 import { OgodStateScene } from "@ogod/common";
-import { Camera, Scene } from "three";
+import { PerspectiveCamera, Scene } from "three";
 
 export interface ThreeStateScene extends OgodStateScene {
     autoUpdate?: boolean;
@@ -9,6 +9,6 @@ export interface ThreeStateScene extends OgodStateScene {
     // fog: Fog;
     // overrideMaterial: Material;
     camera: ThreeStateCamera;
-    camera$?: Camera;
+    camera$?: PerspectiveCamera;
     scene$?: Scene;
 }

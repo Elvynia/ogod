@@ -1,10 +1,13 @@
-import { engineCanvas, engineDestroy, engineInit, engineReflectChanges, engineReflectUpdates, engineStart, engineStop, OGOD_CATEGORY } from '@ogod/common';
+import { engineCanvas, engineDestroy, engineInit, engineReflectChanges, engineReflectUpdates, engineStart, engineStop, engineCanvasResize } from '@ogod/common';
 import { html, Hybrids, property } from 'hybrids';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, fromEvent, Observable, Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 import { OgodElementEngine } from './element';
 
-const nextCanvas = (host, canvas) => {
-    host.target = canvas;
+const nextCanvas = (host, target) => {
+    host.target = target;
+    const canvas = target.transferControlToOffscreen();
+    host.targetOffscreen = canvas;
     host.worker.postMessage(engineCanvas({ canvas }), [canvas]);
 };
 const startEngine = (worker) => worker.postMessage(engineStart());
@@ -19,7 +22,18 @@ export function ogodHybridEngine(categories: string[]): Hybrids<OgodElementEngin
             connect: (host) => {
                 host.worker = new Worker(host.workerPath, { type: 'module' });
                 host.worker.postMessage(engineInit({ id: host.id, categories }));
-                return () => host.worker.postMessage(engineDestroy());
+                const resizeSub = fromEvent(window, 'resize').pipe(
+                    debounceTime(200)
+                ).subscribe(() => {
+                    const bounds = host.target.getBoundingClientRect();
+                    host.targetOffscreen.width = bounds.width;
+                    host.targetOffscreen.height = bounds.height;
+                    host.worker.postMessage(engineCanvasResize({ width: bounds.width, height: bounds.height }));
+                });
+                return () => {
+                    resizeSub.unsubscribe();
+                    host.worker.postMessage(engineDestroy());
+                };
             }
         },
         canvas: {
@@ -28,7 +42,7 @@ export function ogodHybridEngine(categories: string[]): Hybrids<OgodElementEngin
                 const slot: HTMLSlotElement = root.querySelector('slot[name="canvas"]');
                 const slotListener = (e) => {
                     const canvas = (e.target as HTMLSlotElement).assignedNodes().find((el) => el instanceof HTMLCanvasElement) as HTMLCanvasElement;
-                    nextCanvas(host, canvas.transferControlToOffscreen());
+                    nextCanvas(host, canvas);
                 };
                 slot.addEventListener('slotchange', slotListener);
                 return () => {
@@ -41,11 +55,12 @@ export function ogodHybridEngine(categories: string[]): Hybrids<OgodElementEngin
                     const bounds = canvas.getBoundingClientRect();
                     canvas.width = bounds.width;
                     canvas.height = bounds.height;
-                    nextCanvas(host, canvas.transferControlToOffscreen());
+                    nextCanvas(host, canvas);
                 }
             }
         },
-        target: undefined,
+        target: null,
+        targetOffscreen: null,
         running: {
             ...property(false),
             observe: ({ worker }, value: boolean, lastValue: boolean) => {

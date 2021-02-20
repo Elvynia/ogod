@@ -4,6 +4,7 @@ import { OgodRuntimeContainer } from '../container/runtime';
 import { OgodRuntimeEngine } from '../engine/runtime';
 import { withLatestFrom, pluck, map, filter } from 'rxjs/operators';
 import { ogodReactiveUpdate } from '../util/reactive-update';
+import { ActionsObservable } from 'redux-observable';
 
 declare var self: OgodRuntimeEngine;
 
@@ -26,7 +27,7 @@ export function ogodAspectAll(aspects) {
 
 export class OgodRuntimeSystemDefault implements OgodRuntimeSystem {
 
-    initialize(state: OgodStateSystem, state$: Observable<OgodStateEngine>): Observable<OgodActionSystem> {
+    initialize(state: OgodStateSystem, state$: Observable<OgodStateEngine>, action$: ActionsObservable<any>): Observable<OgodActionSystem> {
         return of(systemInitSuccess({
             id: state.id,
             state: {

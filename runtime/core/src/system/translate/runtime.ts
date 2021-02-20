@@ -7,9 +7,9 @@ declare var self: OgodRuntimeEngine;
 
 export class OgodRuntimeTranslate extends OgodRuntimeSystemDefault {
 
-    initialize(state, state$) {
+    initialize(state, state$, action$) {
         this.refreshModifiers(state);
-        return super.initialize(state, state$);
+        return super.initialize(state, state$, action$);
     }
 
     update(delta: number, state: OgodStateTranslate) {

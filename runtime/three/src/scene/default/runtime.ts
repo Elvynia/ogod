@@ -1,7 +1,8 @@
-import { OgodActionScene } from '@ogod/common';
+import { engineCanvasResize, OgodActionScene } from '@ogod/common';
 import { OgodRuntimeSceneDefault } from "@ogod/runtime-core";
+import { ActionsObservable, ofType } from 'redux-observable';
 import { Observable } from 'rxjs';
-import { filter, map, switchMap, take } from 'rxjs/operators';
+import { filter, map, switchMap, take, tap } from 'rxjs/operators';
 import { Color, PerspectiveCamera, Scene } from "three";
 import { ThreeRuntimeEngine } from '../../engine/runtime';
 import { ThreeStateEngine } from '../../engine/state';
@@ -12,20 +13,28 @@ declare var self: ThreeRuntimeEngine;
 
 export class ThreeRuntimeScene extends OgodRuntimeSceneDefault {
 
-    initialize(state: ThreeStateScene, state$: Observable<ThreeStateEngine>): Observable<OgodActionScene> {
+    initialize(state: ThreeStateScene, state$: Observable<ThreeStateEngine>, action$: ActionsObservable<any>): Observable<OgodActionScene> {
         state.scene$ = new Scene();
         // FIXME: state.scene$.autoUpdate from state value.
         if (state.background) {
             this.updateStateBackground(0, state);
         }
-        let ratio = state.camera.ratio;
-        if (ratio === 0) {
-            ratio = self.canvas.width / self.canvas.height;
+        let aspectRatio = state.camera.ratio;
+        if (aspectRatio === 0) {
+            aspectRatio = self.canvas.width / self.canvas.height;
         }
-        state.camera$ = new PerspectiveCamera(state.camera.fov, ratio, state.camera.near, state.camera.far);
+        state.camera$ = new PerspectiveCamera(state.camera.fov, aspectRatio, state.camera.near, state.camera.far);
         if (state.camera.position) {
             state.camera$.position.set(state.camera.position.x, state.camera.position.y, state.camera.position.z);
         }
+        action$.pipe(
+            ofType(engineCanvasResize.type),
+        ).subscribe(({ width, height }) => {
+            if (state.camera$) {
+                state.camera$.aspect = width / height;
+                state.camera$.updateProjectionMatrix();
+            }
+        });
         return state$.pipe(
             filter((fs) => fs.renderer?.loaded),
             map((engine) => engine.scene[state.id]),
@@ -33,7 +42,7 @@ export class ThreeRuntimeScene extends OgodRuntimeSceneDefault {
             switchMap((initState) => super.initialize({
                 ...state,
                 ...initState
-            }, state$))
+            }, state$, action$))
         );
     }
 

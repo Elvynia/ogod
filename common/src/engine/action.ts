@@ -10,6 +10,8 @@ export const engineStart = ogodActionCreator(ogodActionName('engine', 'START'));
 export const engineStop = ogodActionCreator(ogodActionName('engine', 'STOP'));
 export const engineCanvas = ogodActionCreator(ogodActionName('engine', 'CANVAS'),
     ogodActionParams<{ canvas: OffscreenCanvas }>());
+export const engineCanvasResize = ogodActionCreator(ogodActionName('engine', 'CANVAS_RESIZE'),
+    ogodActionParams<{ width: number, height: number }>());
 export const engineReflectChanges = ogodActionCreator(ogodActionName('engine', 'REFLECT_CHANGES'),
     ogodActionParams<{ states: { id: string, state: any }[] }>());
 export const engineReflectUpdates = ogodActionCreator(ogodActionName('engine', 'REFLECT_UPDATES'),

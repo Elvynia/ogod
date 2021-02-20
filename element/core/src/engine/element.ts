@@ -8,6 +8,7 @@ export interface OgodElementEngine extends HTMLElement {
     workerPath: string;
     canvas: boolean;
     target: HTMLCanvasElement;
+    targetOffscreen: OffscreenCanvas;
     running: boolean;
     state$: BehaviorSubject<{ [id: string]: any }>;
     update$: Subject<{ id: string, state: any }>;
