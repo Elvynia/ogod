@@ -6,6 +6,6 @@ export function threeHybridMaterial(): Hybrids<ThreeElementMaterial> {
     return {
         category: 'material',
         type: ogodFactoryInstanceProperty(''),
-        // args: TODO
+        args: ogodFactoryInstanceProperty([])
     }
 }

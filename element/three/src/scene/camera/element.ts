@@ -7,4 +7,6 @@ export interface ThreeElementCamera extends HTMLElement {
     near: number;
     far: number;
     position: ThreeElementVec3;
+    up: ThreeElementVec3;
+    lookAt: ThreeElementVec3;
 }

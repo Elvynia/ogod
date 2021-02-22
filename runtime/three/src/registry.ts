@@ -9,6 +9,7 @@ import { ThreeRuntimePoints } from './instance/points/runtime';
 import { ThreeRuntimeRenderer } from './renderer/default/runtime';
 import { ThreeRuntimeTexture } from './resource/texture/runtime';
 import { ThreeRuntimeScene } from './scene/default/runtime';
+import { ThreeRuntimeLightHemisphere } from './instance/light-hemisphere/runtime';
 
 export const OgodThreeRegistry: OgodRegistry = {
     'scene.default': ThreeRuntimeScene,
@@ -17,6 +18,7 @@ export const OgodThreeRegistry: OgodRegistry = {
     'instance.mesh': ThreeRuntimeMesh,
     'instance.points': ThreeRuntimePoints,
     'instance.light-ambient': ThreeRuntimeLightAmbient,
+    'instance.light-hemisphere': ThreeRuntimeLightHemisphere,
     'instance.light-point': ThreeRuntimeLightPoint,
     'instance.light-spot': ThreeRuntimeLightSpot,
     'instance.control-fly': ThreeRuntimeControlFly,

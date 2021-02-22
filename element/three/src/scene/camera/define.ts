@@ -1,4 +1,4 @@
-import { ogodDefineActorAsync, ogodHybridStateAsync } from '@ogod/element-core';
+import { ogodDefineActorAsync } from '@ogod/element-core';
 import { Hybrids } from 'hybrids';
 import { threeHybridCamera } from './hybrid';
 

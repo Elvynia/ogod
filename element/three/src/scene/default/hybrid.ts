@@ -6,6 +6,7 @@ export function threeHybridScene(): Hybrids<ThreeElementScene> {
     return {
         autoUpdate: ogodFactorySceneBoolean(false),
         background: ogodFactorySceneProperty(''),
-        camera: ogodFactorySceneChildren('camera')
+        camera: ogodFactorySceneChildren('camera'),
+        fog: ogodFactorySceneChildren('fog')
     }
 }
