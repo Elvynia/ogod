@@ -2,10 +2,11 @@ import { map, filter } from 'rxjs/operators';
 import { b2World, b2Vec2, b2ContactListener } from '@flyover/box2d';
 import { OgodRuntimeSystemDefault, OgodRuntimeEngine } from '@ogod/runtime-core';
 import { Box2dStatePhysics } from './state';
-import { OgodStateEngine, OgodActionSystem } from '@ogod/common';
+import { OgodStateEngine, OgodActionSystem, systemChangesSuccess, instanceChangesSuccess } from '@ogod/common';
 import { Observable, from } from 'rxjs';
 import { box2dCreateBody } from '../../instance/body/runtime';
 import { Box2dStateInstanceBody } from '../../instance/body/state';
+import { ActionsObservable } from 'redux-observable';
 
 declare var self: OgodRuntimeEngine;
 export const WORLD_RATIO = 10;
@@ -16,7 +17,7 @@ const positionIterations: number = 3;
 export class Box2dRuntimePhysics extends OgodRuntimeSystemDefault {
     time: number;
 
-    initialize(state: Box2dStatePhysics, state$: Observable<OgodStateEngine>): Observable<OgodActionSystem> {
+    initialize(state: Box2dStatePhysics, state$: Observable<OgodStateEngine>, action$: ActionsObservable<any>): Observable<OgodActionSystem> {
         this.time = 0;
         state.world$ = new b2World(new b2Vec2(state.gravityX || 0, state.gravityY || 0));
         if (state.contactListener && self.registry.hasRuntime('contact-listener', state.contactListener)) {
@@ -24,7 +25,7 @@ export class Box2dRuntimePhysics extends OgodRuntimeSystemDefault {
             state.world$.SetContactListener(listener);
         }
         this.refreshModifiers(state);
-        return super.initialize(state, state$);
+        return super.initialize(state, state$, action$);
     }
 
     add(state: Box2dStatePhysics, instance: Box2dStateInstanceBody) {
@@ -35,6 +36,7 @@ export class Box2dRuntimePhysics extends OgodRuntimeSystemDefault {
     remove(state: Box2dStatePhysics, id: string, instance: Box2dStateInstanceBody) {
         state.world$.DestroyBody(instance.body$);
         delete instance.body$;
+        self.store.dispatch(instanceChangesSuccess({ id, changes: { body$: undefined } as Box2dStateInstanceBody }));
         super.remove(state, id, instance);
     }
 
@@ -54,9 +56,9 @@ export class Box2dRuntimePhysics extends OgodRuntimeSystemDefault {
         });
     }
 
-    destroy(state: Box2dStatePhysics) {
+    destroy(state: Box2dStatePhysics, state$: Observable<OgodStateEngine>) {
         delete state.world$;
-        return super.destroy(state);
+        return super.destroy(state, state$);
     }
 
     refreshModifiers(state: Box2dStatePhysics) {

@@ -1,6 +1,6 @@
 import {
     OgodStateScenes, OgodActionScene, sceneInit, sceneInitSuccess,
-    sceneDestroySuccess, sceneDestroyError, sceneInitError, OGOD_CATEGORY, sceneChangesSuccess, sceneChangesCanvas
+    sceneDestroySuccess, sceneDestroyError, sceneInitError, OGOD_CATEGORY, sceneChangesSuccess, sceneChangesCanvas, sceneStart, sceneStop, sceneDestroy
 } from '@ogod/common';
 import { OgodRuntimeEngine } from '../engine/runtime';
 import { ogodReducerCreator, ogodReducerOn } from '../util/reducer';
@@ -21,6 +21,11 @@ export function ogodReducerScene(initialState: OgodStateScenes = {}) {
         ogodReducerOn(sceneChangesSuccess, sceneChangesCanvas, (states: OgodStateScenes, { id, changes }) => {
             Object.assign(states[id], changes);
             return { ...states };
+        }),
+        ogodReducerOn(sceneStart, sceneStop, (state: OgodStateScenes, action) => ({ ...state, [action.id]: action.state })),
+        ogodReducerOn(sceneDestroy, (state: OgodStateScenes, action) => {
+            Object.assign(state[action.id], { destroying: true });
+            return { ...state };
         }),
         ogodReducerOn(sceneDestroySuccess, sceneDestroyError, sceneInitError, (states: OgodStateScenes, { id }) => {
             if (self.runtimes.scene[id]) {

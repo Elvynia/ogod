@@ -21,9 +21,9 @@ export function watchReactiveStates(category: string): Subscription {
         const runtime: OgodRuntimeReactive<any, any> = self.getRuntime(category, id);
         const state = self.store.getState()[category][id];
         if (active && !running) {
-            runtime.start(state, self.state$);
+            self.store.dispatch(runtime.start(state, self.state$));
         } else {
-            runtime.stop(state);
+            self.store.dispatch(runtime.stop(state));
         }
     });
 }

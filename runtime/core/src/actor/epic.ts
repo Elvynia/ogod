@@ -5,7 +5,7 @@ import {
 } from '@ogod/common';
 import { Epic, ofType } from "redux-observable";
 import { empty } from 'rxjs';
-import { filter, map, mergeMap, take } from 'rxjs/operators';
+import { delay, filter, map, mergeMap, take } from 'rxjs/operators';
 import { OgodRuntimeEngine } from "../engine/runtime";
 import { OgodRuntimeReactive } from "../reactive/runtime";
 import { OgodRuntimeActor } from "./runtime";
@@ -54,11 +54,12 @@ export function ogodEpicActorDestroy<S extends OgodStateReactive<string>, A exte
         ofType(ogodActionName(category, OGOD_ACTION_ACTOR.DESTROY)),
         mergeMap(({ id }) => state$.pipe(
             map((state) => state[category][id]),
+            filter((state) => state.destroying),
             take(1)
         )),
         mergeMap((state) => {
             const runtime = self.getRuntime<OgodRuntimeReactive<S, A>>(category, state.id);
-            return runtime.destroy(state);
+            return runtime.destroy(state, state$);
         })
     );
 }

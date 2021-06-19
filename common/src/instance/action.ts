@@ -2,6 +2,7 @@ import { OGOD_CATEGORY } from '../util/category';
 import { ogodActionCreator, ogodActionName, ogodActionParams } from '../util/action';
 import { OgodActionActor, ogodActionCreatorActor, OGOD_ACTION_ACTOR } from './../actor/action';
 import { OgodStateInstance } from './state';
+import { ogodActionCreatorReactive, OGOD_ACTION_REACTIVE } from '../reactive/action';
 
 export interface OgodActionInstance extends OgodActionActor<OgodStateInstance, OGOD_CATEGORY.INSTANCE> { };
 
@@ -18,6 +19,11 @@ export const instanceChangesSuccess = ogodActionCreatorActor(OGOD_CATEGORY.INSTA
     ogodActionParams<{ id: string, changes?: Partial<OgodStateInstance> }>());
 export const instanceChangesError = ogodActionCreatorActor(OGOD_CATEGORY.INSTANCE, OGOD_ACTION_ACTOR.CHANGES_ERROR,
     ogodActionParams<{ id: string, changes?: Partial<OgodStateInstance> }>());
+
+export const instanceStart = ogodActionCreatorReactive(OGOD_CATEGORY.INSTANCE, OGOD_ACTION_REACTIVE.START,
+    ogodActionParams<{ id: string, state: OgodStateInstance }>());
+export const instanceStop = ogodActionCreatorReactive(OGOD_CATEGORY.INSTANCE, OGOD_ACTION_REACTIVE.STOP,
+    ogodActionParams<{ id: string, state: OgodStateInstance }>());
 
 // FIXME: refactor into container/action
 export const instanceAdd = ogodActionCreator(ogodActionName(OGOD_CATEGORY.INSTANCE, 'ADD'),

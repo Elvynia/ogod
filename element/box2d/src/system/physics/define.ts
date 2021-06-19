@@ -4,5 +4,5 @@ import { box2dHybridPhysics } from "./hybrid";
 
 export function box2dDefinePhysics(tagName?: string, stateHybrids: Array<Hybrids<any>> = [], overrideHybrids: Array<Hybrids<any>> = []) {
     ogodDefineSystem(tagName || 'box2d-physics', [box2dHybridPhysics(), ...stateHybrids],
-        [...overrideHybrids, { runtime: 'physics', aspects: ogodFactorySystemArrayString(['body']) }]);
+        [{ runtime: 'physics', aspects: ogodFactorySystemArrayString(['body']) }, ...overrideHybrids]);
 }

@@ -6,7 +6,7 @@ import { d2HybridSize } from '../size/hybrid';
 
 export function d2DefineCircle(tagName?: string, stateHybrids: Array<Hybrids<any>> = [], overrideHybrids: Array<Hybrids<any>> = []): hybrids.HybridElement<D2ElementShape> {
     return ogodDefineInstance(tagName || 'd2-circle', [d2HybridInstance(), d2HybridSize(), ...stateHybrids],
-        [...overrideHybrids, {
+        [{
             runtime: 'circle'
-        }]) as hybrids.HybridElement<D2ElementShape>;
+        }, ...overrideHybrids]) as hybrids.HybridElement<D2ElementShape>;
 }

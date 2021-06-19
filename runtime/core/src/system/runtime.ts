@@ -1,8 +1,8 @@
-import { OgodStateEngine, OgodStateSystem, OgodActionSystem, systemInitSuccess, systemChangesSuccess, systemDestroySuccess, OgodStateInstance } from '@ogod/common';
+import { OgodStateEngine, OgodStateSystem, OgodActionSystem, systemInitSuccess, systemChangesSuccess, systemDestroySuccess, OgodStateInstance, OgodActionActor, systemStart, systemStop, OGOD_CATEGORY } from '@ogod/common';
 import { Observable, of } from 'rxjs';
 import { OgodRuntimeContainer } from '../container/runtime';
 import { OgodRuntimeEngine } from '../engine/runtime';
-import { withLatestFrom, pluck, map, filter } from 'rxjs/operators';
+import { withLatestFrom, pluck, map, filter, mapTo, delay, first } from 'rxjs/operators';
 import { ogodReactiveUpdate } from '../util/reactive-update';
 import { ActionsObservable } from 'redux-observable';
 
@@ -12,14 +12,14 @@ export interface OgodRuntimeSystem extends OgodRuntimeContainer<OgodStateSystem,
 }
 
 export function ogodAspectAny(aspects) {
-    return (instance: OgodStateInstance): boolean => aspects.some((key) => Object.entries(instance)
+    return (instance: OgodStateInstance): boolean => instance.running && aspects.some((key) => Object.entries(instance)
         .filter(([k, value]) => value !== undefined)
         .map(([k]) => k)
         .indexOf(key) >= 0);
 }
 
 export function ogodAspectAll(aspects) {
-    return (instance: OgodStateInstance): boolean => aspects.every((key) => Object.entries(instance)
+    return (instance: OgodStateInstance): boolean => instance.running && aspects.every((key) => Object.entries(instance)
         .filter(([k, value]) => value !== undefined)
         .map(([k]) => k)
         .indexOf(key) >= 0);
@@ -40,7 +40,7 @@ export class OgodRuntimeSystemDefault implements OgodRuntimeSystem {
         }));
     }
 
-    start(state: OgodStateSystem, state$: Observable<OgodStateEngine>) {
+    start(state: OgodStateSystem, state$: Observable<OgodStateEngine>): OgodActionActor<OgodStateSystem> {
         console.log('[SYSTEM] Start', state.id);
         state.running = true;
         if (state.aspects) {
@@ -75,6 +75,7 @@ export class OgodRuntimeSystemDefault implements OgodRuntimeSystem {
             });
         }
         state.sub$['ogodReactiveUpdate'] = ogodReactiveUpdate(this, state);
+        return systemStart({ id: state.id, state });
     }
 
     add(state: OgodStateSystem, child: OgodStateInstance) {
@@ -90,25 +91,28 @@ export class OgodRuntimeSystemDefault implements OgodRuntimeSystem {
     }
 
     remove(state: OgodStateSystem, id: string, child: OgodStateInstance) {
-        console.log('[SYSTEM] Remove %s from %s', child.id, state.id);
-        state.entities = state.entities.filter((childId) => id !== childId);
+        console.log('[SYSTEM] Remove %s from %s', id, state.id);
+        state.entities.splice(state.entities.findIndex((key) => key === id), 1);
     }
 
-    stop(state: OgodStateSystem) {
+    stop(state: OgodStateSystem): OgodActionActor<OgodStateSystem> {
         console.log('[SYSTEM] Stop', state.id);
         state.running = false;
         state.entities = [];
         Object.values(state.sub$).forEach((sub) => sub.unsubscribe());
+        return systemStop({ id: state.id, state });
     }
 
-    destroy(state: OgodStateSystem): Observable<OgodActionSystem> {
-        if (state.running) {
-            state.active = false;
-            this.stop(state);
-        }
-        return of(systemDestroySuccess({
-            id: state.id
-        }));
+    destroy(state: OgodStateSystem, state$: Observable<OgodStateEngine>): Observable<OgodActionSystem> {
+        state.active = false;
+        return state$.pipe(
+            map((fs) => fs[OGOD_CATEGORY.SYSTEM][state.id]),
+            filter((s) => !s.running),
+            first(),
+            mapTo(systemDestroySuccess({
+                id: state.id
+            }))
+        );
     }
 
     protected filter(state: OgodStateSystem, instances: Array<OgodStateInstance>): Array<OgodStateInstance> {

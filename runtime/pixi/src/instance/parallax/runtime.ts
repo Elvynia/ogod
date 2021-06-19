@@ -1,13 +1,14 @@
+import { OgodActionInstance } from '@ogod/common';
 import { Observable } from 'rxjs';
-import { OgodStateEngine, OgodActionInstance } from '@ogod/common';
 import { map, tap } from 'rxjs/operators';
-import { PixiRuntimeInstance, waitForResource } from '../default/runtime';
+import { PixiStateEngine } from '../../engine/state';
 import { PixiStateTextures } from '../../resource/textures/state';
+import { PixiRuntimeInstance, waitForResource } from '../default/runtime';
 import { PixiStateParallax } from './state';
 
 export class PixiRuntimeParallax extends PixiRuntimeInstance {
 
-    initializeSprite(state: PixiStateParallax, state$: Observable<OgodStateEngine>): Observable<PixiStateParallax> {
+    initializeSprite(state: PixiStateParallax, state$: Observable<PixiStateEngine>): Observable<PixiStateParallax> {
         return waitForResource<PixiStateTextures>(state, state$).pipe(
             map((textures) => ({
                 ...state,
@@ -29,9 +30,9 @@ export class PixiRuntimeParallax extends PixiRuntimeInstance {
         }
     }
 
-    destroy(state: PixiStateParallax): Observable<OgodActionInstance> {
+    destroy(state: PixiStateParallax, state$: Observable<PixiStateEngine>): Observable<OgodActionInstance> {
         // FIXME: Options for children/textures.
         state.instance$.destroy();
-        return super.destroy(state);
+        return super.destroy(state, state$);
     }
 }

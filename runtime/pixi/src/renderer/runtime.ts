@@ -46,7 +46,7 @@ export class PixiRuntimeRenderer implements OgodRuntimeActor<PixiStateRenderer, 
         }));
     }
 
-    destroy(state: PixiStateRenderer) {
+    destroy(state: PixiStateRenderer, state$: Observable<PixiStateEngine>) {
         return of(rendererDestroySuccess({ id: state.id }));
     }
 }

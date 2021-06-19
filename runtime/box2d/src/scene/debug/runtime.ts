@@ -1,6 +1,7 @@
 import { b2Body, b2CircleShape, b2Fixture, b2PolygonShape, b2Vec2 } from '@flyover/box2d';
 import { OgodActionScene, OgodStateEngine } from "@ogod/common";
 import { OgodRuntimeEngine, OgodRuntimeSceneDefault } from "@ogod/runtime-core";
+import { ActionsObservable } from 'redux-observable';
 import { Observable, of } from "rxjs";
 import { filter, map, switchMap, take } from 'rxjs/operators';
 import { WORLD_RATIO } from '../../system/physics/runtime';
@@ -11,7 +12,7 @@ declare var self: OgodRuntimeEngine;
 
 export class Box2dRuntimeDebug extends OgodRuntimeSceneDefault {
 
-    initialize(state: Box2dStateDebug, state$: Observable<OgodStateEngine>): Observable<OgodActionScene> {
+    initialize(state: Box2dStateDebug, state$: Observable<OgodStateEngine>, action$: ActionsObservable<any>): Observable<OgodActionScene> {
         return state$.pipe(
             filter((fs) => fs.system[state.physicsId] && !!(fs.system[state.physicsId] as Box2dStatePhysics).world$),
             map((fs) => (fs.system[state.physicsId] as Box2dStatePhysics).world$),
@@ -35,7 +36,7 @@ export class Box2dRuntimeDebug extends OgodRuntimeSceneDefault {
             switchMap((initState) => super.initialize({
                 ...initState,
                 graphics: {}
-            } as any, state$))
+            } as any, state$, action$))
         );
     }
 

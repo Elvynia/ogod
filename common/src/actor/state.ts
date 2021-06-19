@@ -6,6 +6,8 @@ export interface OgodStateActor<C extends string> {
     runtime: string;
     loading?: boolean;
     loaded?: boolean;
+    destroying?: boolean;
+    destroyed?: boolean;
 }
 
 export interface OgodStateActors<C extends string> {

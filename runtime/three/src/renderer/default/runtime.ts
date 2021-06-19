@@ -53,7 +53,7 @@ export class ThreeRuntimeRenderer implements OgodRuntimeActor<ThreeStateRenderer
         }));
     }
 
-    destroy(state: ThreeStateRenderer) {
+    destroy(state: ThreeStateRenderer, state$: Observable<ThreeStateEngine>) {
         return of(rendererDestroySuccess({ id: state.id }));
     }
 }

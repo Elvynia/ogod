@@ -1,7 +1,6 @@
 import { Action } from 'redux';
 import { ogodActionCreator, ogodActionName } from '../util/action';
 import { OgodStateActor } from './state';
-import { OgodCategoryState } from '../util/category';
 
 export enum OGOD_ACTION_ACTOR {
     INIT = 'INIT', INIT_SUCCESS = 'INIT_SUCCESS', INIT_ERROR = 'INIT_ERROR',

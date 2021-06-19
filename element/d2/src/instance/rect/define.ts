@@ -6,7 +6,7 @@ import { d2HybridSizeXY } from '../size/hybrid';
 
 export function d2DefineRect(tagName?: string, stateHybrids: Array<Hybrids<any>> = [], overrideHybrids: Array<Hybrids<any>> = []): hybrids.HybridElement<D2ElementShape> {
     return ogodDefineInstance(tagName || 'd2-rect', [d2HybridInstance(), d2HybridSizeXY(), ...stateHybrids],
-        [...overrideHybrids, {
+        [{
             runtime: 'rect'
-        }]) as hybrids.HybridElement<D2ElementShape>;
+        }, ...overrideHybrids]) as hybrids.HybridElement<D2ElementShape>;
 }

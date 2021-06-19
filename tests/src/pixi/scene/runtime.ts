@@ -2,6 +2,7 @@ import { OgodActionScene, OgodStateEngine } from '@ogod/common';
 import { Box2dRuntimeDebug, WORLD_RATIO } from "@ogod/runtime-box2d";
 import { OgodStateWorld } from '@ogod/runtime-core';
 import { PixiStateScene, PixiRuntimeEngine } from '@ogod/runtime-pixi';
+import { ActionsObservable } from 'redux-observable';
 import { Observable } from 'rxjs';
 import { filter, map, switchMap, take } from 'rxjs/operators';
 import { PixiStateDebugBox2d } from "./state";
@@ -10,7 +11,7 @@ declare var self: PixiRuntimeEngine;
 
 export class PixiRuntimeDebugBox2d extends Box2dRuntimeDebug {
 
-    initialize(state: PixiStateDebugBox2d, state$: Observable<OgodStateEngine>): Observable<OgodActionScene> {
+    initialize(state: PixiStateDebugBox2d, state$: Observable<OgodStateEngine>, action$: ActionsObservable<any>): Observable<OgodActionScene> {
         return state$.pipe(
             filter((fs) => Object.keys(fs.scene).length > 0),
             map((fs) => Object.values(fs.scene)[0]),
@@ -28,7 +29,7 @@ export class PixiRuntimeDebugBox2d extends Box2dRuntimeDebug {
                     camera
                 }))
             )),
-            switchMap((initState) => super.initialize(initState, state$))
+            switchMap((initState) => super.initialize(initState, state$, action$))
         );
     }
 

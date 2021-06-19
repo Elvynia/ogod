@@ -14,11 +14,11 @@ export function ogodDefineActorReactive<E extends OgodElementActor<C>, C extends
     return ogodDefineElement(tagName, baseHybrid,
         changesCreator ? [ogodHybridActor(category), ...stateHybrids, ogodHybridReactive<C>(changesCreator, active)] :
             [ogodHybridActor(category), ...stateHybrids],
-        [...overrideHybrids, ogodHybridStateReactive<C>(defaultKeys, initCreator, destroyCreator)]);
+        [ogodHybridStateReactive<C>(defaultKeys, initCreator, destroyCreator), ...overrideHybrids]);
 }
 
 export function ogodDefineActorAsync<E extends HTMLElement, S = any>(tagName: string,
     baseHybrid: Hybrids<any>, stateHybrids: Hybrids<any>[] = [], overrideHybrids: Hybrids<any>[] = []): hybrids.HybridElement<E> {
     return ogodDefineElement(tagName, baseHybrid, stateHybrids,
-        [...overrideHybrids, ogodHybridStateAsync<S>()]);
+        [ogodHybridStateAsync<S>(), ...overrideHybrids]);
 }

@@ -71,9 +71,9 @@ export abstract class PixiRuntimeInstance extends OgodRuntimeInstanceDefault {
         state.instance$.zIndex = state.index;
     }
 
-    destroy(state: PixiStateInstance): Observable<OgodActionInstance> {
+    destroy(state: PixiStateInstance, state$: Observable<OgodStateEngine>): Observable<OgodActionInstance> {
         // FIXME: Options for children/textures ?
         state.instance$.destroy();
-        return super.destroy(state);
+        return super.destroy(state, state$);
     }
 }

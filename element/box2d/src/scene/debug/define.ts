@@ -4,5 +4,5 @@ import { box2dHybridDebug } from './hybrid';
 
 export function box2dDefineDebug(tagName?: string, stateHybrids: Array<Hybrids<any>> = [], overrideHybrids: Array<Hybrids<any>> = []) {
     return ogodDefineScene(tagName || 'box2d-debug', [box2dHybridDebug(), ...stateHybrids],
-        [...overrideHybrids, { runtime: 'box2d-debug' }]);
+        [{ runtime: 'box2d-debug' }, ...overrideHybrids]);
 }

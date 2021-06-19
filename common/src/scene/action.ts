@@ -2,6 +2,7 @@ import { OGOD_ACTION_ACTOR, ogodActionCreatorActor, OgodActionActor } from './..
 import { OGOD_CATEGORY } from '../util/category';
 import { OgodStateScene } from './state';
 import { ogodActionCreator, ogodActionName, ogodActionParams } from '../util/action';
+import { ogodActionCreatorReactive, OGOD_ACTION_REACTIVE } from '../reactive/action';
 
 export interface OgodActionScene extends OgodActionActor<OgodStateScene, OGOD_CATEGORY.SCENE> { };
 
@@ -20,6 +21,11 @@ export const sceneChangesError = ogodActionCreatorActor(OGOD_CATEGORY.SCENE, OGO
     ogodActionParams<{ id: string, changes: Partial<OgodStateScene> }>());
 export const sceneChangesCanvas = ogodActionCreator(ogodActionName(OGOD_CATEGORY.SCENE, 'CANVAS'),
     ogodActionParams<{ id: string, changes?: Partial<OgodStateScene> }>());
+
+export const sceneStart = ogodActionCreatorReactive(OGOD_CATEGORY.SCENE, OGOD_ACTION_REACTIVE.START,
+    ogodActionParams<{ id: string, state: OgodStateScene }>());
+export const sceneStop = ogodActionCreatorReactive(OGOD_CATEGORY.SCENE, OGOD_ACTION_REACTIVE.STOP,
+    ogodActionParams<{ id: string, state: OgodStateScene }>());
 
 export const sceneDestroy = ogodActionCreatorActor(OGOD_CATEGORY.SCENE, OGOD_ACTION_ACTOR.DESTROY,
     ogodActionParams<{ id: string }>());
