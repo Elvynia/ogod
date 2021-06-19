@@ -21,6 +21,8 @@ export * from './instance/mesh/runtime';
 export * from './instance/mesh/state';
 export * from './instance/object/runtime';
 export * from './instance/object/state';
+export * from './instance/points/runtime';
+export * from './instance/points/state';
 export * from './instance/vector/state';
 
 export * from './scene/camera/runtime';

@@ -6,6 +6,7 @@ export function threeHybridInstance(): Hybrids<ThreeElementInstance> {
     return {
         position: ogodFactoryInstanceChildren('vec3'),
         rotation: ogodFactoryInstanceChildren('vec3'),
+        scale: ogodFactoryInstanceChildren('vec3'),
         translator: ogodFactoryInstanceChildren('vec3'),
         rotator: ogodFactoryInstanceChildren('vec3'),
     }

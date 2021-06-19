@@ -23,6 +23,11 @@ export class ThreeRuntimeInstance extends OgodRuntimeInstanceDefault {
         } else {
             state.rotation = new Vector3();
         }
+        if (state.scale) {
+            this.updateStateScale(0, state);
+        } else {
+            state.scale = new Vector3(1, 1, 1);
+        }
         return super.initializeSuccess(state);
     }
 
@@ -33,6 +38,9 @@ export class ThreeRuntimeInstance extends OgodRuntimeInstanceDefault {
         }
         if (changes.rotation) {
             this.updateStateRotation(0, all);
+        }
+        if (changes.scale) {
+            this.updateStateScale(0, all);
         }
         return super.changes(changes, state);
     }
@@ -60,5 +68,11 @@ export class ThreeRuntimeInstance extends OgodRuntimeInstanceDefault {
         state.object$.rotation.x = state.rotation.x;
         state.object$.rotation.y = state.rotation.y;
         state.object$.rotation.z = state.rotation.z;
+    }
+
+    updateStateScale(delta: number, state: ThreeStateInstance) {
+        state.object$.scale.x = state.scale.x;
+        state.object$.scale.y = state.scale.y;
+        state.object$.scale.z = state.scale.z;
     }
 }

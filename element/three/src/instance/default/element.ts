@@ -4,6 +4,7 @@ import { OgodElementInstance } from '@ogod/element-core';
 export interface ThreeElementInstance extends OgodElementInstance {
     position: ThreeElementVec3;
     rotation: ThreeElementVec3;
+    scale: ThreeElementVec3;
     translator: ThreeElementVec3;
     rotator: ThreeElementVec3;
 }

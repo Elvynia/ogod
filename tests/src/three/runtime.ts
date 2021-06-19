@@ -1,6 +1,6 @@
 import { range } from 'rxjs';
 import { engineInit, OGOD_CATEGORY, sceneInit, instanceInit, engineStart, engineCanvas, instanceChanges, resourceInit } from '@ogod/common';
-import { rendererInit, ThreeStateScene } from '@ogod/runtime-three';
+import { rendererInit, ThreeImportType, ThreeStateScene } from '@ogod/runtime-three';
 import { DoubleSide, MathUtils } from 'three';
 import { reduce } from 'rxjs/operators';
 
@@ -311,6 +311,7 @@ ww.postMessage(instanceInit({
         watches: [],
         reflects: [],
         path: 'assets/room_0/room_0',
+        type: ThreeImportType.OBJ_MTL,
         position: {
             x: 0,
             y: -50,

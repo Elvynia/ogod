@@ -7,5 +7,6 @@ export interface ThreeStateInstance extends OgodStateInstance {
     rotation: ThreeStateVec3;
     translator: ThreeStateVec3;
     rotator: ThreeStateVec3;
+    scale: ThreeStateVec3;
     object$: Object3D;
 }
