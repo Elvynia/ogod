@@ -24,7 +24,10 @@ export class ThreeRuntimeControlFly extends ThreeRuntimeInstance {
                 translator: state.translator || new Vector3(),
                 rotator: state.rotator || new Vector3()
             })),
-            tap((initState) => this.updateStateKeys(0, initState)),
+            tap((initState) => {
+                initState.object$.rotation.order = 'YXZ';
+                this.updateStateKeys(0, initState);
+            }),
             switchMap((initState) => super.initialize(initState, state$, action$))
         );
     }
@@ -51,15 +54,9 @@ export class ThreeRuntimeControlFly extends ThreeRuntimeInstance {
         state.object$.translateY(state.translator.y * moveMult);
         state.object$.translateZ(state.translator.z * moveMult);
 
-        state.tmpQuaternion.set(state.rotator.x * rotMult, state.rotator.y * rotMult, state.rotator.z * rotMult, 1).normalize();
+        state.tmpQuaternion.set(state.rotator.x * rotMult, 0, state.rotator.z * rotMult, 1).normalize();
         state.object$.quaternion.multiply(state.tmpQuaternion);
-
-        // if (this.lastPosition.distanceToSquared(state.object$.position) > EPS
-        //     || 8 * (1 - this.lastQuaternion.dot(state.object$.quaternion)) > EPS) {
-        //     this.dispatchEvent(this.changeEvent);
-        //     this.lastQuaternion.copy(state.object$.quaternion);
-        //     this.lastPosition.copy(state.object$.position);
-        // }
+        state.object$.rotateOnWorldAxis(new Vector3(0.0, 1.0, 0.0), state.rotator.y * rotMult);
     }
 
     updateStateKeys(delta: number, state: ThreeStateControlFly) {
