@@ -8,8 +8,6 @@ import { ThreeStateScene } from '../../scene/default/state';
 import { ThreeRuntimeInstance } from './../default/runtime';
 import { ThreeStateControlFly } from "./state";
 
-const EPS = 0.000001;
-
 export class ThreeRuntimeControlFly extends ThreeRuntimeInstance {
 
     initialize(state: ThreeStateControlFly, state$: Observable<OgodStateEngine>, action$: ActionsObservable<any>): Observable<OgodActionInstance> {

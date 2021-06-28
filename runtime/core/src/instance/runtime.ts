@@ -38,6 +38,10 @@ export abstract class OgodRuntimeInstanceDefault implements OgodRuntimeInstance 
     }
 
     changes(changes: Partial<OgodStateInstance>, state: OgodStateInstance): Observable<OgodActionInstance> {
+        return this.changesSuccess(changes, state);
+    }
+
+    changesSuccess(changes: Partial<OgodStateInstance>, state: OgodStateInstance): Observable<OgodActionInstance> {
         return of(instanceChangesSuccess({
             id: state.id,
             changes
