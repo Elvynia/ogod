@@ -41,6 +41,7 @@ export * from './system/translate/state';
 
 export * from './util/category';
 export * from './util/fetch';
+export * from './util/reactive-container';
 export * from './util/reactive-update';
 export * from './util/reactive-watch';
 export * from './util/reducer';
