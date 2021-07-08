@@ -1,7 +1,7 @@
 import { OgodRuntimeReactive } from '../reactive/runtime';
 import { OgodStateReactive, OgodActionActor, OgodCategoryState, OgodStateActor } from '@ogod/common';
 import { Observable, Subscription } from 'rxjs';
-import { tap, map, scan } from 'rxjs/operators';
+import { tap, map, scan, filter } from 'rxjs/operators';
 import { OgodRuntimeEngine } from '../engine/runtime';
 
 declare var self: OgodRuntimeEngine;
@@ -53,6 +53,7 @@ export function ogodReactiveUpdate<
                         .reduce((acc, prop) => Object.assign(acc, prop), {});
                     return [s2, changes];
                 }, [{ ...state }, {}]),
+                filter(([s, changes]) => Object.keys(changes).length > 0),
                 map(([s, changes]) => changes)
             ).subscribe((update) => self.reflect$.next({ id: state.id, state: update }));
         }
