@@ -2,9 +2,8 @@ import { OgodActionActor, OgodActionSystem, OgodStateEngine, OgodStateInstance, 
 import { ActionsObservable } from 'redux-observable';
 import { Observable, of } from 'rxjs';
 import { filter, first, map, mapTo } from 'rxjs/operators';
-import { OgodRuntimeContainer } from '../container/runtime';
+import { ogodContainerUpdate$, OgodRuntimeContainer } from '../container/runtime';
 import { OgodRuntimeEngine } from '../engine/runtime';
-import { ogodContainerUpdate$ } from '../util/reactive-container';
 import { ogodReactiveUpdate } from '../util/reactive-update';
 
 declare var self: OgodRuntimeEngine;
@@ -27,6 +26,12 @@ export function ogodAspectAll(aspects) {
         .indexOf(key) >= 0);
 }
 
+export function ogodContainerUpdateSystem$(runtime: OgodRuntimeSystem, state: OgodStateSystem, state$: Observable<OgodStateEngine>) {
+    return ogodContainerUpdate$((source: Observable<[number, OgodStateInstance[]]>) => source.pipe(
+        map(([delta, instances]) => runtime.filter(state, instances))
+    ), state, state$);
+}
+
 export class OgodRuntimeSystemDefault implements OgodRuntimeSystem {
 
     initialize(state: OgodStateSystem, state$: Observable<OgodStateEngine>, action$: ActionsObservable<any>): Observable<OgodActionSystem> {
@@ -46,7 +51,7 @@ export class OgodRuntimeSystemDefault implements OgodRuntimeSystem {
         console.log('[SYSTEM] Start', state.id);
         state.running = true;
         if (state.aspects) {
-            state.sub$['ogodContainerUpdate'] = ogodContainerUpdate$(this, state, state$).subscribe(({ added, removed }) => {
+            state.sub$['ogodContainerUpdate'] = ogodContainerUpdateSystem$(this, state, state$).subscribe(({ added, removed }) => {
                 added.forEach((instance) => {
                     this.add(state, instance);
                 });

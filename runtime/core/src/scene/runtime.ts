@@ -11,12 +11,19 @@ import { Observable, of } from 'rxjs';
 import { delay, filter, first, map, mapTo, pluck, withLatestFrom } from 'rxjs/operators';
 import { OgodRuntimeEngine } from '../engine/runtime';
 import { ogodReactiveUpdate } from '../util/reactive-update';
-import { OgodRuntimeContainer } from './../container/runtime';
+import { ogodContainerUpdate$, OgodRuntimeContainer } from './../container/runtime';
 
 declare var self: OgodRuntimeEngine;
 
 export interface OgodRuntimeScene extends OgodRuntimeContainer<OgodStateScene, OgodActionScene> {
     render(state: OgodStateScene): void;
+}
+
+export function ogodContainerUpdateScene$(state: OgodStateScene, state$: Observable<OgodStateEngine>) {
+    return ogodContainerUpdate$((source: Observable<[number, OgodStateInstance[]]>) => source.pipe(
+        map(([delta, instances]) => instances
+            .filter((instance: OgodStateInstance) => instance.running && instance.scenes.indexOf(state.id) >= 0)
+        )), state, state$);
 }
 
 export abstract class OgodRuntimeSceneDefault implements OgodRuntimeScene {
@@ -39,27 +46,7 @@ export abstract class OgodRuntimeSceneDefault implements OgodRuntimeScene {
     start(state: OgodStateScene, state$: Observable<OgodStateEngine>): OgodActionActor<OgodStateScene> {
         console.log('[SCENE] Start', state.id);
         state.running = true;
-        state.sub$['ogodContainerUpdate'] = self.update$.pipe(
-            withLatestFrom(state$.pipe(
-                pluck('instance'),
-                map((instances) => Object.values(instances)
-                    .filter((instance) => instance.loaded))
-            )),
-            map(([delta, instances]) => instances
-                .filter((instance: OgodStateInstance) => instance.running && instance.scenes.indexOf(state.id) >= 0)
-            ),
-            map((instances) => {
-                const added = instances
-                    .filter((i) => state.entities.indexOf(i.id) < 0);
-                const removed = state.entities
-                    .filter((id) => instances.findIndex((i) => i.id === id) < 0);
-                return {
-                    added,
-                    removed
-                }
-            }),
-            filter(({ added, removed }) => added.length > 0 || removed.length > 0)
-        ).subscribe(({ added, removed }) => {
+        state.sub$['ogodContainerUpdate'] = ogodContainerUpdateScene$(state, state$).subscribe(({ added, removed }) => {
             added.forEach((instance: OgodStateInstance) => {
                 this.add(state, instance);
             });

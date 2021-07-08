@@ -1,5 +1,7 @@
 export * from './engine/define';
 
+export * from './group/define';
+
 export * from './instance/control-fly/define';
 export * from './instance/control-fly/element';
 export * from './instance/control-fly/hybrid';

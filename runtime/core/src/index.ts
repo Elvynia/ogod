@@ -6,6 +6,8 @@ export * from './container/runtime';
 export * from './engine/epic';
 export * from './engine/runtime';
 
+export * from './group/runtime';
+
 export * from './instance/epic';
 export * from './instance/reducer';
 export * from './instance/runtime';
@@ -41,7 +43,6 @@ export * from './system/translate/state';
 
 export * from './util/category';
 export * from './util/fetch';
-export * from './util/reactive-container';
 export * from './util/reactive-update';
 export * from './util/reactive-watch';
 export * from './util/reducer';

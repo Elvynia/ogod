@@ -1,3 +1,4 @@
+import { ThreeRuntimeGroup } from './group/runtime';
 import { ThreeRuntimeObject } from './instance/object/runtime';
 import { OgodRegistry } from '@ogod/runtime-core';
 import { ThreeRuntimeControlFly } from './instance/control-fly/runtime';
@@ -22,5 +23,6 @@ export const OgodThreeRegistry: OgodRegistry = {
     'instance.light-point': ThreeRuntimeLightPoint,
     'instance.light-spot': ThreeRuntimeLightSpot,
     'instance.control-fly': ThreeRuntimeControlFly,
+    'instance.group': ThreeRuntimeGroup,
     'resource.texture': ThreeRuntimeTexture
 };

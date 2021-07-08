@@ -8,6 +8,8 @@ export * from './reactive/state';
 export * from './engine/action';
 export * from './engine/state';
 
+export * from './group/state';
+
 export * from './resource/action';
 export * from './resource/state';
 

@@ -21,6 +21,10 @@ export * from './instance/define';
 export * from './instance/element';
 export * from './instance/hybrid';
 
+export * from './group/define';
+export * from './group/element';
+export * from './group/hybrid';
+
 export * from './instance/in-world/element';
 export * from './instance/in-world/hybrid';
 
