@@ -1,5 +1,5 @@
 {
-  "name": "@ogod/tests",
+  "name": "@ogod/root",
   "version": "1.0.0-alpha.0",
   "description": "Workspace for @ogod packages",
   "main": "index.js",
