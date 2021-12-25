@@ -8,6 +8,7 @@ import { RADAR } from '../radar';
 import { PixiStateLevel } from './state';
 import { Box2dStateBody, WORLD_RATIO, box2dCreateBody } from '@ogod/runtime-box2d';
 import { ActionsObservable } from 'redux-observable';
+import { Sprite, Spritesheet } from 'pixi.js';
 
 declare var self: OgodRuntimeEngine;
 
@@ -53,8 +54,8 @@ export class PixiRuntimeLevel extends OgodRuntimeInstanceDefault {
         }
     }
 
-    private createTilemap(state: PixiStateLevel, data: PIXI.Spritesheet): TileMap.CompositeRectTileLayer & PIXI.Sprite {
-        const tilemap: TileMap.CompositeRectTileLayer & PIXI.Sprite = new TileMap.CompositeRectTileLayer(-1, Object.values(data.textures)) as any;
+    private createTilemap(state: PixiStateLevel, data: Spritesheet): TileMap.CompositeRectTileLayer & Sprite {
+        const tilemap: TileMap.CompositeRectTileLayer & Sprite = new TileMap.CompositeRectTileLayer(-1, Object.values(data.textures)) as any;
         tilemap.scale.x = state.scale;
         tilemap.scale.y = state.scale;
         tilemap.zIndex = state.index || 0;

@@ -4,6 +4,7 @@ import { OgodStateEngine } from "@ogod/common";
 import { Observable } from "rxjs";
 import { PixiStateSprite } from "./state";
 import { map } from "rxjs/operators";
+import { Sprite } from "pixi.js";
 
 export class PixiRuntimeSprite extends PixiRuntimeInstance {
 
@@ -12,7 +13,7 @@ export class PixiRuntimeSprite extends PixiRuntimeInstance {
             map((data) => ({
                 ...state,
                 resource$: data,
-                instance$: new PIXI.Sprite(data)
+                instance$: new Sprite(data)
             }))
         );
     }
@@ -23,7 +24,7 @@ export class PixiRuntimeSprite extends PixiRuntimeInstance {
             this.updateStateAnchor(0, state);
         } else {
             this.updateStateAnchorX(0, state);
-            this.updateStateAnchorY(0, state);    
+            this.updateStateAnchorY(0, state);
         }
     }
 

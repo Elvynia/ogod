@@ -2,6 +2,7 @@ import { OgodActionScene, OgodStateEngine } from '@ogod/common';
 import { Box2dRuntimeDebug, WORLD_RATIO } from "@ogod/runtime-box2d";
 import { OgodStateWorld } from '@ogod/runtime-core';
 import { PixiStateScene, PixiRuntimeEngine } from '@ogod/runtime-pixi';
+import { Graphics } from 'pixi.js';
 import { ActionsObservable } from 'redux-observable';
 import { Observable } from 'rxjs';
 import { filter, map, switchMap, take } from 'rxjs/operators';
@@ -18,7 +19,7 @@ export class PixiRuntimeDebugBox2d extends Box2dRuntimeDebug {
             take(1),
             map((scene: PixiStateScene) => ({
                 ...state,
-                graphics$: new PIXI.Graphics()
+                graphics$: new Graphics()
             })),
             switchMap((initState) => state$.pipe(
                 filter((fs) => fs.system[state.worldId] && !!(fs.system[state.worldId] as OgodStateWorld).camera),

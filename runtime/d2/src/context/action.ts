@@ -1,3 +1,3 @@
-import { ogodActionName, ogodActionCreator, ogodActionParams } from "@ogod/common";
+import { ogodActionName, ogodActionCreator } from "@ogod/common";
 
-export const contextNext = ogodActionCreator(ogodActionName('context', 'Next'), ogodActionParams<{ context: OffscreenCanvasRenderingContext2D }>());
+export const contextNext = ogodActionCreator<{ context: OffscreenCanvasRenderingContext2D }>(ogodActionName('context', 'Next'));

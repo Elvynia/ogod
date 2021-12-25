@@ -5,6 +5,7 @@ import { PixiStateTexture } from "../../resource/texture/state";
 import { map } from "rxjs/operators";
 import { waitForResource } from "../default/runtime";
 import { PixiRuntimeSprite } from "../sprite/runtime";
+import { TilingSprite } from "pixi.js";
 
 export class PixiRuntimeSpriteTiled extends PixiRuntimeSprite {
 
@@ -13,7 +14,7 @@ export class PixiRuntimeSpriteTiled extends PixiRuntimeSprite {
             map((data) => ({
                 ...state,
                 resource$: data,
-                instance$: new PIXI.TilingSprite(data, state.width, state.height)
+                instance$: new TilingSprite(data, state.width, state.height)
             }))
         );
     }

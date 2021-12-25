@@ -1,9 +1,10 @@
 import { OgodRuntimeResourceDefault, ogodFetch } from '@ogod/runtime-core';
 import { from, Observable } from 'rxjs';
-import { map, switchMap } from "rxjs/operators";
+import { map, switchMap, tap } from "rxjs/operators";
 import { OgodStateEngine, OgodActionResource } from '@ogod/common';
 import { PixiStateSpritesheet } from './state';
 import { fetchBaseTexture } from '../default/runtime';
+import { Spritesheet } from 'pixi.js';
 
 export class PixiRuntimeSpritesheet extends OgodRuntimeResourceDefault {
 
@@ -11,7 +12,7 @@ export class PixiRuntimeSpritesheet extends OgodRuntimeResourceDefault {
         return from(ogodFetch(state.path)).pipe(
             switchMap((response) => response.json()),
             switchMap((data) => fetchBaseTexture(this.getImageUrl(state.path, data.meta.image)).pipe(
-                map((base) => new PIXI.Spritesheet(base, data)),
+                map((base) => new Spritesheet(base, data)),
                 switchMap((sheet) => new Observable((observer) => {
                     sheet.parse(() => {
                         observer.next(sheet);

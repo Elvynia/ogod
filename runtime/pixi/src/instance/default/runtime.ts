@@ -27,7 +27,7 @@ export abstract class PixiRuntimeInstance extends OgodRuntimeInstanceDefault {
     abstract initializeSprite(state: PixiStateInstance, state$: Observable<OgodStateEngine>): Observable<PixiStateInstance>;
 
     initializeProperties(state: PixiStateInstance) {
-        state.instance$.name = state.id;
+        (state.instance$ as any).name = state.id;
         this.updateStateX(0, state);
         this.updateStateY(0, state);
         this.updateStateRotation(0, state);

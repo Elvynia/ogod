@@ -1,4 +1,4 @@
-import { ActionCreator } from '@ogod/common';
+import { OgodActionCreator } from '@ogod/common';
 import { Action, Reducer } from 'redux';
 
 export interface On<S> {
@@ -7,11 +7,11 @@ export interface On<S> {
 }
 
 export function ogodReducerOn<S>(
-    ...args: (ActionCreator | Function)[]
+    ...args: (OgodActionCreator | Function)[]
 ): { reducer: Reducer<S>; types: string[] } {
     const reducer = args.pop() as Reducer<S>;
     const types = args.reduce(
-        (result, creator) => [...result, (creator as ActionCreator).type],
+        (result, creator) => [...result, (creator as OgodActionCreator).type],
         [] as string[]
     );
     return { reducer, types };

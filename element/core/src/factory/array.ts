@@ -1,7 +1,7 @@
-import { ActionCreator, sceneChanges, instanceChanges, systemChanges } from "@ogod/common";
+import { OgodActionCreator, sceneChanges, instanceChanges, systemChanges } from "@ogod/common";
 import { ogodFactoryReactiveProperty } from './property';
 
-export const ogodFactoryReactiveArrayString = (defaultValue: Array<any>, changesCreator: ActionCreator, connect?, observe?) => ({
+export const ogodFactoryReactiveArrayString = (defaultValue: Array<any>, changesCreator: OgodActionCreator, connect?, observe?) => ({
     ...ogodFactoryReactiveProperty('', changesCreator, (host, key, invalidate) => {
         const attrName = key.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
         if (host.hasAttribute(attrName)) {
@@ -18,7 +18,7 @@ export const ogodFactoryReactiveArrayString = (defaultValue: Array<any>, changes
     }
 });
 
-export const ogodFactoryReactiveArrayNumber = (defaultValue: Array<number>, changesCreator: ActionCreator, connect?, observe?) => ({
+export const ogodFactoryReactiveArrayNumber = (defaultValue: Array<number>, changesCreator: OgodActionCreator, connect?, observe?) => ({
     ...ogodFactoryReactiveArrayString(defaultValue, changesCreator, connect, observe),
     set: (host, value) => {
         if (value != null && typeof value === 'string') {

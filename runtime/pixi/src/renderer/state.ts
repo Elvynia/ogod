@@ -1,4 +1,5 @@
 import { OgodStateActor } from "@ogod/common";
+import { Renderer } from "pixi.js";
 
 export interface PixiStateRenderer extends OgodStateActor<'renderer'> {
     width: number;
@@ -10,6 +11,6 @@ export interface PixiStateRenderer extends OgodStateActor<'renderer'> {
     clearBeforeRender?: boolean;
     preserveDrawingBuffer?: boolean;
     backgroundColor?: number;
-    powerPreference?: string;
-    renderer$?: PIXI.Renderer;
+    powerPreference?: WebGLPowerPreference;
+    renderer$?: Renderer;
 }

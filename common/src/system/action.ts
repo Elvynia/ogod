@@ -1,33 +1,27 @@
 import { OGOD_CATEGORY } from '../util/category';
-import { ogodActionParams } from '../util/action';
 import { OgodActionActor, ogodActionCreatorActor, OGOD_ACTION_ACTOR } from './../actor/action';
 import { OgodStateSystem } from './state';
 import { ogodActionCreatorReactive, OGOD_ACTION_REACTIVE } from '../reactive/action';
 
 export interface OgodActionSystem extends OgodActionActor<OgodStateSystem, OGOD_CATEGORY.SYSTEM> { };
 
-export const systemInit = ogodActionCreatorActor(OGOD_CATEGORY.SYSTEM, OGOD_ACTION_ACTOR.INIT,
-    ogodActionParams<{ id: string, state: OgodStateSystem }>());
-export const systemInitSuccess = ogodActionCreatorActor(OGOD_CATEGORY.SYSTEM, OGOD_ACTION_ACTOR.INIT_SUCCESS,
-    ogodActionParams<{ id: string, state: OgodStateSystem }>());
-export const systemInitError = ogodActionCreatorActor(OGOD_CATEGORY.SYSTEM, OGOD_ACTION_ACTOR.INIT_ERROR,
-    ogodActionParams<{ id: string, state: OgodStateSystem }>());
+export function ogodActionCreatorSystem(action: OGOD_ACTION_ACTOR) {
+    return ogodActionCreatorActor<OgodActionSystem, OgodStateSystem>(OGOD_CATEGORY.SYSTEM, action);
+}
 
-export const systemChanges = ogodActionCreatorActor(OGOD_CATEGORY.SYSTEM, OGOD_ACTION_ACTOR.CHANGES,
-    ogodActionParams<{ id: string, changes?: Partial<OgodStateSystem> }>());
-export const systemChangesSuccess = ogodActionCreatorActor(OGOD_CATEGORY.SYSTEM, OGOD_ACTION_ACTOR.CHANGES_SUCCESS,
-    ogodActionParams<{ id: string, changes?: Partial<OgodStateSystem> }>());
-export const systemChangesError = ogodActionCreatorActor(OGOD_CATEGORY.SYSTEM, OGOD_ACTION_ACTOR.CHANGES_ERROR,
-    ogodActionParams<{ id: string, changes?: Partial<OgodStateSystem> }>());
+export const systemInit = ogodActionCreatorSystem(OGOD_ACTION_ACTOR.INIT);
+export const systemInitSuccess = ogodActionCreatorSystem(OGOD_ACTION_ACTOR.INIT_SUCCESS);
+export const systemInitError = ogodActionCreatorSystem(OGOD_ACTION_ACTOR.INIT_ERROR);
 
-export const systemStart = ogodActionCreatorReactive(OGOD_CATEGORY.SYSTEM, OGOD_ACTION_REACTIVE.START,
-    ogodActionParams<{ id: string, state: OgodStateSystem }>());
-export const systemStop = ogodActionCreatorReactive(OGOD_CATEGORY.SYSTEM, OGOD_ACTION_REACTIVE.STOP,
-    ogodActionParams<{ id: string, state: OgodStateSystem }>());
+export const systemChanges = ogodActionCreatorSystem(OGOD_ACTION_ACTOR.CHANGES);
+export const systemChangesSuccess = ogodActionCreatorSystem(OGOD_ACTION_ACTOR.CHANGES_SUCCESS);
+export const systemChangesError = ogodActionCreatorSystem(OGOD_ACTION_ACTOR.CHANGES_ERROR);
 
-export const systemDestroy = ogodActionCreatorActor(OGOD_CATEGORY.SYSTEM, OGOD_ACTION_ACTOR.DESTROY,
-    ogodActionParams<{ id: string }>());
-export const systemDestroySuccess = ogodActionCreatorActor(OGOD_CATEGORY.SYSTEM, OGOD_ACTION_ACTOR.DESTROY_SUCCESS,
-    ogodActionParams<{ id: string }>());
-export const systemDestroyError = ogodActionCreatorActor(OGOD_CATEGORY.SYSTEM, OGOD_ACTION_ACTOR.DESTROY_ERROR,
-    ogodActionParams<{ id: string }>());
+export const systemStart = ogodActionCreatorReactive<{ id: string, state: OgodStateSystem }>(
+    OGOD_CATEGORY.SYSTEM, OGOD_ACTION_REACTIVE.START);
+export const systemStop = ogodActionCreatorReactive<{ id: string, state: OgodStateSystem }>(
+    OGOD_CATEGORY.SYSTEM, OGOD_ACTION_REACTIVE.STOP);
+
+export const systemDestroy = ogodActionCreatorSystem(OGOD_ACTION_ACTOR.DESTROY);
+export const systemDestroySuccess = ogodActionCreatorSystem(OGOD_ACTION_ACTOR.DESTROY_SUCCESS);
+export const systemDestroyError = ogodActionCreatorSystem(OGOD_ACTION_ACTOR.DESTROY_ERROR);

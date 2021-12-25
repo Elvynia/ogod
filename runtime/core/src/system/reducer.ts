@@ -2,13 +2,14 @@ import {
     OgodStateSystems, OgodActionSystem, systemInit, systemInitSuccess,
     systemDestroySuccess, systemDestroyError, systemInitError, OGOD_CATEGORY, systemChangesSuccess, systemStart, systemStop, systemDestroy, OgodStateSystem
 } from '@ogod/common';
+import { Action } from 'redux';
 import { OgodRuntimeEngine } from '../engine/runtime';
 import { ogodReducerCreator, ogodReducerOn } from '../util/reducer';
 
 declare var self: OgodRuntimeEngine;
 
 export function ogodReducerSystem(initialState: OgodStateSystems = {}) {
-    return ogodReducerCreator<OgodStateSystems, OgodActionSystem>(initialState,
+    return ogodReducerCreator<OgodStateSystems, OgodActionSystem & Action>(initialState,
         ogodReducerOn(systemInit, (states: OgodStateSystems, { id, state }) => ({ ...states, [id]: {
             ...state,
             loading: true

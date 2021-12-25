@@ -1,4 +1,4 @@
-import { ActionCreator } from "@ogod/common";
+import { OgodActionCreator } from "@ogod/common";
 import { Hybrids } from 'hybrids';
 import { ogodDefineElement } from "../define";
 import { ogodHybridReactive } from '../reactive/hybrid';
@@ -9,8 +9,8 @@ import { ogodHybridActor } from './hybrid';
 
 export function ogodDefineActorReactive<E extends OgodElementActor<C>, C extends string>(tagName: string, category: C,
     baseHybrid: Hybrids<OgodElementActor<C>>, stateHybrids: Hybrids<any>[] = [], overrideHybrids: Hybrids<any>[] = [],
-    defaultKeys: string[], initCreator: ActionCreator, changesCreator: ActionCreator,
-    destroyCreator: ActionCreator, active: boolean = true): hybrids.HybridElement<E> {
+    defaultKeys: string[], initCreator: OgodActionCreator, changesCreator: OgodActionCreator,
+    destroyCreator: OgodActionCreator, active: boolean = true): hybrids.HybridElement<E> {
     return ogodDefineElement(tagName, baseHybrid,
         changesCreator ? [ogodHybridActor(category), ...stateHybrids, ogodHybridReactive<C>(changesCreator, active)] :
             [ogodHybridActor(category), ...stateHybrids],

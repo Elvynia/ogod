@@ -4,6 +4,7 @@ import { OgodActionResource, OgodStateEngine } from "@ogod/common";
 import { forkJoin, Observable } from 'rxjs';
 import { fetchBaseTexture } from '../default/runtime';
 import { map, switchMap } from 'rxjs/operators';
+import { Texture } from 'pixi.js';
 
 export class PixiRuntimeTextures extends OgodRuntimeResourceDefault {
 
@@ -13,7 +14,7 @@ export class PixiRuntimeTextures extends OgodRuntimeResourceDefault {
         ).pipe(
             map((textures) => ({
                 ...state,
-                data$: textures.map((base) => new PIXI.Texture(base))
+                data$: textures.map((base) => new Texture(base))
             })),
             switchMap((initState) => super.initialize(initState, state$))
         );

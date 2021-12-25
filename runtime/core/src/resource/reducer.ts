@@ -2,13 +2,14 @@ import {
     OgodStateResources, OgodActionResource, resourceInit, resourceInitSuccess,
     resourceDestroySuccess, resourceDestroyError, resourceInitError, OGOD_CATEGORY, resourceChangesSuccess
 } from '@ogod/common';
+import { Action } from 'redux';
 import { OgodRuntimeEngine } from '../engine/runtime';
 import { ogodReducerCreator, ogodReducerOn } from '../util/reducer';
 
 declare var self: OgodRuntimeEngine;
 
 export function ogodReducerResource(initialState: OgodStateResources = {}) {
-    return ogodReducerCreator<OgodStateResources, OgodActionResource>(initialState,
+    return ogodReducerCreator<OgodStateResources, OgodActionResource & Action>(initialState,
         ogodReducerOn(resourceInit, (states: OgodStateResources, { id, state }) => ({ ...states, [id]: {
             ...state,
             loading: true

@@ -1,4 +1,4 @@
-import { ActionCreator, instanceChanges, sceneChanges, systemChanges } from "@ogod/common";
+import { OgodActionCreator, instanceChanges, sceneChanges, systemChanges } from "@ogod/common";
 import { Hybrids } from 'hybrids';
 import { BehaviorSubject, forkJoin } from 'rxjs';
 import { dispatchAsyncChildReady, ogodDispatchChildChanges, OGOD_ASYNC_CHILD_CHANGES } from './async';
@@ -59,7 +59,7 @@ const updateReactiveChildState = (host, propName: string, multiple: boolean) => 
     host.state[propName] = value;
 }
 
-export const ogodFactoryReactiveChildren = (category: string, changesCreator: ActionCreator, multiple: boolean = false, connect?) => {
+export const ogodFactoryReactiveChildren = (category: string, changesCreator: OgodActionCreator, multiple: boolean = false, connect?) => {
     let propName;
     return {
         ...ogodFactoryChildren((o: Hybrids<any>) => o.category === category, (host, key, invalidate) => {

@@ -1,9 +1,9 @@
-import { ActionCreator, OgodStateActor, OgodCategoryState } from "@ogod/common";
+import { OgodActionCreator, OgodStateActor, OgodCategoryState } from "@ogod/common";
 
 export function ogodFactoryState<
     S extends OgodStateActor<C>,
     C extends string = S['category']
->(defaultKeys: string[], initCreator: ActionCreator, destroyCreator: ActionCreator) {
+>(defaultKeys: string[], initCreator: OgodActionCreator, destroyCreator: OgodActionCreator) {
     return {
         get: (host, lastValue) => {
             if (!lastValue) {

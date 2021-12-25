@@ -1,23 +1,18 @@
-import { Action } from 'redux';
+import { Action } from "redux";
 
-export declare interface TypedAction<T extends string> extends Action {
-    readonly type: T;
+
+export interface OgodActionCreator<P = object> {
+    type: string;
+    (payload?: P): Action<string> & P;
 }
 
-export type ActionCreator<T extends string = string, P extends object = object> = ((props?: P) => P & TypedAction<T>) & TypedAction<T>;
-
-export function ogodActionName<T extends string>(category: string, name: string, prefix: string = 'OGOD') {
+export function ogodActionName(category: string, name: string, prefix: string = 'OGOD'): string {
     return `[${prefix}][${category}] ${name}`;
 }
 
-export function ogodActionParams<P extends object>(): P { return {} as P; };
-
-export function ogodActionCreator<T extends string, P extends object>(type: T, params?: P): ActionCreator<T, P> {
-    return Object.defineProperty((props: P = {} as any) => ({
-        ...props,
-        type,
-    }), 'type', {
-        value: type,
-        writable: false
-    });
+export function ogodActionCreator<P>(type: string): OgodActionCreator<P> {
+    return Object.assign(
+        (payload?: P) => ({ type, ...payload }),
+        { type }
+    );
 }

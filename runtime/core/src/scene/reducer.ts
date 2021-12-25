@@ -2,13 +2,14 @@ import {
     OgodStateScenes, OgodActionScene, sceneInit, sceneInitSuccess,
     sceneDestroySuccess, sceneDestroyError, sceneInitError, OGOD_CATEGORY, sceneChangesSuccess, sceneChangesCanvas, sceneStart, sceneStop, sceneDestroy
 } from '@ogod/common';
+import { Action } from 'redux';
 import { OgodRuntimeEngine } from '../engine/runtime';
 import { ogodReducerCreator, ogodReducerOn } from '../util/reducer';
 
 declare var self: OgodRuntimeEngine;
 
 export function ogodReducerScene(initialState: OgodStateScenes = {}) {
-    return ogodReducerCreator<OgodStateScenes, OgodActionScene>(initialState,
+    return ogodReducerCreator<OgodStateScenes, OgodActionScene & Action>(initialState,
         ogodReducerOn(sceneInit, (states: OgodStateScenes, { id, state }) => ({ ...states, [id]: {
             ...state,
             loading: true

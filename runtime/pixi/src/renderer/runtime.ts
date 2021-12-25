@@ -1,5 +1,6 @@
 import { engineCanvas, OgodActionActor } from '@ogod/common';
 import { OgodRuntimeActor } from '@ogod/runtime-core';
+import { Renderer } from 'pixi.js';
 import { ActionsObservable, ofType } from 'redux-observable';
 import { Observable, of } from "rxjs";
 import { map, pluck, take, tap } from "rxjs/operators";
@@ -17,7 +18,7 @@ export class PixiRuntimeRenderer implements OgodRuntimeActor<PixiStateRenderer, 
             id: state.id,
             state: {
                 ...state,
-                renderer$: new PIXI.Renderer({
+                renderer$: new Renderer({
                     ...state,
                     view
                 })

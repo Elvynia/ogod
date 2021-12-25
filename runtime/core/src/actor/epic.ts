@@ -1,10 +1,11 @@
+import { EMPTY } from 'rxjs';
 import {
     OgodActionActor, ogodActionName,
     OgodStateActor, OgodStateEngine, OgodStateReactive,
     OGOD_ACTION_ACTOR
 } from '@ogod/common';
+import { Action } from 'redux';
 import { Epic, ofType } from "redux-observable";
-import { empty } from 'rxjs';
 import { delay, filter, map, mergeMap, take } from 'rxjs/operators';
 import { OgodRuntimeEngine } from "../engine/runtime";
 import { OgodRuntimeReactive } from "../reactive/runtime";
@@ -12,7 +13,7 @@ import { OgodRuntimeActor } from "./runtime";
 
 declare var self: OgodRuntimeEngine;
 
-export function ogodEpicActorInit<S extends OgodStateActor<C>, A extends OgodActionActor<S, C>, C extends string = S['category']>(
+export function ogodEpicActorInit<S extends OgodStateActor<C>, A extends OgodActionActor<S, C> & Action, C extends string = S['category']>(
     category: C): Epic<A, A, OgodStateEngine> {
     return (action$, state$) => action$.pipe(
         ofType(ogodActionName(category, OGOD_ACTION_ACTOR.INIT)),
@@ -25,12 +26,12 @@ export function ogodEpicActorInit<S extends OgodStateActor<C>, A extends OgodAct
                 console.error('[OGOD][instance] Cannot find runtime %s.%s in registry to initialize.', state.category, state.runtime);
             }
             // FIXME: instanceInitError
-            return empty();
+            return EMPTY;
         })
     );
 }
 
-export function ogodEpicActorChanges<S extends OgodStateReactive<string>, A extends OgodActionActor<S>>(category: string): Epic<A, A, OgodStateEngine> {
+export function ogodEpicActorChanges<S extends OgodStateReactive<string>, A extends OgodActionActor<S> & Action>(category: string): Epic<A, A, OgodStateEngine> {
     return (action$, state$) => action$.pipe(
         ofType(ogodActionName(category, OGOD_ACTION_ACTOR.CHANGES)),
         mergeMap(({ id, changes }) => state$.pipe(
@@ -49,7 +50,7 @@ export function ogodEpicActorChanges<S extends OgodStateReactive<string>, A exte
     );
 }
 
-export function ogodEpicActorDestroy<S extends OgodStateReactive<string>, A extends OgodActionActor<S>>(category: string): Epic<A, A, OgodStateEngine> {
+export function ogodEpicActorDestroy<S extends OgodStateReactive<string>, A extends OgodActionActor<S> & Action>(category: string): Epic<A, A, OgodStateEngine> {
     return (actions$, state$) => actions$.pipe(
         ofType(ogodActionName(category, OGOD_ACTION_ACTOR.DESTROY)),
         mergeMap(({ id }) => state$.pipe(

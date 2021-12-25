@@ -1,11 +1,11 @@
-import { ActionCreator, OgodCategoryState } from '@ogod/common';
+import { OgodActionCreator, OgodCategoryState } from '@ogod/common';
 import { Hybrids, property } from 'hybrids';
 import { ogodFactoryReactiveProperty } from '../factory/property';
 import { ogodFactoryReactiveArrayString } from '../factory/array';
 import { OgodElementReactive } from './element';
 import { ogodFactoryReactiveBoolean } from '../factory/boolean';
 
-export function ogodHybridReactive<C extends string>(changesCreator: ActionCreator, active: boolean = true): Hybrids<OgodElementReactive<C>> {
+export function ogodHybridReactive<C extends string>(changesCreator: OgodActionCreator, active: boolean = true): Hybrids<OgodElementReactive<C>> {
     return {
         active: ogodFactoryReactiveBoolean(active, changesCreator),
         tick: ogodFactoryReactiveProperty(false, changesCreator),

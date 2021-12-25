@@ -5,6 +5,7 @@ import { filter, first, map, switchMap } from "rxjs/operators";
 import { Observable } from "rxjs";
 import { OgodStateEngine } from "@ogod/common";
 import { PixiRuntimeSprite } from "../sprite/runtime";
+import { AnimatedSprite, Texture } from "pixi.js";
 
 export class PixiRuntimeSpriteAnimated extends PixiRuntimeSprite {
 
@@ -21,7 +22,7 @@ export class PixiRuntimeSpriteAnimated extends PixiRuntimeSprite {
             )),
             map((initState) => ({
                 ...initState,
-                instance$: new PIXI.AnimatedSprite(this.getAnimation(initState), false)
+                instance$: new AnimatedSprite(this.getAnimation(initState), false)
             }))
         );
     }
@@ -61,8 +62,8 @@ export class PixiRuntimeSpriteAnimated extends PixiRuntimeSprite {
         }
     }
 
-    protected getAnimation(state: PixiStateSpriteAnimated): PIXI.Texture[] {
-        const textures: PIXI.Texture[] = state.resource$.animations[state.animation];
+    protected getAnimation(state: PixiStateSpriteAnimated): Texture[] {
+        const textures: Texture[] = state.resource$.animations[state.animation];
         if (!textures) {
             console.warn('Wrong animation name %s not found in resource %s', state.animation, state.resource);
         }

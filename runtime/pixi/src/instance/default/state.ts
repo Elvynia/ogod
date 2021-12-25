@@ -1,9 +1,10 @@
 import { OgodStateInstance } from '@ogod/common';
+import { DisplayObject } from 'pixi.js';
 
 export interface PixiStateInstance extends OgodStateInstance {
     resource: string;
     resource$: any;
-    instance$: PIXI.DisplayObject;
+    instance$: DisplayObject;
     x: number;
     y: number;
     scale?: number;

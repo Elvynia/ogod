@@ -56,7 +56,7 @@ export class ThreeRuntimeObject extends ThreeRuntimeInstance {
                     console.log('loaded data:', obj);
                     return this.initializeSuccess({
                         ...state,
-                        object$: obj.scene
+                        object$: (obj as any).scene
                     })
                 })
             );

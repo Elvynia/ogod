@@ -1,4 +1,5 @@
 import { OgodActionInstance } from '@ogod/common';
+import { Container, TilingSprite } from 'pixi.js';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { PixiStateEngine } from '../../engine/state';
@@ -13,10 +14,10 @@ export class PixiRuntimeParallax extends PixiRuntimeInstance {
             map((textures) => ({
                 ...state,
                 resource$: textures,
-                instance$: new PIXI.Container()
+                instance$: new Container()
             })),
             tap((initState) => initState.resource$
-                .map((texture) => new PIXI.TilingSprite(texture, initState.width, initState.height))
+                .map((texture) => new TilingSprite(texture, initState.width, initState.height))
                 .forEach((sprite, i) => initState.instance$.addChildAt(sprite, i))
             )
         );
@@ -24,7 +25,7 @@ export class PixiRuntimeParallax extends PixiRuntimeInstance {
 
     update(delta: number, state: PixiStateParallax) {
         if (state.speed && state.speed !== 0) {
-            state.instance$.children.slice().reverse().forEach((child: PIXI.TilingSprite, i) => {
+            state.instance$.children.slice().reverse().forEach((child: TilingSprite, i) => {
                 child.tilePosition.x += ((state.speed * state.ratio) / (i + state.speedFactor)) * delta / 1000;
             });
         }

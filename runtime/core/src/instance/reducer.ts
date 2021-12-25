@@ -2,13 +2,14 @@ import {
     OgodStateInstances, OgodActionInstance, instanceInit, instanceInitSuccess, instanceStart, instanceStop,
     instanceDestroySuccess, instanceDestroyError, instanceInitError, instanceChangesSuccess, instanceAdd, instanceRemove, instanceDestroy
 } from '@ogod/common';
+import { Action } from 'redux';
 import { OgodRuntimeEngine } from '../engine/runtime';
 import { ogodReducerCreator, ogodReducerOn } from '../util/reducer';
 
 declare var self: OgodRuntimeEngine;
 
 export function ogodReducerInstance(initialState: OgodStateInstances = {}) {
-    return ogodReducerCreator<OgodStateInstances, OgodActionInstance>(initialState,
+    return ogodReducerCreator<OgodStateInstances, OgodActionInstance & Action>(initialState,
         ogodReducerOn(instanceInit, (state: OgodStateInstances, action) => ({ ...state, [action.id]: {
             ...action.state,
             loading: true

@@ -1,5 +1,5 @@
 import { Action } from 'redux';
-import { ogodActionCreator, ogodActionName } from '../util/action';
+import { OgodActionCreator, ogodActionCreator, ogodActionName } from '../util/action';
 import { OgodStateActor } from './state';
 
 export enum OGOD_ACTION_ACTOR {
@@ -8,12 +8,13 @@ export enum OGOD_ACTION_ACTOR {
     DESTROY = 'DESTROY', DESTROY_SUCCESS = 'DESTROY_SUCCESS', DESTROY_ERROR = 'DESTROY_ERROR'
 }
 
-export interface OgodActionActor<S extends OgodStateActor<C>, C extends string = S['category']> extends Action {
+export interface OgodActionActor<S extends OgodStateActor<C>, C extends string = S['category']>  {
     id: string;
     state?: S;
     changes?: Partial<S>;
 }
 
-export function ogodActionCreatorActor<C extends string, P extends object>(category: C, action: OGOD_ACTION_ACTOR, params?: P) {
-    return ogodActionCreator(ogodActionName(category, action), params);
+export function ogodActionCreatorActor<P extends OgodActionActor<S, C>, S extends OgodStateActor<C>, C extends string = S['category']>(
+    category: C, action: OGOD_ACTION_ACTOR): OgodActionCreator<P> {
+    return ogodActionCreator<P>(ogodActionName(category, action) as C);
 }

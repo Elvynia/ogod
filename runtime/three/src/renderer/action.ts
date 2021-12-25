@@ -1,24 +1,19 @@
 
-import { ogodActionCreatorActor, ogodActionParams, OGOD_ACTION_ACTOR } from "@ogod/common";
+import { OgodActionActor, ogodActionCreatorActor, OGOD_ACTION_ACTOR } from "@ogod/common";
 import { ThreeStateRenderer } from "./default/state";
 
-export const rendererInit = ogodActionCreatorActor('renderer', OGOD_ACTION_ACTOR.INIT,
-    ogodActionParams<{ id: string, state: ThreeStateRenderer }>());
-export const rendererInitSuccess = ogodActionCreatorActor('renderer', OGOD_ACTION_ACTOR.INIT_SUCCESS,
-    ogodActionParams<{ id: string, state: ThreeStateRenderer }>());
-export const rendererInitError = ogodActionCreatorActor('renderer', OGOD_ACTION_ACTOR.INIT_ERROR,
-    ogodActionParams<{ id: string, state: ThreeStateRenderer }>());
+export function threeActionCreatorRenderer(action: OGOD_ACTION_ACTOR) {
+    return ogodActionCreatorActor<OgodActionActor<ThreeStateRenderer>, ThreeStateRenderer>('renderer', action);
+}
 
-export const rendererChanges = ogodActionCreatorActor('renderer', OGOD_ACTION_ACTOR.CHANGES,
-    ogodActionParams<{ id: string, changes?: Partial<ThreeStateRenderer> }>());
-export const rendererChangesSuccess = ogodActionCreatorActor('renderer', OGOD_ACTION_ACTOR.CHANGES_SUCCESS,
-    ogodActionParams<{ id: string, changes?: Partial<ThreeStateRenderer> }>());
-export const rendererChangesError = ogodActionCreatorActor('renderer', OGOD_ACTION_ACTOR.CHANGES_ERROR,
-    ogodActionParams<{ id: string, changes?: Partial<ThreeStateRenderer> }>());
+export const rendererInit = threeActionCreatorRenderer(OGOD_ACTION_ACTOR.INIT);
+export const rendererInitSuccess = threeActionCreatorRenderer(OGOD_ACTION_ACTOR.INIT_SUCCESS);
+export const rendererInitError = threeActionCreatorRenderer(OGOD_ACTION_ACTOR.INIT_ERROR);
 
-export const rendererDestroy = ogodActionCreatorActor('renderer', OGOD_ACTION_ACTOR.DESTROY,
-    ogodActionParams<{ id: string }>());
-export const rendererDestroySuccess = ogodActionCreatorActor('renderer', OGOD_ACTION_ACTOR.DESTROY_SUCCESS,
-    ogodActionParams<{ id: string }>());
-export const rendererDestroyError = ogodActionCreatorActor('renderer', OGOD_ACTION_ACTOR.DESTROY_ERROR,
-    ogodActionParams<{ id: string }>());
+export const rendererChanges = threeActionCreatorRenderer(OGOD_ACTION_ACTOR.CHANGES);
+export const rendererChangesSuccess = threeActionCreatorRenderer(OGOD_ACTION_ACTOR.CHANGES_SUCCESS);
+export const rendererChangesError = threeActionCreatorRenderer(OGOD_ACTION_ACTOR.CHANGES_ERROR);
+
+export const rendererDestroy = threeActionCreatorRenderer(OGOD_ACTION_ACTOR.DESTROY);
+export const rendererDestroySuccess = threeActionCreatorRenderer(OGOD_ACTION_ACTOR.DESTROY_SUCCESS);
+export const rendererDestroyError = threeActionCreatorRenderer(OGOD_ACTION_ACTOR.DESTROY_ERROR);

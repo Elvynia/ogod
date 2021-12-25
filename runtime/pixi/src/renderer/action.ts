@@ -1,24 +1,19 @@
 
-import { ogodActionCreatorActor, ogodActionParams, OGOD_ACTION_ACTOR } from "@ogod/common";
+import { OgodActionActor, ogodActionCreatorActor, OGOD_ACTION_ACTOR } from "@ogod/common";
 import { PixiStateRenderer } from "./state";
 
-export const rendererInit = ogodActionCreatorActor('renderer', OGOD_ACTION_ACTOR.INIT,
-    ogodActionParams<{ id: string, state: PixiStateRenderer }>());
-export const rendererInitSuccess = ogodActionCreatorActor('renderer', OGOD_ACTION_ACTOR.INIT_SUCCESS,
-    ogodActionParams<{ id: string, state: PixiStateRenderer }>());
-export const rendererInitError = ogodActionCreatorActor('renderer', OGOD_ACTION_ACTOR.INIT_ERROR,
-    ogodActionParams<{ id: string, state: PixiStateRenderer }>());
+export function pixiActionCreatorRenderer(action: OGOD_ACTION_ACTOR) {
+    return ogodActionCreatorActor<OgodActionActor<PixiStateRenderer>, PixiStateRenderer>('renderer', action);
+}
 
-export const rendererChanges = ogodActionCreatorActor('renderer', OGOD_ACTION_ACTOR.CHANGES,
-    ogodActionParams<{ id: string, changes?: Partial<PixiStateRenderer> }>());
-export const rendererChangesSuccess = ogodActionCreatorActor('renderer', OGOD_ACTION_ACTOR.CHANGES_SUCCESS,
-    ogodActionParams<{ id: string, changes?: Partial<PixiStateRenderer> }>());
-export const rendererChangesError = ogodActionCreatorActor('renderer', OGOD_ACTION_ACTOR.CHANGES_ERROR,
-    ogodActionParams<{ id: string, changes?: Partial<PixiStateRenderer> }>());
+export const rendererInit = pixiActionCreatorRenderer(OGOD_ACTION_ACTOR.INIT);
+export const rendererInitSuccess = pixiActionCreatorRenderer(OGOD_ACTION_ACTOR.INIT_SUCCESS);
+export const rendererInitError = pixiActionCreatorRenderer(OGOD_ACTION_ACTOR.INIT_ERROR);
 
-export const rendererDestroy = ogodActionCreatorActor('renderer', OGOD_ACTION_ACTOR.DESTROY,
-    ogodActionParams<{ id: string }>());
-export const rendererDestroySuccess = ogodActionCreatorActor('renderer', OGOD_ACTION_ACTOR.DESTROY_SUCCESS,
-    ogodActionParams<{ id: string }>());
-export const rendererDestroyError = ogodActionCreatorActor('renderer', OGOD_ACTION_ACTOR.DESTROY_ERROR,
-    ogodActionParams<{ id: string }>());
+export const rendererChanges = pixiActionCreatorRenderer(OGOD_ACTION_ACTOR.CHANGES);
+export const rendererChangesSuccess = pixiActionCreatorRenderer(OGOD_ACTION_ACTOR.CHANGES_SUCCESS);
+export const rendererChangesError = pixiActionCreatorRenderer(OGOD_ACTION_ACTOR.CHANGES_ERROR);
+
+export const rendererDestroy = pixiActionCreatorRenderer(OGOD_ACTION_ACTOR.DESTROY);
+export const rendererDestroySuccess = pixiActionCreatorRenderer(OGOD_ACTION_ACTOR.DESTROY_SUCCESS);
+export const rendererDestroyError = pixiActionCreatorRenderer(OGOD_ACTION_ACTOR.DESTROY_ERROR);

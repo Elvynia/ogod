@@ -3,6 +3,7 @@ import {
     resourceInitSuccess, sceneChangesSuccess, sceneInitSuccess,
     systemChangesSuccess, systemInitSuccess
 } from "@ogod/common";
+import { Action } from "redux";
 import { Epic, ofType } from "redux-observable";
 import { animationFrameScheduler, EMPTY } from "rxjs";
 import { bufferTime, filter, switchMapTo, tap } from "rxjs/operators";
@@ -17,14 +18,14 @@ export function removeTransients(state: any): any {
         .reduce((a, b) => Object.assign(b, a), {});
 }
 
-export const epicDebugActions: Epic<OgodActionActor<any>, any, OgodStateEngine> = (action$) => action$.pipe(
+export const epicDebugActions: Epic<OgodActionActor<any> & Action, any, OgodStateEngine> = (action$) => action$.pipe(
     tap((action: any) => {
         console.log(action.type, action.id, action.state || action.changes || action.sceneId);
     }),
     switchMapTo(EMPTY)
 );
 
-export const epicEngineReflectChanges: Epic<OgodActionActor<any>, any, OgodStateEngine> = (action$) => action$.pipe(
+export const epicEngineReflectChanges: Epic<OgodActionActor<any> & Action, any, OgodStateEngine> = (action$) => action$.pipe(
     ofType(systemInitSuccess.type, sceneInitSuccess.type, instanceInitSuccess.type,
         systemChangesSuccess.type, sceneChangesSuccess.type, instanceChangesSuccess.type,
         resourceInitSuccess.type),

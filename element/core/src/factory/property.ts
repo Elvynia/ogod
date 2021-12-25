@@ -1,8 +1,8 @@
 import { property } from 'hybrids';
-import { ActionCreator, sceneChanges, instanceChanges, systemChanges } from '@ogod/common';
+import { OgodActionCreator, sceneChanges, instanceChanges, systemChanges } from '@ogod/common';
 import { ogodDispatchChildChanges } from './async';
 
-export function ogodFactoryReactiveProperty(defaultValue: any, changesCreator: ActionCreator, connect?, observe?) {
+export function ogodFactoryReactiveProperty(defaultValue: any, changesCreator: OgodActionCreator, connect?, observe?) {
     let engine, propName;
     return {
         ...property(defaultValue, (host: any, key: string, invalidate) => {

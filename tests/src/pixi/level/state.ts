@@ -1,7 +1,8 @@
 import { OgodStateInstance } from "@ogod/common";
+import { Spritesheet } from "pixi.js";
 
 export interface PixiStateLevel extends OgodStateInstance {
-    resource$: PIXI.Spritesheet;
+    resource$: Spritesheet;
     instance$: any;
     tileExtension: string;
     tileSize: number;

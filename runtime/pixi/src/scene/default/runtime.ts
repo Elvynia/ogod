@@ -1,5 +1,7 @@
 import { OgodActionScene } from '@ogod/common';
 import { OgodRuntimeSceneDefault } from '@ogod/runtime-core';
+import { Container } from 'pixi.js';
+import { ActionsObservable } from 'redux-observable';
 import { Observable } from 'rxjs';
 import { map, skipWhile, switchMap, take, filter, tap } from 'rxjs/operators';
 import { PixiRuntimeEngine } from '../../engine/runtime';
@@ -11,8 +13,8 @@ declare var self: PixiRuntimeEngine;
 
 export class PixiRuntimeScene extends OgodRuntimeSceneDefault {
 
-    initialize(state: PixiStateScene, state$: Observable<PixiStateEngine>): Observable<OgodActionScene> {
-        state.container$ = new PIXI.Container();
+    initialize(state: PixiStateScene, state$: Observable<PixiStateEngine>, action$: ActionsObservable<any>): Observable<OgodActionScene> {
+        state.container$ = new Container();
         return state$.pipe(
             filter((fs) => fs.renderer?.renderer$ != null),
             map((engine) => engine.scene[state.id]),
@@ -20,7 +22,7 @@ export class PixiRuntimeScene extends OgodRuntimeSceneDefault {
             switchMap((initState) => super.initialize({
                 ...state,
                 ...initState
-            }, state$))
+            }, state$, action$))
         );
     }
 
