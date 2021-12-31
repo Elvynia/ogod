@@ -78,7 +78,7 @@ export function ogodHybridEngine(categories: string[]): Hybrids<OgodElementEngin
                 const messageStream = new Observable((observer) => {
                     const messageListener = (evt) => {
                         if (evt.data.type === engineReflectChanges.type) {
-                            evt.data.states.forEach(({ id, state }) => observer.next({ ...state$.value, [id]: { ...state$.value[id], ...state } }));
+                            evt.data.states.forEach(({ id, state }) => observer.next({ [id]: { ...state } }));
                         }
                     };
                     worker.addEventListener('message', messageListener);
