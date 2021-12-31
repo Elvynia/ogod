@@ -1,4 +1,6 @@
+import { filter } from 'rxjs/operators';
 import { OgodActionCreator, OgodStateActor, OgodCategoryState } from "@ogod/common";
+import { from } from "rxjs";
 
 export function ogodFactoryState<
     S extends OgodStateActor<C>,
@@ -28,7 +30,7 @@ export function ogodFactoryState<
             }
             return value;
         },
-        connect: (host, _, invalidate) => {
+        connect: (host) => {
             for (const key of defaultKeys) {
                 if (host[key] !== undefined) {
                     host.state[key] = host[key];
@@ -44,8 +46,9 @@ export function ogodFactoryState<
             const sub = host.state$.subscribe((state: S) => {
                 // console.log('UPDATE OR CHANGES: ', state)
                 Object.assign(host.state, state);
-                // Object.assign(host, state);
-                invalidate();
+                from(Object.keys(state)).pipe(
+                    filter((key) => Object.getOwnPropertyDescriptor(host.__proto__, key)?.set != null)
+                ).subscribe((key) => host[key] = state[key]);
             });
             return () => {
                 engine.worker.postMessage(destroyCreator({
