@@ -59,7 +59,8 @@ const updateReactiveChildState = (host, propName: string, multiple: boolean) => 
     host.state[propName] = value;
 }
 
-export const ogodFactoryReactiveChildren = (category: string, changesCreator: OgodActionCreator, multiple: boolean = false, connect?) => {
+export const ogodFactoryReactiveChildren = (category: string, changesCreator: OgodActionCreator, multiple: boolean = false,
+    connect?, observe?) => {
     let propName;
     return {
         ...ogodFactoryChildren((o: Hybrids<any>) => o.category === category, (host, key, invalidate) => {
@@ -84,15 +85,17 @@ export const ogodFactoryReactiveChildren = (category: string, changesCreator: Og
                     } else {
                         ogodDispatchChildChanges(host, host.category, host.key);
                     }
+                    invalidate();
                 }
             }
             host.addEventListener(OGOD_ASYNC_CHILD_CHANGES, changeListener);
             if (host.render) {
                 host.render().addEventListener(OGOD_ASYNC_CHILD_CHANGES, changeListener);
             }
+            // FIXME: Remove event listeners in disconnect ?
             return () => disconnect && disconnect();
         }),
-        observe: (host, values: Array<any>, lastValue) => {
+        observe: (host, values: Array<any>, lastValues) => {
             if (!host.initialize$.isStopped) {
                 forkJoin([...values.map((v) => v.initialize$)]).subscribe({
                     complete: () => {
@@ -101,12 +104,12 @@ export const ogodFactoryReactiveChildren = (category: string, changesCreator: Og
                     }
                 });
             } else {
-                // updateReactiveChildState(host, propName, multiple);
+                observe && observe(host, values, lastValues);
             }
         }
     }
 }
 
-export const ogodFactorySceneChildren = (category: string, multiple?: boolean, connect?) => ogodFactoryReactiveChildren(category, sceneChanges, multiple, connect);
-export const ogodFactoryInstanceChildren = (category: string, multiple?: boolean, connect?) => ogodFactoryReactiveChildren(category, instanceChanges, multiple, connect);
-export const ogodFactorySystemChildren = (category: string, multiple?: boolean, connect?) => ogodFactoryReactiveChildren(category, systemChanges, multiple, connect);
+export const ogodFactorySceneChildren = (category: string, multiple?: boolean, connect?, observe?) => ogodFactoryReactiveChildren(category, sceneChanges, multiple, connect, observe);
+export const ogodFactoryInstanceChildren = (category: string, multiple?: boolean, connect?, observe?) => ogodFactoryReactiveChildren(category, instanceChanges, multiple, connect, observe);
+export const ogodFactorySystemChildren = (category: string, multiple?: boolean, connect?, observe?) => ogodFactoryReactiveChildren(category, systemChanges, multiple, connect, observe);
