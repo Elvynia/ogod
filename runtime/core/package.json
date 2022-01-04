@@ -14,7 +14,7 @@
   "author": "Elvynia",
   "scripts": {
     "prepare": "npm run build",
-    "clean": "rm -rf lib",
+    "clean": "rimraf lib",
     "build": "npm run clean && tsc",
     "start": "npm run clean && tsc --watch"
   },
