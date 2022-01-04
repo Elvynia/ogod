@@ -1,7 +1,7 @@
 import { OgodActionInstance } from '@ogod/common';
 import { OgodRuntimeInstanceDefault } from '@ogod/runtime-core';
-import { ActionsObservable } from 'redux-observable';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { Vector3 } from 'three';
 import { ThreeStateInstance } from './state';
 
@@ -9,7 +9,6 @@ export class ThreeRuntimeInstance extends OgodRuntimeInstanceDefault {
 
     initializeSuccess(state: ThreeStateInstance): Observable<OgodActionInstance> {
         state.object$.name = state.id;
-        state.object$.userData.state = state;
         if (state.position) {
             this.updateStatePosition(0, state);
         } else {
