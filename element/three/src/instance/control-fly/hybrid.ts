@@ -3,6 +3,7 @@ import { html, render } from "hybrids";
 
 export function threeHybridControlFly() {
     return {
+        active: ogodFactoryInstanceBoolean(true),
         keys: ogodFactoryInstanceChildren('keys'),
         mouseDown: ogodFactoryInstanceBoolean(false),
         movementSpeed: ogodFactoryInstanceProperty(1),
@@ -10,8 +11,8 @@ export function threeHybridControlFly() {
         dragToLook: ogodFactoryInstanceBoolean(false),
         autoForward: ogodFactoryInstanceBoolean(false),
         speedMultiplier: ogodFactoryInstanceProperty(10),
-        render: render((host) => html`
-            <ogod-keys active>
+        render: (({ active }) => html`
+            <ogod-keys active="${active}">
                 <ogod-key code="ShiftLeft" name="shift"></ogod-key>
                 <ogod-key code="Space" name="up"></ogod-key>
                 <ogod-key code="KeyC" name="down"></ogod-key>
