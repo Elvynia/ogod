@@ -9,14 +9,16 @@ export function ogodHybridKeys(): Hybrids<OgodElementKeys> {
         active: ogodFactoryInstanceProperty(false),
         values: ogodFactoryInstanceChildren('key', true, (host) => {
             const keyDownListener = (e: KeyboardEvent) => {
-                const listened = host.values.find((value) => value.code ? value.code === e.code : value.keyCode === e.keyCode);
-                if (listened) {
-                    listened.pressed = true;
+                if (host.active) {
+                    const listened = host.values.find((value) => value.code ? value.code === e.code : value.keyCode === e.keyCode);
+                    if (listened) {
+                        listened.pressed = true;
+                    }
                 }
             }
             const keyUpListener = (e: KeyboardEvent) => {
                 const listened = host.values.find((value) => value.code ? value.code === e.code : value.keyCode === e.keyCode);
-                if (listened) {
+                if (listened && listened.pressed) {
                     listened.pressed = false;
                 }
             }
