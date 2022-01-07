@@ -13,8 +13,8 @@ export class ThreeRuntimeControlFly extends ThreeRuntimeInstance {
     initialize(state: ThreeStateControlFly, state$: Observable<OgodStateEngine>, action$: ActionsObservable<any>): Observable<OgodActionInstance> {
         return state$.pipe(
             filter((fs) => state.scenes.length > 0 && fs.scene[state.scenes[0]].loaded),
-            first(),
             map((fs) => fs.scene[state.scenes[0]] as ThreeStateScene),
+            first(),
             map((scene) => ({
                 ...state,
                 object$: scene.camera$,
@@ -32,7 +32,7 @@ export class ThreeRuntimeControlFly extends ThreeRuntimeInstance {
 
 
     changes(changes: Partial<ThreeStateControlFly>, state: ThreeStateControlFly): Observable<OgodActionInstance> {
-        if (changes.keys) {
+        if (changes.keys && state.loaded) {
             Object.assign(state, { keys: changes.keys });
             this.updateStateKeys(0, state);
         }
@@ -40,7 +40,6 @@ export class ThreeRuntimeControlFly extends ThreeRuntimeInstance {
     }
 
     update(delta: number, state: ThreeStateControlFly) {
-        super.update(delta, state);
         let speed = state.movementSpeed;
         if (state.keys$?.shift) {
             speed = state.movementSpeed * state.speedMultiplier;
