@@ -29,7 +29,11 @@ export function ogodContainerUpdateScene$(state: OgodStateScene, state$: Observa
 export abstract class OgodRuntimeSceneDefault implements OgodRuntimeScene {
 
     initialize(state: OgodStateScene, state$: Observable<OgodStateEngine>, action$: ActionsObservable<any>): Observable<OgodActionScene> {
-        return of(sceneInitSuccess({
+        return of(this.initializeSuccess(state));
+    }
+
+    initializeSuccess(state: OgodStateScene): OgodActionScene {
+        return sceneInitSuccess({
             id: state.id,
             state: {
                 ...state,
@@ -38,7 +42,7 @@ export abstract class OgodRuntimeSceneDefault implements OgodRuntimeScene {
                 loading: false,
                 loaded: true
             }
-        }));
+        });
     }
 
     abstract render(state: OgodStateScene): void;

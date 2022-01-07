@@ -112,7 +112,7 @@ export function ogodRuntimeEngineDefault(evt: any) {
             self.close();
             break;
         default:
-            self.store.dispatch({ ...evt.data });
+            self.store.dispatch({ ...evt.data, ports: evt.ports });
             break;
     }
 }
