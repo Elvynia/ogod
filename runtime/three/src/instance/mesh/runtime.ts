@@ -23,7 +23,7 @@ export class ThreeRuntimeMesh extends ThreeRuntimeInstance {
                 map((fs) => fs.resource[state.resource]),
                 take(1),
                 pluck('data$'),
-                switchMap((texture: any) => {
+                switchMap((texture: ImageBitmap) => {
                     mat.map = new CanvasTexture(texture);
                     return finalizer();
                 })
