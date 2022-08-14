@@ -1,0 +1,57 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "examples/bouncing-rectangles/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/examples/bouncing-rectangles",
+        "main": "examples/bouncing-rectangles/src/main.ts",
+        "tsConfig": "examples/bouncing-rectangles/tsconfig.app.json",
+        "assets": ["examples/bouncing-rectangles/src/assets"]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false,
+          "fileReplacements": [
+            {
+              "replace": "examples/bouncing-rectangles/src/environments/environment.ts",
+              "with": "examples/bouncing-rectangles/src/environments/environment.prod.ts"
+            }
+          ]
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/node:node",
+      "options": {
+        "buildTarget": "bouncing-rectangles:build"
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "bouncing-rectangles:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["examples/bouncing-rectangles/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/examples/bouncing-rectangles"],
+      "options": {
+        "jestConfig": "examples/bouncing-rectangles/jest.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}
