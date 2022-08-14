@@ -27,6 +27,5 @@
   "workspaceLayout": {
     "appsDir": "examples",
     "libsDir": "packages"
-  },
-  "defaultProject": "bouncing-rectangles"
+  }
 }
