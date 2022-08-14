@@ -1,0 +1,62 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "examples/bouncing-rectangles/src",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nrwl/web:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/examples/bouncing-rectangles",
+        "compiler": "babel",
+        "index": "examples/bouncing-rectangles/src/index.html",
+        "baseHref": "/",
+        "main": "examples/bouncing-rectangles/src/main.ts",
+        "polyfills": "examples/bouncing-rectangles/src/polyfills.ts",
+        "tsConfig": "examples/bouncing-rectangles/tsconfig.app.json",
+        "assets": [
+          "examples/bouncing-rectangles/src/favicon.ico",
+          "examples/bouncing-rectangles/src/assets"
+        ],
+        "styles": ["examples/bouncing-rectangles/src/styles.css"],
+        "scripts": []
+      },
+      "configurations": {
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "examples/bouncing-rectangles/src/environments/environment.ts",
+              "with": "examples/bouncing-rectangles/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/web:dev-server",
+      "options": {
+        "buildTarget": "bouncing-rectangles:build"
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "bouncing-rectangles:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["examples/bouncing-rectangles/**/*.ts"]
+      }
+    }
+  }
+}

@@ -5,7 +5,7 @@ import { clampTo30FPS } from './util';
 export function calculateStep(prevFrame?: FrameData): Observable<FrameData> {
     return new Observable<FrameData>((observer: any) => {
         requestAnimationFrame((frameStartTime) => {
-            const deltaTime = prevFrame ? (frameStartTime - prevFrame.frameStartTime) : 0;
+            const deltaTime = prevFrame ? (frameStartTime - prevFrame.frameStartTime) / 1000 : 0;
             observer.next({
                 frameStartTime,
                 deltaTime,
