@@ -1,10 +1,10 @@
 import 'symbol-observable';
-import { concatMap, of, last } from "rxjs";
+import { concatMap, last, of } from "rxjs";
 import xs from 'xstream';
-import { makeGameDriver } from './game-engine-driver';
+import { makeGameEngineDriver } from './make-driver';
 
 describe('gameDriver', () => {
-    const gameDriver = makeGameDriver();
+    const gameDriver = makeGameEngineDriver();
     it('should have state with running false', (done) => {
         const sources = gameDriver(xs.of({
             running: of(false)

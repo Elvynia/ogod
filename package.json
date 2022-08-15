@@ -5,6 +5,7 @@
   "scripts": {},
   "private": true,
   "dependencies": {
+    "@cycle/dom": "^23.1.0",
     "@cycle/run": "^5.7.0",
     "core-js": "^3.6.5",
     "regenerator-runtime": "0.13.7",

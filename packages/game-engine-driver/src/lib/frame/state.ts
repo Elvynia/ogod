@@ -1,4 +1,4 @@
-export interface FrameData {
+export interface Frame {
     frameStartTime: number;
     deltaTime: number;
 }

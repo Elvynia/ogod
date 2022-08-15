@@ -1,9 +1,9 @@
 import { expand, filter, map, Observable, of, share } from 'rxjs';
-import { FrameData } from './frame.data';
-import { clampTo30FPS } from './util';
+import { Frame } from './state';
+import { clampTo30FPS } from '../util';
 
-export function calculateStep(prevFrame?: FrameData): Observable<FrameData> {
-    return new Observable<FrameData>((observer: any) => {
+export function calculateStep(prevFrame?: Frame): Observable<Frame> {
+    return new Observable<Frame>((observer: any) => {
         requestAnimationFrame((frameStartTime) => {
             const deltaTime = prevFrame ? (frameStartTime - prevFrame.frameStartTime) / 1000 : 0;
             observer.next({
@@ -17,6 +17,6 @@ export function calculateStep(prevFrame?: FrameData): Observable<FrameData> {
 export const frame$ = of(undefined).pipe(
     expand((val) => calculateStep(val)),
     filter((frame) => frame !== undefined),
-    map((frame: FrameData) => frame.deltaTime),
+    map((frame: Frame) => frame.deltaTime),
     share()
 );
