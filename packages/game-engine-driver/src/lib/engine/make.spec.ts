@@ -1,26 +1,24 @@
-import 'symbol-observable';
-import { concatMap, last, of } from "rxjs";
-import xs from 'xstream';
+import { last, of, tap } from "rxjs";
 import { makeGameEngineDriver } from './make';
 
 describe('gameDriver', () => {
-    const gameDriver = makeGameEngineDriver();
     it('should have state with running false', (done) => {
-        const sources = gameDriver(xs.of({
+        const gameDriver = makeGameEngineDriver({ running: false });
+        const sources = gameDriver(of({
             running: of(false)
         }) as any);
-        sources.game$.subscribe((state: any) => {
+        sources.state$.subscribe((state: any) => {
             expect(state).toHaveProperty('running', false);
             done();
         });
     });
     it('should have state with running true', (done) => {
-        const sources = gameDriver(xs.of({
-            running: of(false).pipe(
-                concatMap(() => of(true))
-            )
+        const gameDriver = makeGameEngineDriver({ running: false });
+        const sources = gameDriver(of({
+            running: of(false, true)
         }) as any);
-        sources.game$.pipe(
+        sources.state$.pipe(
+            tap((state) => console.debug(state)),
             last()
         ).subscribe((state: any) => {
             expect(state).toHaveProperty('running', true);
