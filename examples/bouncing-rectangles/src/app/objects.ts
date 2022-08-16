@@ -1,3 +1,4 @@
+import { skip, withLatestFrom } from 'rxjs';
 import { GameEngineSource } from '@ogod/game-engine-driver';
 import { distinctUntilChanged, distinctUntilKeyChanged, filter, first, map, merge, of, pairwise, startWith, switchMap, tap } from 'rxjs';
 import { objectUpdateMovement$, selectorMovement } from './movement';
@@ -23,17 +24,19 @@ const objectUpdates$ = (engine: GameEngineSource<AppState>) => merge(
 
 export function makeFeatureObjects(engine: GameEngineSource<AppState>) {
     return engine.state$.pipe(
-        distinctUntilKeyChanged('paused'),
-        pairwise(),
-        filter(([a, b]) => a.paused !== b.paused),
-        tap(([_, state]) =>
-            state.objects.forEach((obj) => {
-                let newColor = obj.toggleColor;
-                obj.toggleColor = obj.color;
-                obj.color = newColor;
-            })
-        ),
-        startWith([undefined, engine.state$.value]),
-        switchMap(([_, b]) => (b.paused ? of(b.objects) : objectUpdates$(engine)))
+        first(),
+        switchMap((initState) => engine.state$.pipe(
+            distinctUntilKeyChanged('paused'),
+            skip(1),
+            tap((state) => {
+                state.objects.forEach((obj) => {
+                    let newColor = obj.toggleColor;
+                    obj.toggleColor = obj.color;
+                    obj.color = newColor;
+                });
+            }),
+            startWith(initState),
+            switchMap((state) => (state.paused ? of(state.objects) : objectUpdates$(engine)))
+        )),
     );
 }

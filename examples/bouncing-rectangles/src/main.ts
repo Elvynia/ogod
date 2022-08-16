@@ -49,7 +49,6 @@ function main(sources: AppSources) {
                 input({ props: { id: 'playerColor', value: initState.player.color } })
             ])),
             sources.GameWorker.input$.pipe(
-                tap((state) => console.log('fps$', state)),
                 map((state: any) => state.fps),
                 distinctUntilChanged(),
                 startWith(''),
