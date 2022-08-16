@@ -1,7 +1,6 @@
 import { first, map } from 'rxjs';
 import { GameEngineSource } from '../engine/state';
 
-
 export function makeFeatureConstant(engine: GameEngineSource<any>, key: string) {
     return engine.state$.pipe(
         first(),

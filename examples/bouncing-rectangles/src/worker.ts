@@ -1,12 +1,15 @@
 import run from '@cycle/run';
 import { GameEngineSource, makeFeature, makeFeatureConstant, makeFeatureToggle, makeGameEngineDriver } from '@ogod/game-engine-driver';
-import { of } from 'rxjs';
+import { distinctUntilChanged, map, of } from 'rxjs';
+import { makeFeatureFps } from './app/fps';
 import { makeFeatureObjects } from './app/objects';
 import { AppState, initState } from './app/state';
 
+declare var self;
+
 const makeRender = (canvas: any) => {
     const ctx: CanvasRenderingContext2D = canvas.getContext('2d');
-    return (state: any) => {
+    return (delta: number, state: any) => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         state['objects'].forEach((obj: any) => {
             ctx.fillStyle = obj.color;
@@ -18,18 +21,21 @@ const makeRender = (canvas: any) => {
 }
 
 function main(sources: { GameEngine: GameEngineSource<AppState> }) {
-    self.onmessage = (event) => sources.GameEngine.actions.select(event.data.key).next(event.data.value);
-    sources.GameEngine.actions.select('app').subscribe(({canvas}) => {
+    sources.GameEngine.action$.select('app').subscribe(({ canvas }) => {
         const render = makeRender(canvas);
-        sources.GameEngine.game$.subscribe((state) => render(state));
+        sources.GameEngine.render$.subscribe(([delta, state]) => render(delta, state));
     });
     return {
         GameEngine: of({
             app: makeFeatureConstant(sources.GameEngine, 'app'),
+            fps: makeFeatureFps(sources.GameEngine).pipe(
+                map((fps) => Math.round(fps)),
+                distinctUntilChanged()
+            ),
             objects: makeFeatureObjects(sources.GameEngine),
-            paused: makeFeatureToggle(sources.GameEngine, 'paused', sources.GameEngine.actions.select('paused')),
+            paused: makeFeatureToggle(sources.GameEngine, 'paused', sources.GameEngine.action$.select('paused')),
             player: makeFeature(of({
-                color: sources.GameEngine.actions.player,
+                color: sources.GameEngine.action$.player,
                 position: makeFeatureConstant(sources.GameEngine, 'player.position')
             }))
         })
@@ -37,6 +43,6 @@ function main(sources: { GameEngine: GameEngineSource<AppState> }) {
 }
 
 const dispose = run(main, {
-    GameEngine: makeGameEngineDriver(initState)
+    GameEngine: makeGameEngineDriver(initState, self)
 });
 self.onclose = () => dispose();

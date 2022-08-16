@@ -1,7 +1,8 @@
 import { baseObjectVelocity } from './movement';
 
 export interface AppState {
-    app: { width: number, height: number }
+    app: { width: number, height: number };
+    fps: number;
     objects: any[];
     paused: boolean;
     player: {
@@ -18,6 +19,7 @@ export const initState: AppState = {
         width: 800,
         height: 600
     },
+    fps: 0,
     objects: [{
         x: 10,
         y: 10,

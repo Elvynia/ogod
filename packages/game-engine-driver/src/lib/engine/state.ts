@@ -1,11 +1,16 @@
-import { ActionState } from './../action/state';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject, Subject } from 'rxjs';
 import { FeatureState } from '../feature/state';
+import { ActionState, WorkerMessage } from './../action/state';
 
 export interface GameEngineSource<S extends FeatureState> {
-    actions: ActionState<S>;
+    action$: ActionState<S>;
     dispose: Function;
     frame$: Observable<number>;
-    game$: Observable<S>;
+    render$: Observable<[number, S]>;
     state$: BehaviorSubject<S>;
+}
+
+export interface GameEngineWorker<S extends FeatureState> {
+    input$: ReplaySubject<S>;
+    output$: Subject<WorkerMessage>;
 }

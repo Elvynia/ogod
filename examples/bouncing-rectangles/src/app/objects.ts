@@ -8,9 +8,12 @@ const objectUpdates$ = (engine: GameEngineSource<AppState>) => merge(
         map((state: any) => state.objects),
         distinctUntilChanged(),
         // tap((objects) => console.log('Objects array has changed !', objects)),
-        switchMap((objects: any[]) => objectUpdateMovement$(engine)(selectorMovement(objects)).pipe(map(() => objects)))
+        switchMap((objects: any[]) => objectUpdateMovement$(engine)(selectorMovement(objects)).pipe(
+            map(() => objects),
+            distinctUntilChanged()
+        ))
     ),
-    engine.actions.objects.pipe(
+    engine.action$.objects.pipe(
         switchMap((obj) => engine.state$.pipe(
             first(),
             map((state) => [...state.objects, obj])

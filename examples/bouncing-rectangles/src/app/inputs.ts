@@ -1,4 +1,4 @@
-import { frame$ } from "@ogod/game-engine-driver";
+import { makeFrame$ } from "@ogod/game-engine-driver";
 import { buffer, filter, fromEvent, map } from "rxjs";
 
 export class KeyUtil {
@@ -254,11 +254,14 @@ export const keysDown$ = fromEvent(document, 'keydown').pipe(
     filter((keyMap) => keyMap !== undefined)
 );
 
-export const makeKeysDownPerFrame = () => keysDown$.pipe(
-    buffer(frame$),
-    map((frames: Array<any>) => {
-        return frames.reduce((acc, curr) => {
-            return Object.assign(acc, curr);
-        }, {});
-    })
-);
+export const makeKeysDownPerFrame = () => {
+    const frame$ = makeFrame$();
+    return keysDown$.pipe(
+        buffer(frame$),
+        map((frames: Array<any>) => {
+            return frames.reduce((acc, curr) => {
+                return Object.assign(acc, curr);
+            }, {});
+        })
+    );
+}
