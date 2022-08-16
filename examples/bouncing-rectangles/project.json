@@ -21,7 +21,8 @@
           "examples/bouncing-rectangles/src/assets"
         ],
         "styles": ["examples/bouncing-rectangles/src/styles.css"],
-        "scripts": []
+        "scripts": [],
+        "webpackConfig": "examples/bouncing-rectangles/webpack.config.js"
       },
       "configurations": {
         "production": {

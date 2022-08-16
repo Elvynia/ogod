@@ -1,17 +1,22 @@
 import { GameEngineSource } from '@ogod/game-engine-driver';
-import { combineLatest, distinctUntilChanged, distinctUntilKeyChanged, filter, map, of, pairwise, startWith, switchMap, tap, Observable } from 'rxjs';
+import { distinctUntilChanged, distinctUntilKeyChanged, filter, first, map, merge, of, pairwise, startWith, switchMap, tap } from 'rxjs';
 import { objectUpdateMovement$, selectorMovement } from './movement';
 import { AppState } from './state';
 
-
-const objectUpdates$ = (engine: GameEngineSource<AppState>) => combineLatest(
+const objectUpdates$ = (engine: GameEngineSource<AppState>) => merge(
     engine.state$.pipe(
         map((state: any) => state.objects),
         distinctUntilChanged(),
         // tap((objects) => console.log('Objects array has changed !', objects)),
         switchMap((objects: any[]) => objectUpdateMovement$(engine)(selectorMovement(objects)).pipe(map(() => objects)))
+    ),
+    engine.actions.objects.pipe(
+        switchMap((obj) => engine.state$.pipe(
+            first(),
+            map((state) => [...state.objects, obj])
+        ))
     )
-).pipe(map(([objects]) => objects));
+);
 
 export function makeFeatureObjects(engine: GameEngineSource<AppState>) {
     return engine.state$.pipe(

@@ -1,12 +1,13 @@
 import { BehaviorSubject, Subject } from "rxjs";
 import { Stream } from "xstream";
-import { RuntimeState } from '../runtime/state';
+import { makeActionState } from "../action/make";
+import { FeatureState } from "../feature/state";
 import { frame$ } from '../frame/observable';
-import { makeGame } from "../game/observable";
-import { GameState } from '../game/state';
-import { GameEngineSource } from './driver';
+import { makeGame } from "../game/make";
+import { RuntimeState } from '../runtime/state';
+import { GameEngineSource } from './state';
 
-export function makeGameEngineDriver<S extends GameState>(initState?: S) {
+export function makeGameEngineDriver<S extends FeatureState>(initState?: S) {
     return function gameEngineDriver(sinks: Stream<RuntimeState<S>>): GameEngineSource<S> {
         const state$ = new BehaviorSubject<S>(initState!);
         const game$ = makeGame(sinks, state$);
@@ -17,9 +18,8 @@ export function makeGameEngineDriver<S extends GameState>(initState?: S) {
             },
             frame$,
             state$,
-            action$: new Subject(),
+            actions: makeActionState(initState!),
             game$
         };
     };
 }
-

@@ -1,7 +1,7 @@
 import { GameEngineSource } from '@ogod/game-engine-driver';
 import { first, map, Observable, startWith, switchMap } from 'rxjs';
 
-export function makeFeatureBooleanToggle(engine: GameEngineSource<any>, key: string, action$: Observable<any>, defaultValue: boolean = false) {
+export function makeFeatureToggle(engine: GameEngineSource<any>, key: string, action$: Observable<any>, defaultValue: boolean = false) {
     return action$.pipe(
         switchMap(() => engine.state$.pipe(
             first(),

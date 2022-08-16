@@ -1,7 +1,7 @@
 import 'symbol-observable';
 import { concatMap, last, of } from "rxjs";
 import xs from 'xstream';
-import { makeGameEngineDriver } from './make-driver';
+import { makeGameEngineDriver } from './make';
 
 describe('gameDriver', () => {
     const gameDriver = makeGameEngineDriver();

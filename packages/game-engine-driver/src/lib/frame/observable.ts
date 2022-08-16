@@ -14,6 +14,7 @@ export function calculateStep(prevFrame?: Frame): Observable<Frame> {
     }).pipe(map(clampTo30FPS));
 };
 
+// FIXME defer or use make function ?
 export const frame$ = of(undefined).pipe(
     expand((val) => calculateStep(val)),
     filter((frame) => frame !== undefined),
