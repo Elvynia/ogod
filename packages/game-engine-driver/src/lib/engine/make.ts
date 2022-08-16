@@ -1,12 +1,11 @@
 import { buffer, filter, map, ReplaySubject, Subject, withLatestFrom } from "rxjs";
 import { Stream } from "xstream";
 import { makeAction$ } from "../action/make";
-import { WorkerMessage } from '../action/state';
 import { FeatureState } from "../feature/state";
 import { makeFrame$ } from '../frame/make';
 import { makeRuntime$ } from "../runtime/make";
 import { RuntimeState } from '../runtime/state';
-import { GameEngineSource, GameEngineWorker } from './state';
+import { GameEngineSource } from './state';
 
 export function makeGameEngineDriver<S extends FeatureState>(initState: S, workerContext?: any, state$: Subject<S> = new ReplaySubject<S>(1)) {
     const action$ = makeAction$(initState);
@@ -33,19 +32,6 @@ export function makeGameEngineDriver<S extends FeatureState>(initState: S, worke
             render$: frame$.pipe(
                 withLatestFrom(state$)
             )
-        };
-    };
-}
-
-export function makeGameEngineWorker<S extends FeatureState>(worker: Worker): () => GameEngineWorker<S> {
-    return () => {
-        const input$ = new ReplaySubject<S>(1);
-        const output$ = new Subject<WorkerMessage>();
-        worker.onmessage = (event) => input$.next(event.data);
-        output$.subscribe((args: any[]) => worker.postMessage(args[0], args[1]));
-        return {
-            input$,
-            output$
         };
     };
 }

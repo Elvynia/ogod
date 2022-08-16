@@ -1,5 +1,5 @@
 {
-  "name": "@ogod/game-engine-driver",
+  "name": "@ogod/game-engine-worker",
   "version": "0.0.1",
   "type": "commonjs"
 }

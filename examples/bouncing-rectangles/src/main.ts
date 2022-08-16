@@ -1,7 +1,7 @@
 import { canvas, div, h3, input, MainDOMSource, makeDOMDriver } from '@cycle/dom';
 import { run } from '@cycle/run';
-import { GameEngineWorker, makeGameEngineWorker } from '@ogod/game-engine-driver';
-import { combineLatest, distinctUntilChanged, filter, map, of, ReplaySubject, Subject, tap, startWith } from 'rxjs';
+import { GameEngineWorker, makeGameEngineWorker } from '@ogod/game-engine-worker';
+import { combineLatest, distinctUntilChanged, filter, map, of, startWith } from 'rxjs';
 import { makeKeysDownPerFrame } from './app/inputs';
 import { makeRectangle } from './app/rectangle';
 import { AppState, initState } from './app/state';

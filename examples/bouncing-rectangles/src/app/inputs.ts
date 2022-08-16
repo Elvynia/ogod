@@ -1,5 +1,4 @@
-import { makeFrame$ } from "@ogod/game-engine-driver";
-import { buffer, filter, fromEvent, map } from "rxjs";
+import { buffer, expand, filter, fromEvent, map, Observable, of, share } from "rxjs";
 
 export class KeyUtil {
 
@@ -253,6 +252,27 @@ export const keysDown$ = fromEvent(document, 'keydown').pipe(
     }),
     filter((keyMap) => keyMap !== undefined)
 );
+
+export function calculateStep(prevFrame?: any): Observable<any> {
+    return new Observable<any>((observer: any) => {
+        requestAnimationFrame((frameStartTime) => {
+            const deltaTime = prevFrame ? (frameStartTime - prevFrame.frameStartTime) / 1000 : 0;
+            observer.next({
+                frameStartTime,
+                deltaTime,
+            });
+        });
+    });
+};
+
+export function makeFrame$() {
+    return of(undefined).pipe(
+        expand((val) => calculateStep(val)),
+        filter((frame) => frame !== undefined),
+        map((frame: any) => frame.deltaTime),
+        share()
+    );
+}
 
 export const makeKeysDownPerFrame = () => {
     const frame$ = makeFrame$();
