@@ -30,8 +30,9 @@ function main(sources: AppSources) {
                 takeUntil(from(canvas$.events('blur') as any)),
                 filter((e: KeyboardEvent) => e.code === 'Space'),
                 tap(() => paused = !paused),
+                startWith(false),
                 map((e) => [{ key: 'paused', value: paused }] as WorkerMessage)
-            ))
+            )),
         ),
         addRect$
     ).subscribe((args) => sources.GameWorker.output$.next(args));
@@ -66,4 +67,3 @@ const dispose = run(main, {
     DOM: makeDOMDriver('#app')
 });
 window.onunload = (e) => dispose();
-// timer(5000).subscribe(() => dispose());
