@@ -14,6 +14,7 @@ export type WorkerMessage = [WorkerAction, any[]?];
 export interface GameEngineWorker<S extends FeatureState> {
     input$: ReplaySubject<S>;
     output$: Subject<WorkerMessage>;
+    worker: Worker;
 }
 
 export function makeGameEngineWorker<S extends FeatureState>(worker: Worker): () => GameEngineWorker<S> {
@@ -24,7 +25,8 @@ export function makeGameEngineWorker<S extends FeatureState>(worker: Worker): ()
         output$.subscribe((args: any[]) => worker.postMessage(args[0], args[1]));
         return {
             input$,
-            output$
+            output$,
+            worker
         };
     };
 }

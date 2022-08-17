@@ -1,6 +1,6 @@
 import run from '@cycle/run';
-import { GameEngineSource, makeFeature, makeFeatureConstant, makeFeatureToggle, makeGameEngineDriver } from '@ogod/game-engine-driver';
-import { distinctUntilChanged, map, of } from 'rxjs';
+import { GameEngineSource, makeFeature, makeFeatureConstant, makeGameEngineDriver } from '@ogod/game-engine-driver';
+import { distinctUntilChanged, map, of, startWith } from 'rxjs';
 import { makeFeatureFps } from './app/fps';
 import { makeFeatureObjects } from './app/objects';
 import { AppState, initState } from './app/state';
@@ -33,7 +33,9 @@ function main(sources: { GameEngine: GameEngineSource<AppState> }) {
                 distinctUntilChanged()
             ),
             objects: makeFeatureObjects(sources.GameEngine),
-            paused: makeFeatureToggle(sources.GameEngine, 'paused', sources.GameEngine.action$.select('paused')),
+            paused: sources.GameEngine.action$.paused.pipe(
+                startWith(false)
+            ),
             player: makeFeature(of({
                 color: sources.GameEngine.action$.player,
                 position: makeFeatureConstant(sources.GameEngine, 'player.position')

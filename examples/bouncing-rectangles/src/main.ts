@@ -1,16 +1,9 @@
-import { canvas, div, h3, input, MainDOMSource, makeDOMDriver } from '@cycle/dom';
+import { canvas, div, h3, input, makeDOMDriver } from '@cycle/dom';
 import { run } from '@cycle/run';
-import { GameEngineWorker, makeGameEngineWorker } from '@ogod/game-engine-worker';
-import { combineLatest, distinctUntilChanged, filter, map, of, startWith } from 'rxjs';
-import { makeKeysDownPerFrame } from './app/inputs';
+import { makeGameEngineWorker, WorkerMessage } from '@ogod/game-engine-worker';
+import { combineLatest, distinctUntilChanged, filter, from, map, merge, Observable, of, startWith, switchMap, takeUntil, tap } from 'rxjs';
 import { makeRectangle } from './app/rectangle';
-import { AppState, initState } from './app/state';
-
-
-interface AppSources {
-    GameWorker: GameEngineWorker<AppState>;
-    DOM: MainDOMSource;
-}
+import { AppSources, initState } from './app/state';
 
 function main(sources: AppSources) {
     const canvas$ = sources.DOM.select('#game');
@@ -19,21 +12,29 @@ function main(sources: AppSources) {
             const offscreen = canvas.transferControlToOffscreen();
             sources.GameWorker.output$.next([{ key: 'app', value: { canvas: offscreen } }, [offscreen]]);
         }
-
     });
-    canvas$.events('click').subscribe({
-        next: (event: MouseEvent) => {
+    const addRect$ = from(canvas$.events('click') as any as Observable<MouseEvent>).pipe(
+        map((e) => {
             const width = 5 + Math.random() * 20;
             const height = 5 + Math.random() * 20;
-            sources.GameWorker.output$.next([{
-                key: 'objects', value: makeRectangle(event.clientX - width / 2,
-                    event.clientY - height / 2, width, height)
-            }]);
-        }
-    });
-    makeKeysDownPerFrame().pipe(
-        filter((inputs) => inputs['spacebar'] === 'Space')
-    ).subscribe(() => sources.GameWorker.output$.next([{ key: 'paused' }]));
+            return [{
+                key: 'objects', value: makeRectangle(e.clientX - width / 2,
+                    e.clientY - height / 2, width, height)
+            }] as WorkerMessage;
+        })
+    );
+    let paused = initState.paused;
+    merge(
+        from(canvas$.events('focus') as any).pipe(
+            switchMap(() => from(canvas$.events('keydown') as any).pipe(
+                takeUntil(from(canvas$.events('blur') as any)),
+                filter((e: KeyboardEvent) => e.code === 'Space'),
+                tap(() => paused = !paused),
+                map((e) => [{ key: 'paused', value: paused }] as WorkerMessage)
+            ))
+        ),
+        addRect$
+    ).subscribe((args) => sources.GameWorker.output$.next(args));
     sources.DOM.select('#playerColor')
         .events('input')
         .map((e) => (e.target as any).value)
@@ -44,9 +45,9 @@ function main(sources: AppSources) {
         });
     return {
         DOM: combineLatest([
-            of(canvas({ props: { id: 'game', width: 800, height: 600 } })),
+            of(canvas({ attrs: { id: 'game', width: 800, height: 600, tabindex: 0 } })),
             of(div([
-                input({ props: { id: 'playerColor', value: initState.player.color } })
+                input({ attrs: { id: 'playerColor', value: initState.player.color } })
             ])),
             sources.GameWorker.input$.pipe(
                 map((state: any) => state.fps),

@@ -1,4 +1,11 @@
+import { MainDOMSource } from '@cycle/dom';
+import { GameEngineWorker } from '@ogod/game-engine-worker';
 import { baseObjectVelocity } from './movement';
+
+export interface AppSources {
+    GameWorker: GameEngineWorker<AppState>;
+    DOM: MainDOMSource;
+}
 
 export interface AppState {
     app: { width: number, height: number };
