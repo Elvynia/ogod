@@ -29,10 +29,11 @@ function main(sources: AppSources) {
             switchMap(() => from(canvas$.events('keydown') as any).pipe(
                 takeUntil(from(canvas$.events('blur') as any)),
                 filter((e: KeyboardEvent) => e.code === 'Space'),
-                tap(() => paused = !paused),
-                startWith(false),
-                map((e) => [{ key: 'paused', value: paused }] as WorkerMessage)
+                tap(() => paused = !paused)
             )),
+        ).pipe(
+            startWith(false),
+            map((e) => [{ key: 'paused', value: paused }] as WorkerMessage)
         ),
         addRect$
     ).subscribe((args) => sources.GameWorker.output$.next(args));
@@ -52,8 +53,8 @@ function main(sources: AppSources) {
             ])),
             sources.GameWorker.input$.pipe(
                 map((state: any) => state.fps),
-                distinctUntilChanged(),
                 startWith(''),
+                distinctUntilChanged(),
                 map((fps) => h3('FPS: ' + fps)),
             )
         ]).pipe(

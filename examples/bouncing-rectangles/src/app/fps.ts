@@ -1,8 +1,8 @@
 import { GameEngineSource } from '@ogod/game-engine-driver';
-import { bufferCount, distinctUntilChanged, map } from 'rxjs';
+import { bufferCount, distinctUntilChanged, map, tap } from 'rxjs';
 
 export function makeFeatureFps(engine: GameEngineSource<any>, buffer: number = 10) {
-    return engine.frame$.pipe(
+    return engine.update$.pipe(
         bufferCount(buffer),
         map((frames: number[]) => {
             const total = frames.reduce((acc, curr) => {

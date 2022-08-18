@@ -1,5 +1,5 @@
 import run from '@cycle/run';
-import { GameEngineSource, makeFeature, makeFeatureConstant, makeGameEngineDriver } from '@ogod/game-engine-driver';
+import { GameEngineSource, makeFeature, makeFeatureConstant, makeGameEngineDriver, makeGameEngineOptionsDefault } from '@ogod/game-engine-driver';
 import { of } from 'rxjs';
 import { makeFeatureFps } from './app/fps';
 import { makeFeatureObjects } from './app/objects';
@@ -39,7 +39,7 @@ function main(sources: { GameEngine: GameEngineSource<AppState> }) {
     };
 }
 
-let disposer = {} as any;
-disposer.fn = run(main, {
-    GameEngine: makeGameEngineDriver(initState, self, disposer)
+let options = makeGameEngineOptionsDefault<AppState>();
+options.dispose = run(main, {
+    GameEngine: makeGameEngineDriver(initState, self, options)
 });

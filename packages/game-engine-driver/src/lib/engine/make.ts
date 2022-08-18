@@ -1,8 +1,7 @@
-import { buffer, filter, map, withLatestFrom } from "rxjs";
+import { animationFrames, buffer, filter, map, pairwise, share, TimestampProvider, withLatestFrom } from "rxjs";
 import { Stream } from "xstream";
 import { makeAction$ } from "../action/make";
 import { FeatureState } from "../feature/state";
-import { makeFrame$ } from '../frame/make';
 import { makeRuntime$ } from "../runtime/make";
 import { RuntimeState } from '../runtime/state';
 import { GameEngineOptions, GameEngineSource, makeGameEngineOptionsDefault } from './state';
@@ -10,11 +9,15 @@ import { GameEngineOptions, GameEngineSource, makeGameEngineOptionsDefault } fro
 export function makeGameEngineDriver<S extends FeatureState>(initState: S, workerContext?: any,
     options: GameEngineOptions<S> = makeGameEngineOptionsDefault()) {
     const state$ = options.state$;
+    const update$ = animationFrames().pipe(
+        pairwise(),
+        map(([prev, cur]) => (cur.elapsed - prev.elapsed) / 1000),
+        share()
+    );
     const action$ = makeAction$(initState, options.additionalActionHandler);
-    const frame$ = makeFrame$();
     if (workerContext) {
         state$.pipe(
-            buffer(frame$),
+            buffer(animationFrames()),
             map((states) => states.pop()),
             filter((state) => !!state)
         ).subscribe((state) => workerContext.postMessage(state));
@@ -43,11 +46,11 @@ export function makeGameEngineDriver<S extends FeatureState>(initState: S, worke
                 action$.close.complete();
                 Object.keys(initState).forEach((k) => action$.select(k).complete());
             },
-            frame$,
             state$,
-            render$: frame$.pipe(
+            render$: update$.pipe(
                 withLatestFrom(state$)
-            )
+            ),
+            update$
         };
     };
 }

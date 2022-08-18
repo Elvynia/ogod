@@ -38,7 +38,7 @@ export const objectUpdateMovement$ = (engine: GameEngineSource<AppState>) => (se
     engine.state$.pipe(
         map((state: any) => state.app),
         distinctUntilChanged(),
-        switchMap(({ width, height }) => engine.frame$.pipe(
+        switchMap(({ width, height }) => engine.update$.pipe(
             map((delta) => {
                 selection.forEach((o) => updateMovement(delta, o, width, height));
                 return selection;
