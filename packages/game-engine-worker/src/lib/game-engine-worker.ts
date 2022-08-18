@@ -13,7 +13,7 @@ export type WorkerMessage = [WorkerAction, any[]?];
 
 export interface GameEngineWorker<S extends FeatureState> {
     input$: ReplaySubject<S>;
-    output$: Subject<WorkerMessage>;
+    output$: Subject<WorkerMessage>; // FIXME: Should be sinks observable
     worker: Worker;
 }
 

@@ -1,0 +1,64 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "examples/animated-backgrounds/src",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nrwl/web:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/examples/animated-backgrounds",
+        "compiler": "babel",
+        "index": "examples/animated-backgrounds/src/index.html",
+        "baseHref": "/",
+        "main": "examples/animated-backgrounds/src/main.ts",
+        "polyfills": "examples/animated-backgrounds/src/polyfills.ts",
+        "tsConfig": "examples/animated-backgrounds/tsconfig.app.json",
+        "assets": [
+          "examples/animated-backgrounds/src/favicon.ico",
+          "examples/animated-backgrounds/src/assets"
+        ],
+        "styles": ["examples/animated-backgrounds/src/styles.css"],
+        "scripts": [],
+        "webpackConfig": "examples/animated-backgrounds/webpack.config.js"
+      },
+      "configurations": {
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "examples/animated-backgrounds/src/environments/environment.ts",
+              "with": "examples/animated-backgrounds/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/web:dev-server",
+      "options": {
+        "buildTarget": "animated-backgrounds:build",
+        "port": 4201
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "animated-backgrounds:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["examples/animated-backgrounds/**/*.ts"]
+      }
+    }
+  }
+}

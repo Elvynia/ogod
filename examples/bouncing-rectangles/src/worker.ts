@@ -5,7 +5,7 @@ import { makeFeatureFps } from './app/fps';
 import { makeFeatureObjects } from './app/objects';
 import { AppState, initState } from './app/state';
 
-declare var self;
+declare var self: DedicatedWorkerGlobalScope;
 
 const makeRender = (canvas: any) => {
     const ctx: CanvasRenderingContext2D = canvas.getContext('2d');
@@ -39,7 +39,7 @@ function main(sources: { GameEngine: GameEngineSource<AppState> }) {
     };
 }
 
-const dispose = run(main, {
-    GameEngine: makeGameEngineDriver(initState, self)
+let disposer = {} as any;
+disposer.fn = run(main, {
+    GameEngine: makeGameEngineDriver(initState, self, disposer)
 });
-self.onclose = () => dispose();

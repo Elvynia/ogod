@@ -6,7 +6,7 @@ import { AppState } from './state';
 const objectUpdates$ = (engine: GameEngineSource<AppState>) => merge(
     engine.state$.pipe(
         map((state: any) => state.objects),
-        distinctUntilChanged(),
+        distinctUntilChanged(), // FIXME: Put before map
         // tap((objects) => console.log('Objects array has changed !', objects)),
         switchMap((objects: any[]) => objectUpdateMovement$(engine)(selectorMovement(objects)).pipe(
             map(() => objects),

@@ -38,11 +38,11 @@ export const objectUpdateMovement$ = (engine: GameEngineSource<AppState>) => (se
     engine.state$.pipe(
         map((state: any) => state.app),
         distinctUntilChanged(),
-        map((app: any) => ({ width: app.width, height: app.height })),
         switchMap(({ width, height }) => engine.frame$.pipe(
             map((delta) => {
                 selection.forEach((o) => updateMovement(delta, o, width, height));
                 return selection;
             })
-        ))
+        )),
+        // FIXME: distinctUntilChange should be here to stop republishing state with same object.
     )
