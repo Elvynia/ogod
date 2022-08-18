@@ -16,7 +16,7 @@ export function drawCircle(ctx: CanvasRenderingContext2D) {
         ctx.globalAlpha = obj.v;
         ctx.fillStyle = obj.c;
         ctx.beginPath();
-        ctx.arc(obj.x, obj.y, obj.s, 0, 2 * Math.PI, false);
+        ctx.arc(obj.x, obj.y, obj.s / 2, 0, 2 * Math.PI, false);
         ctx.fill();
     }
 }

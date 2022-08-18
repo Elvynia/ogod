@@ -1,4 +1,5 @@
-import { GameEngineWorker } from '@ogod/game-engine-worker';
+import { Subject } from 'rxjs';
+import { GameEngineWorker, WorkerMessage } from '@ogod/game-engine-worker';
 import { BallState } from './ball';
 
 export interface AppState {
@@ -8,6 +9,7 @@ export interface AppState {
 
 export interface AppSources {
     GameWorker: GameEngineWorker<AppState>;
+    ElementHost: Subject<WorkerMessage>;
 }
 
 export const initState = {

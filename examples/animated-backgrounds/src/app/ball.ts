@@ -1,4 +1,6 @@
-import { animationFrames, concatWith, defer, finalize, map, Observable, of, takeUntil, takeWhile, tap, EMPTY } from 'rxjs';
+import { concat, concatWith, defer, EMPTY, finalize, ignoreElements, Observable, of, takeUntil, tap } from 'rxjs';
+import { animateObject$ } from './animation';
+import { easeInElastic, easeLinear } from './ease';
 import { Shape, shapes } from './render';
 
 export interface Ball {
@@ -26,74 +28,60 @@ function colorPart() {
 function randomColor() {
     return `#${colorPart()}${colorPart()}${colorPart()}`;
 }
+
 function randShape(): Shape {
     return shapes[Math.floor(Math.random() * shapes.length)];
 }
 
-export function makeRandomBall$(reset$: Observable<void>, objects: BallState, x: number, y: number) {
-    return defer(() => {
-        const duration = Math.max(1000, 3500 * Math.random());
-        const target = { x, y };
-        const start = {
-            x: x + (150 - Math.random() * 300),
-            y: y + (150 - Math.random() * 300),
-        };
-        const dx = target.x - start.x;
-        const dy = target.y - start.y;
-        const obj = {
-            id: randNum(8).toString(),
-            x: start.x,
-            y: start.y,
-            s: 1,
-            c: randomColor(),
-            v: 0,
-            shape: randShape()
-        };
+function randSize(max: number) {
+    return Math.max(max, Math.round(Math.random() * max));
+}
+
+function randBall(x: number, y: number): Ball {
+    return {
+        id: randNum(8).toString(),
+        x,
+        y,
+        s: randSize(50),
+        c: randomColor(),
+        v: 0,
+        shape: randShape()
+    }
+}
+
+export function makeRandomBall$(frame$: Observable<{ elapsed: number }>, reset$: Observable<void>, objects: BallState) {
+    return (x: number, y: number) => {
+        let duration = Math.max(1000, 3500 * Math.random());
+        const obj = randBall(x + (150 - Math.random() * 300), y + (150 - Math.random() * 300));
         objects[obj.id] = obj;
-        return animationFrames().pipe(
-            takeWhile(({ elapsed }) => elapsed <= duration),
-            map(({ elapsed }) => {
-                const v = elapsed / duration;
-                return {
-                    x: v * dx + start.x,
-                    y: v * dy + start.y,
-                    v: v,
-                    s: (1 - v) * 30,
-                };
-            }),
-            tap(({ x, y, v, s }) => {
-                obj.x = x;
-                obj.y = y;
-                obj.v = v;
-                obj.s = s;
-            }),
+        const updateBall$ = animateObject$(obj, {
+            x: { start: obj.x, end: x, duration, easeFn: easeInElastic },
+            y: { start: obj.y, end: y, duration, easeFn: easeInElastic },
+            v: { start: obj.v, end: 1, duration, easeFn: easeLinear },
+            s: { start: obj.s, end: 1, duration, easeFn: easeInElastic },
+        }, frame$).pipe(
             tap({
-                complete: () => delete objects[obj.id],
+                complete: () => delete objects[obj.id]
             }),
             takeUntil(reset$),
             concatWith(defer(() => {
                 if (!objects[obj.id]) {
                     return EMPTY;
                 }
-                const duration = 500;
-                return animationFrames().pipe(
-                    takeWhile(({ elapsed }) => elapsed <= duration),
-                    map(({ elapsed }) => {
-                        const v = elapsed / duration;
-                        return {
-                            v: 1 - v,
-                            s: 100 * v,
-                        };
-                    }),
-                    tap(({ s, v }) => {
-                        obj.s = s;
-                        obj.v = v;
-                    })
-                );
+                duration = 400;
+                return animateObject$(obj, {
+                    v: { start: 1, end: 0, duration, easeFn: easeLinear },
+                    s: { start: obj.s, end: obj.s * 3, duration, easeFn: easeLinear },
+                }, frame$);
             })),
-            finalize(() => delete objects[obj.id]),
-            map(() => objects),
-            concatWith(of(objects))
+            finalize(() => delete objects[obj.id])
         );
-    });
+        return concat(
+            of(objects),
+            updateBall$.pipe(
+                ignoreElements()
+            ),
+            of(objects)
+        )
+    }
 }

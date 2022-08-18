@@ -1,6 +1,6 @@
 import run from '@cycle/run';
 import { GameEngineSource, makeGameEngineDriver, makeGameEngineOptionsDefault } from '@ogod/game-engine-driver';
-import { AsyncSubject, mergeMap, of, startWith, Subject, tap, withLatestFrom } from 'rxjs';
+import { AsyncSubject, mergeMap, of, startWith, Subject, tap } from 'rxjs';
 import { makeRandomBall$ } from './app/ball';
 import { makeRender } from './app/render';
 import { AppState, initState } from './app/state';
@@ -15,6 +15,7 @@ function main(sources: { GameEngine: GameEngineSource<AppState> }) {
         const render = makeRender(canvas);
         sources.GameEngine.render$.subscribe(([delta, state]) => render(delta, state));
     });
+    const randomBall$ = makeRandomBall$(sources.GameEngine.frame$, reset$, initState.objects);
     return {
         GameEngine: of({
             app: sources.GameEngine.action$.app.pipe(
@@ -25,8 +26,7 @@ function main(sources: { GameEngine: GameEngineSource<AppState> }) {
                 startWith(initState.app)
             ),
             objects: sources.GameEngine.action$.objects.pipe(
-                withLatestFrom(sources.GameEngine.state$),
-                mergeMap(([{ x, y }, state]) => makeRandomBall$(reset$, state.objects, x, y))
+                mergeMap(({ x, y }) => randomBall$(x, y))
             )
         })
     };

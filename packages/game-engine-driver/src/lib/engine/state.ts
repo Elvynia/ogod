@@ -5,6 +5,7 @@ import { ActionHandler, ActionState } from './../action/state';
 export interface GameEngineSource<S extends FeatureState> {
     action$: ActionState<S>;
     dispose: Function;
+    frame$: Observable<{ timestamp: number, elapsed: number }>;
     render$: Observable<[number, S]>;
     state$: Subject<S>;
     update$: Observable<number>;

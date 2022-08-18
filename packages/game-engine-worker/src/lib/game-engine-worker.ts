@@ -1,4 +1,5 @@
-import { ReplaySubject, Subject } from 'rxjs';
+import { from, Observable, ReplaySubject } from 'rxjs';
+import { Stream } from 'xstream';
 
 export interface FeatureState {
     [key: string]: any;
@@ -9,24 +10,23 @@ export interface WorkerAction {
     value?: any;
 }
 
-export type WorkerMessage = [WorkerAction, any[]?];
+export type WorkerMessage = [WorkerAction, StructuredSerializeOptions?];
 
 export interface GameEngineWorker<S extends FeatureState> {
     input$: ReplaySubject<S>;
-    output$: Subject<WorkerMessage>; // FIXME: Should be sinks observable
     worker: Worker;
 }
 
-export function makeGameEngineWorker<S extends FeatureState>(worker: Worker): () => GameEngineWorker<S> {
-    return () => {
+export function makeGameEngineWorker<S extends FeatureState>(worker: Worker): (sinks$: Stream<WorkerMessage>) => GameEngineWorker<S> {
+    return (sink$: Stream<WorkerMessage>) => {
         const input$ = new ReplaySubject<S>(1);
-        const output$ = new Subject<WorkerMessage>();
+        const sub = from(sink$ as any as Observable<WorkerMessage>)
+            .subscribe((args: WorkerMessage) => worker.postMessage(args[0], args[1]));;
         worker.onmessage = (event) => input$.next(event.data);
-        output$.subscribe((args: any[]) => worker.postMessage(args[0], args[1]));
         return {
             input$,
-            output$,
-            worker
+            worker,
+            dispose: () => sub.unsubscribe()
         };
     };
 }

@@ -1,11 +1,15 @@
-import { GameEngineWorker, WorkerMessage } from '@ogod/game-engine-worker';
+import { WorkerMessage } from '@ogod/game-engine-worker';
 import { define, html } from 'hybrids';
-import { AsyncSubject, debounceTime, distinctUntilChanged, fromEvent, map, switchMap } from 'rxjs';
+import { debounceTime, distinctUntilChanged, fromEvent, map, Subject } from 'rxjs';
 import { runApp } from './app';
+import { AppState } from './state';
 
 interface SimpleCounter extends HTMLElement {
+    app: {
+        input$: Subject<AppState>;
+        output$: Subject<WorkerMessage>;
+    };
     count: number;
-    app: AsyncSubject<GameEngineWorker<any>>;
     render: Function;
 }
 
@@ -15,54 +19,53 @@ export function increaseCount(host: SimpleCounter) {
 
 export default define<SimpleCounter>({
     tag: 'ogod-root',
+    app: {
+        get: () => ({
+            input$: undefined,
+            output$: new Subject()
+        }),
+        connect(host) {
+            console.log('[ROOT] Connect');
+            const dispose = runApp(new Worker(new URL('../worker.ts', import.meta.url)), host);
+            host.render();
+            const canvas = host.shadowRoot.querySelector('#target') as any;
+            const offscreen = canvas.transferControlToOffscreen();
+            offscreen.width = canvas.clientWidth;
+            offscreen.height = canvas.clientHeight;
+            host.app.output$.next([{
+                key: 'canvas',
+                complete: true,
+                value: offscreen
+            } as any, [offscreen]] as WorkerMessage);
+            fromEvent(window, 'resize').pipe(
+                debounceTime(16)
+            ).subscribe(() => host.app.output$.next([{
+                key: 'app',
+                value: {
+                    width: canvas.clientWidth,
+                    height: canvas.clientHeight
+                }
+            }]));
+            fromEvent(canvas, 'click').pipe(
+                map(() => ([{ key: 'reset' }] as WorkerMessage))
+            ).subscribe(host.app.output$);
+            return () => {
+                console.log('[ROOT] Disconnect');
+                dispose();
+            };
+        }
+    },
     count: {
         value: 0,
         connect(host, key, invalidate) {
-            const { unsubscribe } = host.app.pipe(
-                switchMap((app) => app.input$.pipe(
-                    map((state) => Object.keys(state.objects).length),
-                    distinctUntilChanged()
-                ))
+            const { unsubscribe } = host.app.input$.pipe(
+                map((state) => Object.keys(state.objects).length),
+                distinctUntilChanged()
             ).subscribe((count) => {
                 host[key] = count;
                 invalidate();
             });
             return unsubscribe;
-        }
-    },
-    app: {
-        get: () => new AsyncSubject(),
-        connect(host) {
-            console.log('[ROOT] Connect');
-            const dispose = runApp(new Worker(new URL('../worker.ts', import.meta.url)));
-            host.app.subscribe((app) => {
-                host.render();
-                const canvas = host.shadowRoot.querySelector('#target') as any;
-                const offscreen = canvas.transferControlToOffscreen();
-                offscreen.width = canvas.clientWidth;
-                offscreen.height = canvas.clientHeight;
-                app.output$.next([{
-                    key: 'canvas',
-                    complete: true,
-                    value: offscreen
-                } as any, [offscreen]]);
-                fromEvent(window, 'resize').pipe(
-                    debounceTime(16)
-                ).subscribe(() => app.output$.next([{
-                    key: 'app',
-                    value: {
-                        width: canvas.clientWidth,
-                        height: canvas.clientHeight
-                    }
-                }]));
-                fromEvent(canvas, 'click').pipe(
-                    map(() => ([{ key: 'reset' }] as WorkerMessage))
-                ).subscribe(app.output$);
-            });
-            return () => {
-                console.log('[ROOT] Disconnect');
-                dispose();
-            };
         }
     },
     render: ({ count }) => html`

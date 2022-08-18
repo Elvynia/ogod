@@ -1,23 +1,34 @@
 import run from '@cycle/run';
 import { makeGameEngineWorker } from '@ogod/game-engine-worker';
-import { fromEvent, merge, mergeMap, Observable } from 'rxjs';
-import { AppSources } from './state';
+import { from, fromEvent, map, merge, mergeMap, Observable } from 'rxjs';
+import { Stream } from 'xstream';
+import { AppSources, AppState } from './state';
 
 function main(sources: AppSources) {
-    const root = document.getElementById('app') as any;
-    root.app.next(sources.GameWorker);
-    root.app.complete();
-    merge(
+    const objects$ = merge(
         fromEvent(document, 'mousemove') as Observable<MouseEvent>,
         fromEvent(document, 'touchmove').pipe(mergeMap((e: TouchEvent) => e.touches))
-    ).subscribe(({ clientX, clientY }) => sources.GameWorker.output$.next([{ key: 'objects', value: { x: clientX, y: clientY } }]));
-    return {};
+    ).pipe(
+        map(({ clientX, clientY }) => [{ key: 'objects', value: { x: clientX, y: clientY } }])
+    );
+    return {
+        GameWorker: merge(objects$, sources.ElementHost),
+        ElementHost: sources.GameWorker.input$
+    };
 }
 
-export const runApp = (worker) => {
+function makeGameElementDriver(host: any) {
+    return (sink$: Stream<AppState>) => {
+        host.app.input$ = from(sink$ as any);
+        return host.app.output$;
+    }
+}
+
+export const runApp = (worker, host) => {
     console.log('START app');
     const disposeApp = run(main, {
-        GameWorker: makeGameEngineWorker(worker)
+        GameWorker: makeGameEngineWorker(worker),
+        ElementHost: makeGameElementDriver(host)
     });
     return () => {
         console.log('STOP app');
