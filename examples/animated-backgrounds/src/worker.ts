@@ -1,9 +1,10 @@
 import run from '@cycle/run';
-import { GameEngineSource, makeGameEngineDriver, makeGameEngineOptionsDefault } from '@ogod/game-engine-driver';
+import { GameEngineSource, makeGameEngineDriver, makeGameEngineOptionsDefault, makeFeatureConstant, GameEngineOptions } from '@ogod/game-engine-driver';
 import { AsyncSubject, mergeMap, of, startWith, Subject, tap } from 'rxjs';
 import { makeRandomBall$ } from './app/ball';
 import { makeRender } from './app/render';
 import { AppState, initState } from './app/state';
+import { gsap } from 'gsap';
 
 declare var self: DedicatedWorkerGlobalScope;
 
@@ -16,6 +17,8 @@ function main(sources: { GameEngine: GameEngineSource<AppState> }) {
         sources.GameEngine.render$.subscribe(([delta, state]) => render(delta, state));
     });
     const randomBall$ = makeRandomBall$(sources.GameEngine.frame$, reset$, initState.objects);
+    gsap.ticker.remove(gsap.updateRoot);
+    sources.GameEngine.frame$.subscribe(({ elapsed }) => gsap.updateRoot(elapsed / 1000));
     return {
         GameEngine: of({
             app: sources.GameEngine.action$.app.pipe(
@@ -32,11 +35,17 @@ function main(sources: { GameEngine: GameEngineSource<AppState> }) {
     };
 }
 
-let options = makeGameEngineOptionsDefault<AppState>();
-options.additionalActionHandler = {
-    canvas: new AsyncSubject(),
-    reset: new Subject<void>()
-};
+let options = {
+    ...makeGameEngineOptionsDefault<AppState>(),
+    additionalActionHandler: {
+        canvas: new AsyncSubject(),
+        reset: new Subject<void>()
+    },
+    workerContext: self,
+    reflectHandler: (state) => ({
+        objects: Object.keys(state.objects).length
+    })
+} as GameEngineOptions<AppState>;
 options.dispose = run(main, {
-    GameEngine: makeGameEngineDriver(initState, self, options)
+    GameEngine: makeGameEngineDriver(initState, options)
 });

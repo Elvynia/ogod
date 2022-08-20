@@ -2,11 +2,10 @@ import { WorkerMessage } from '@ogod/game-engine-worker';
 import { define, html } from 'hybrids';
 import { debounceTime, distinctUntilChanged, fromEvent, map, Subject } from 'rxjs';
 import { runApp } from './app';
-import { AppState } from './state';
 
 interface SimpleCounter extends HTMLElement {
     app: {
-        input$: Subject<AppState>;
+        input$: Subject<{ objects: number }>;
         output$: Subject<WorkerMessage>;
     };
     count: number;
@@ -59,7 +58,7 @@ export default define<SimpleCounter>({
         value: 0,
         connect(host, key, invalidate) {
             const { unsubscribe } = host.app.input$.pipe(
-                map((state) => Object.keys(state.objects).length),
+                map((state) => state.objects),
                 distinctUntilChanged()
             ).subscribe((count) => {
                 host[key] = count;

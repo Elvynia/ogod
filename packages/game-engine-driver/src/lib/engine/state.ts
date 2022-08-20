@@ -12,13 +12,16 @@ export interface GameEngineSource<S extends FeatureState> {
 }
 
 export interface GameEngineOptions<S extends FeatureState> {
-    state$: Subject<S>;
-    dispose?: () => void;
     additionalActionHandler?: ActionHandler<any>;
+    dispose?: () => void;
+    state$: Subject<S>;
+    workerContext?: DedicatedWorkerGlobalScope;
+    reflectHandler: (state: S) => any;
 }
 
 export function makeGameEngineOptionsDefault<S extends FeatureState>(): GameEngineOptions<S> {
     return {
-        state$: new ReplaySubject<S>(1)
+        state$: new ReplaySubject<S>(1),
+        reflectHandler: (state) => state
     }
 }

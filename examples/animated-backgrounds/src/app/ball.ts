@@ -1,6 +1,5 @@
-import { concat, concatWith, defer, EMPTY, finalize, ignoreElements, Observable, of, takeUntil, tap } from 'rxjs';
-import { animateObject$ } from './animation';
-import { easeInElastic, easeLinear } from './ease';
+import gsap, { Elastic, Expo, Linear } from 'gsap';
+import { concat, concatWith, defer, EMPTY, finalize, from, Observable, of, takeUntil, tap } from 'rxjs';
 import { Shape, shapes } from './render';
 
 export interface Ball {
@@ -49,17 +48,25 @@ function randBall(x: number, y: number): Ball {
     }
 }
 
+const resetDuration = 400;
 export function makeRandomBall$(frame$: Observable<{ elapsed: number }>, reset$: Observable<void>, objects: BallState) {
     return (x: number, y: number) => {
-        let duration = Math.max(1000, 3500 * Math.random());
+        const duration = 2000;
         const obj = randBall(x + (150 - Math.random() * 300), y + (150 - Math.random() * 300));
         objects[obj.id] = obj;
-        const updateBall$ = animateObject$(obj, {
-            x: { start: obj.x, end: x, duration, easeFn: easeInElastic },
-            y: { start: obj.y, end: y, duration, easeFn: easeInElastic },
-            v: { start: obj.v, end: 1, duration, easeFn: easeLinear },
-            s: { start: obj.s, end: 1, duration, easeFn: easeInElastic },
-        }, frame$).pipe(
+        let tween = gsap.to(obj, {
+            x,
+            y,
+            ease: Elastic.easeInOut,
+            duration: duration / 1000
+        });
+        let tween2 = gsap.to(obj, {
+            s: 1,
+            v: 1,
+            ease: Linear.easeInOut,
+            duration: duration / 1000
+        });
+        const updateBall$ = from(tween.then()).pipe(
             tap({
                 complete: () => delete objects[obj.id]
             }),
@@ -68,19 +75,21 @@ export function makeRandomBall$(frame$: Observable<{ elapsed: number }>, reset$:
                 if (!objects[obj.id]) {
                     return EMPTY;
                 }
-                duration = 400;
-                return animateObject$(obj, {
-                    v: { start: 1, end: 0, duration, easeFn: easeLinear },
-                    s: { start: obj.s, end: obj.s * 3, duration, easeFn: easeLinear },
-                }, frame$);
+                tween2.kill();
+                tween.vars = {
+                    v: 0,
+                    s: 500,
+                    ease: Expo.easeIn,
+                    duration: resetDuration
+                };
+                tween.invalidate();
+                return from(tween.then());
             })),
             finalize(() => delete objects[obj.id])
         );
         return concat(
             of(objects),
-            updateBall$.pipe(
-                ignoreElements()
-            ),
+            updateBall$,
             of(objects)
         )
     }
