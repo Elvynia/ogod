@@ -1,57 +1,35 @@
-import { b2BodyType, b2PolygonShape, b2World } from '@box2d/core';
+import { b2BodyType, b2World } from '@box2d/core';
 import run from '@cycle/run';
-import { GameEngineSource, makeFeatureConstant, makeGameEngineDriver, makeGameEngineOptionsDefault } from '@ogod/game-engine-driver';
+import { GameEngineOptions, GameEngineSource, makeFeatureConstant, makeGameEngineDriver, makeGameEngineOptionsDefault } from '@ogod/game-engine-driver';
 import { of } from 'rxjs';
 import { makeFeatureFps } from './app/fps';
 import { makeFeatureObjects } from './app/objects';
-import { AppState, initState } from './app/state';
+import { makeAddRect, makeParseRect } from './app/rectangle';
+import { makeRender } from './app/render';
+import { AppState, makeInitState } from './app/state';
 
 declare var self: DedicatedWorkerGlobalScope;
 
-const makeRender = (canvas: any) => {
-    const ctx: CanvasRenderingContext2D = canvas.getContext('2d');
-    return (delta: number, state: any) => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        state['objects'].forEach((obj: any) => {
-            ctx.fillStyle = obj.color;
-            ctx.fillRect(obj.x, obj.y, obj.width, obj.height);
-        });
-        ctx.fillStyle = state.player.color;
-        ctx.fillRect(state.player.position.x, state.player.position.y, state.player.width, state.player.height);
-        ctx.fillStyle = state.ground.color;
-        ctx.fillRect(state.ground.position.x, state.ground.position.y, state.ground.width, state.ground.height);
-    };
-}
+const world = b2World.Create({ x: 0, y: -5 });
+const parseRect = makeParseRect(world);
+const initState = makeInitState();
+const addRect = makeAddRect(initState.app, parseRect);
+initState.player = addRect(400, 400, 15, 25);
+initState.grounds = [
+    addRect(400, 5, 600, 10, b2BodyType.b2_staticBody, 50),
+    addRect(5, 300, 400, 10, b2BodyType.b2_staticBody, 50, Math.PI / 2),
+    addRect(795, 300, 400, 10, b2BodyType.b2_staticBody, 50, Math.PI / 2),
+    addRect(400, 600, 600, 10, b2BodyType.b2_staticBody, 50),
+];
 
 function main(sources: { GameEngine: GameEngineSource<AppState> }) {
-    const world = b2World.Create({ x: 0, y: -10 });
-    const ground = world.CreateBody({
-        position: { x: 40, y: 2.5 },
-        type: b2BodyType.b2_staticBody
-    });
-    ground.CreateFixture({
-        shape: new b2PolygonShape().SetAsBox(30, 1.25),
-        density: 50
-    });
-    const player = world.CreateBody({
-        position: { x: 70.75, y: 20 },
-        type: b2BodyType.b2_dynamicBody,
-        linearVelocity: { x: 0, y: 0}
-    });
-    player.CreateFixture({
-        shape: new b2PolygonShape().SetAsBox(0.75, 1.25),
-        density: 10,
-        // restitution: 0.8,
-        friction : 0
-    });
     sources.GameEngine.update$.subscribe((delta) => {
         world.Step(delta, {
             velocityIterations: 6,
             positionIterations: 2
         });
-        // console.log(player.GetPosition())
-        initState.player.position.x = player.GetPosition().x * 10;
-        initState.player.position.y = 600 - player.GetPosition().y * 10;
+        initState.player.x = initState.player._body.GetPosition().x * 10;
+        initState.player.y = initState.player._body.GetPosition().y * 10;
     });
     sources.GameEngine.action$.select('app').subscribe(({ canvas }) => {
         const render = makeRender(canvas);
@@ -61,9 +39,9 @@ function main(sources: { GameEngine: GameEngineSource<AppState> }) {
         GameEngine: of({
             app: makeFeatureConstant(sources.GameEngine, 'app'),
             fps: makeFeatureFps(sources.GameEngine),
-            objects: makeFeatureObjects(sources.GameEngine),
+            objects: makeFeatureObjects(sources.GameEngine, addRect),
             paused: sources.GameEngine.action$.paused,
-            ground: makeFeatureConstant(sources.GameEngine, 'ground'),
+            grounds: makeFeatureConstant(sources.GameEngine, 'grounds'),
             player: makeFeatureConstant(sources.GameEngine, 'player')
         })
     };
@@ -71,8 +49,9 @@ function main(sources: { GameEngine: GameEngineSource<AppState> }) {
 
 let options = {
     ...makeGameEngineOptionsDefault<AppState>(),
-    workerContext: self
-}
+    workerContext: self,
+    reflectHandler: ({ fps }) => ({ fps })
+} as GameEngineOptions<AppState>
 options.dispose = run(main, {
     GameEngine: makeGameEngineDriver(initState, options)
 });

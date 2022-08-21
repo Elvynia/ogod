@@ -1,7 +1,7 @@
 import { GameEngineSource } from '@ogod/game-engine-driver';
-import { map, switchMap, distinctUntilChanged, tap } from 'rxjs';
-import { AppState } from './state';
-import { clampMag, runBoundaryCheck } from './util';
+import { distinctUntilChanged, map, switchMap } from 'rxjs';
+import { Rect } from './rectangle';
+import { AppSize, AppState } from './state';
 
 export const bounceRateChanges = {
     left: 1.1,
@@ -17,30 +17,18 @@ export const baseObjectVelocity = {
     maxY: 200,
 };
 
-export const updateMovement = (deltaTime, obj, width, height) => {
-    obj.x = obj.x += obj.velocity.x * deltaTime;
-    obj.y = obj.y += obj.velocity.y * deltaTime;
-    const didHit = runBoundaryCheck(obj, width, height);
-    if (didHit) {
-        if (didHit === 'right' || didHit === 'left') {
-            obj.velocity.x *= -bounceRateChanges[didHit];
-        } else {
-            obj.velocity.y *= -bounceRateChanges[didHit];
-        }
-    }
-    obj.velocity.x = clampMag(obj.velocity.x, 0, baseObjectVelocity.maxX);
-    obj.velocity.y = clampMag(obj.velocity.y, 0, baseObjectVelocity.maxY);
+export const updateMovement = (deltaTime, obj: Rect, app: AppSize) => {
+    obj.x = Math.round(obj._body.GetPosition().x * app.scale);
+    obj.y = Math.round(obj._body.GetPosition().y * app.scale);
 };
-
-export const selectorMovement = (objects: any[]) => objects.filter((o) => o.velocity);
 
 export const objectUpdateMovement$ = (engine: GameEngineSource<AppState>) => (selection: any[]) =>
     engine.state$.pipe(
         map((state: any) => state.app),
         distinctUntilChanged(),
-        switchMap(({ width, height }) => engine.update$.pipe(
+        switchMap((app) => engine.update$.pipe(
             map((delta) => {
-                selection.forEach((o) => updateMovement(delta, o, width, height));
+                selection.forEach((o) => updateMovement(delta, o, app));
                 return selection;
             })
         )),

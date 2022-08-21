@@ -1,55 +1,34 @@
 import { MainDOMSource } from '@cycle/dom';
 import { GameEngineWorker } from '@ogod/game-engine-worker';
-import { baseObjectVelocity } from './movement';
+import { Rect } from './rectangle';
 
 export interface AppSources {
     GameWorker: GameEngineWorker<AppState>;
     DOM: MainDOMSource;
 }
 
-export interface AppState {
-    app: { width: number, height: number };
-    fps: number;
-    objects: any[];
-    paused: boolean;
-    ground: any;
-    player: any;
+export interface AppSize {
+    width: number;
+    height: number;
+    scale: number;
 }
 
-export const initState: AppState = {
+export interface AppState {
+    app: AppSize;
+    fps: number;
+    objects: Rect[];
+    paused: boolean;
+    grounds: Rect[];
+    player: Rect;
+}
+
+export const makeInitState = () => ({
     app: {
         width: 800,
-        height: 600
+        height: 600,
+        scale: 10
     },
     fps: 0,
-    objects: [{
-        x: 10,
-        y: 10,
-        width: 20,
-        height: 30,
-        toggleColor: '#FF0000',
-        color: '#000000',
-        velocity: { ...baseObjectVelocity },
-    }, {
-        x: 200,
-        y: 249,
-        width: 50,
-        height: 20,
-        toggleColor: '#00FF00',
-        color: '#0000FF',
-        velocity: { x: -baseObjectVelocity.x, y: 2 * baseObjectVelocity.y },
-    }],
-    paused: false,
-    ground: {
-        color: '#00A500',
-        position: { x: 100, y: 575 },
-        width: 600,
-        height: 25
-    },
-    player: {
-        color: '#ff33ff',
-        position: { x: 700, y: 400 },
-        width: 15,
-        height: 25
-    }
-};
+    objects: [],
+    paused: false
+} as AppState);

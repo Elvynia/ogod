@@ -26,7 +26,10 @@ export function makeGameEngineWorker<S extends FeatureState>(worker: Worker): (s
         return {
             input$,
             worker,
-            dispose: () => sub.unsubscribe()
+            dispose: () => {
+                input$.complete();
+                sub.unsubscribe();
+            }
         };
     };
 }
