@@ -12,13 +12,8 @@ export interface AppState {
     fps: number;
     objects: any[];
     paused: boolean;
-    player: {
-        color: string;
-        position: {
-            x: number,
-            y: number
-        }
-    }
+    ground: any;
+    player: any;
 }
 
 export const initState: AppState = {
@@ -45,8 +40,16 @@ export const initState: AppState = {
         velocity: { x: -baseObjectVelocity.x, y: 2 * baseObjectVelocity.y },
     }],
     paused: false,
+    ground: {
+        color: '#00A500',
+        position: { x: 100, y: 575 },
+        width: 600,
+        height: 25
+    },
     player: {
         color: '#ff33ff',
-        position: { x: 50, y: 50 }
+        position: { x: 700, y: 400 },
+        width: 15,
+        height: 25
     }
 };
