@@ -72,10 +72,6 @@ function main(sources: { GameEngine: GameEngineSource<AppState, AppActions> }) {
             positionIterations: 2
         });
     });
-    sources.GameEngine.action$.app.subscribe(({ canvas }) => {
-        const render = makeRender(canvas);
-        sources.GameEngine.render$.subscribe(([delta, state]) => render(delta, state));
-    });
     return {
         GameEngine: of({
             app,
@@ -105,7 +101,7 @@ function main(sources: { GameEngine: GameEngineSource<AppState, AppActions> }) {
 let options = {
     ...makeGameEngineOptions<AppState, AppActions>(['app', 'objects', 'paused', 'playerColor', 'contact']),
     workerContext: self,
-    reflectHandler: ({ fps, objects }) => {
+    reflectHandler: of(({ fps, objects }) => {
         const values = Object.values(objects);
         return {
             fps,
@@ -120,7 +116,8 @@ let options = {
                 angle: -body.GetAngle()
             }))
         };
-    }
+    }),
+    makeRender
 } as GameEngineOptions<AppState>
 options.dispose = run(main, {
     GameEngine: makeGameEngineDriver(options)

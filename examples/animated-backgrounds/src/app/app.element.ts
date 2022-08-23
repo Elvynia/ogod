@@ -30,9 +30,11 @@ export default define<SimpleCounter>({
             const canvas = host.shadowRoot.querySelector('#target') as any;
             const offscreen = canvas.transferControlToOffscreen();
             host.app.output$.next([{
-                key: 'canvas',
-                complete: true,
-                value: offscreen
+                key: 'engine',
+                value: {
+                    type: 'OGOD_ENGINE_CANVAS',
+                    canvas: offscreen
+                }
             } as any, [offscreen]] as WorkerMessage);
             fromEvent(window, 'resize').pipe(
                 debounceTime(16),

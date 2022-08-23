@@ -1,7 +1,7 @@
 import run from '@cycle/run';
-import { ActionState, GameEngineOptions, GameEngineSource, makeGameEngineDriver, makeGameEngineOptions } from '@ogod/game-engine-driver';
+import { GameEngineOptions, GameEngineSource, isEngineActionCanvas, makeGameEngineDriver, makeGameEngineOptions } from '@ogod/game-engine-driver';
 import { gsap } from 'gsap';
-import { AsyncSubject, mergeMap, of, startWith, Subject, tap } from 'rxjs';
+import { filter, first, mergeMap, of, startWith, switchMap, tap } from 'rxjs';
 import { makeRandomBall$ } from './app/ball';
 import { makeRender } from './app/render';
 import { AppState } from './app/state';
@@ -9,25 +9,23 @@ import { AppState } from './app/state';
 declare var self: DedicatedWorkerGlobalScope;
 
 function main(sources: { GameEngine: GameEngineSource<AppState> }) {
-    let offscreen;
-    sources.GameEngine.action$['canvas'].subscribe((canvas) => {
-        offscreen = canvas;
-        const render = makeRender(canvas);
-        sources.GameEngine.render$.subscribe(([delta, state]) => render(delta, state));
-    });
     const objects = {};
     const randomBall$ = makeRandomBall$(sources.GameEngine.action$['reset'], objects);
     gsap.ticker.remove(gsap.updateRoot);
     sources.GameEngine.frame$.subscribe(({ elapsed }) => gsap.updateRoot(elapsed / 1000));
     return {
         GameEngine: of({
-            app: sources.GameEngine.action$.app.pipe(
-                tap((app) => {
-                    offscreen.width = app.width;
-                    offscreen.height = app.height;
-                })
+            app$: sources.GameEngine.action$.engine.pipe(
+                filter(isEngineActionCanvas),
+                first(),
+                switchMap(({ canvas }) => sources.GameEngine.action$.app.pipe(
+                    tap((app) => {
+                        canvas.width = app.width;
+                        canvas.height = app.height;
+                    })
+                ))
             ),
-            objects: sources.GameEngine.action$.objects.pipe(
+            objects$: sources.GameEngine.action$.objects.pipe(
                 mergeMap(({ x, y }) => randomBall$(x, y)),
                 startWith(objects)
             )
@@ -36,14 +34,12 @@ function main(sources: { GameEngine: GameEngineSource<AppState> }) {
 }
 
 let options = {
-    ...makeGameEngineOptions<AppState, any>(['app', 'objects', {
-        canvas: new AsyncSubject<any>(),
-        reset: new Subject<void>()
-    } as ActionState<any>]),
+    ...makeGameEngineOptions<AppState, any>(['app', 'objects', 'reset']),
     workerContext: self,
-    reflectHandler: (state) => ({
+    reflectHandler: of((state) => ({
         objects: Object.keys(state.objects).length
-    })
+    })),
+    makeRender
 } as GameEngineOptions<AppState>;
 options.dispose = run(main, {
     GameEngine: makeGameEngineDriver(options)

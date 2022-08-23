@@ -9,7 +9,10 @@ function main(sources: AppSources) {
     const offscreen$ = from(canvas$.element() as any).pipe(
         map((canvas: any) => canvas.transferControlToOffscreen()),
         take(1),
-        map((offscreen) => [{ key: 'app', value: { canvas: offscreen } }, [offscreen]])
+        map((offscreen) => [{ key: 'engine', value: {
+            type: 'OGOD_ENGINE_CANVAS',
+            canvas: offscreen
+        }}, [offscreen]])
     );
     const addRect$ = from(canvas$.events('mousedown') as any).pipe(
         switchMap((e) => from(canvas$.events('mousemove') as any).pipe(
