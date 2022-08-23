@@ -49,7 +49,7 @@ function randBall(x: number, y: number): Ball {
 }
 
 const resetDuration = 400;
-export function makeRandomBall$(frame$: Observable<{ elapsed: number }>, reset$: Observable<void>, objects: BallState) {
+export function makeRandomBall$(reset$: Observable<void>, objects: BallState) {
     return (x: number, y: number) => {
         const duration = 2000;
         const obj = randBall(x + (150 - Math.random() * 300), y + (150 - Math.random() * 300));

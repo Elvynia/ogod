@@ -11,11 +11,3 @@ export interface AppSources {
     GameWorker: GameEngineWorker<AppState>;
     ElementHost: Subject<WorkerMessage>;
 }
-
-export const initState = {
-    app: {
-        width: 800,
-        height: 600
-    },
-    objects: {}
-};

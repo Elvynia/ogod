@@ -1,57 +1,127 @@
-import { b2BodyType, b2World } from '@box2d/core';
+import { b2World } from '@box2d/core';
 import run from '@cycle/run';
-import { GameEngineOptions, GameEngineSource, makeFeatureConstant, makeGameEngineDriver, makeGameEngineOptionsDefault } from '@ogod/game-engine-driver';
-import { of } from 'rxjs';
+import { GameEngineOptions, GameEngineSource, makeGameEngineDriver, makeGameEngineOptions } from '@ogod/game-engine-driver';
+import { distinctUntilKeyChanged, EMPTY, filter, ignoreElements, map, merge, mergeMap, of, startWith, switchMap, tap } from 'rxjs';
 import { makeFeatureFps } from './app/fps';
-import { makeFeatureObjects } from './app/objects';
-import { makeAddRect, makeParseRect } from './app/rectangle';
+import { makeAddRandomRect$, updateMovement } from './app/objects';
+import { makeCreateRect } from './app/rectangle';
 import { makeRender } from './app/render';
-import { AppState, makeInitState } from './app/state';
+import { AppActions, AppState } from './app/state';
 
 declare var self: DedicatedWorkerGlobalScope;
 
-const world = b2World.Create({ x: 0, y: -5 });
-const parseRect = makeParseRect(world);
-const initState = makeInitState();
-const addRect = makeAddRect(initState.app, parseRect);
-initState.player = addRect(400, 400, 15, 25);
-initState.grounds = [
-    addRect(400, 5, 600, 10, b2BodyType.b2_staticBody, 50),
-    addRect(5, 300, 400, 10, b2BodyType.b2_staticBody, 50, Math.PI / 2),
-    addRect(795, 300, 400, 10, b2BodyType.b2_staticBody, 50, Math.PI / 2),
-    addRect(400, 600, 600, 10, b2BodyType.b2_staticBody, 50),
-];
-
-function main(sources: { GameEngine: GameEngineSource<AppState> }) {
-    sources.GameEngine.update$.subscribe((delta) => {
+function main(sources: { GameEngine: GameEngineSource<AppState, AppActions> }) {
+    const world = b2World.Create({ x: 0, y: 0 });
+    world.SetContactListener({
+        BeginContact(contact) {
+            const idA = contact.GetFixtureA().GetBody().GetUserData();
+            const idB = contact.GetFixtureB().GetBody().GetUserData();
+            sources.GameEngine.action$.contact.next({
+                idA,
+                idB,
+                touching: true
+            });
+        },
+        EndContact(contact) {
+            const idA = contact.GetFixtureA().GetBody().GetUserData();
+            const idB = contact.GetFixtureB().GetBody().GetUserData();
+            sources.GameEngine.action$.contact.next({
+                idA,
+                idB,
+                touching: false
+            });
+        },
+        PreSolve() { },
+        PostSolve() { }
+    });
+    const app = {
+        width: 800,
+        height: 600,
+        scale: 10
+    };
+    const createRect = makeCreateRect(app, world);
+    const player = createRect(400, 400, 15, 25);
+    const grounds = [
+        createRect(400, 5, 600, 10, false, 50),
+        createRect(5, 300, 400, 10, false, 50, Math.PI / 2),
+        createRect(795, 300, 400, 10, false, 50, Math.PI / 2),
+        createRect(400, 595, 600, 10, false, 50),
+    ];
+    const objects = {};
+    const addRandomRect$ = makeAddRandomRect$(sources.GameEngine, createRect, world, objects, app);
+    sources.GameEngine.action$.contact.pipe(
+        filter((contact) => contact.touching),
+        map(({ idA, idB }) => {
+            const ids = [];
+            if (objects[idA]) {
+                ids.push(idA)
+            }
+            if (objects[idB]) {
+                ids.push(idB);
+            }
+            return ids;
+        })
+    ).subscribe((ids: string[]) => ids.forEach((id) => --objects[id].health));
+    sources.GameEngine.state$.pipe(
+        distinctUntilKeyChanged('paused'),
+        map((state) => state.paused),
+        switchMap((paused) => paused ? EMPTY : sources.GameEngine.update$)
+    ).subscribe((delta) => {
         world.Step(delta, {
             velocityIterations: 6,
             positionIterations: 2
         });
-        initState.player.x = initState.player._body.GetPosition().x * 10;
-        initState.player.y = initState.player._body.GetPosition().y * 10;
     });
-    sources.GameEngine.action$.select('app').subscribe(({ canvas }) => {
+    sources.GameEngine.action$.app.subscribe(({ canvas }) => {
         const render = makeRender(canvas);
         sources.GameEngine.render$.subscribe(([delta, state]) => render(delta, state));
     });
     return {
         GameEngine: of({
-            app: makeFeatureConstant(sources.GameEngine, 'app'),
-            fps: makeFeatureFps(sources.GameEngine),
-            objects: makeFeatureObjects(sources.GameEngine, addRect),
-            paused: sources.GameEngine.action$.paused,
-            grounds: makeFeatureConstant(sources.GameEngine, 'grounds'),
-            player: makeFeatureConstant(sources.GameEngine, 'player')
+            app,
+            fps$: makeFeatureFps(sources.GameEngine),
+            objects$: sources.GameEngine.action$.objects.pipe(
+                mergeMap(({ x, y }) => addRandomRect$(x, y)),
+                startWith(objects)
+            ),
+            paused$: sources.GameEngine.action$.paused,
+            grounds,
+            player$: merge(
+                sources.GameEngine.action$.playerColor.pipe(
+                    map((color) => {
+                        player.color = color;
+                        return player;
+                    })
+                ),
+                sources.GameEngine.update$.pipe(
+                    tap((delta) => updateMovement(delta, player, app)),
+                    ignoreElements()
+                )
+            )
         })
     };
 }
 
 let options = {
-    ...makeGameEngineOptionsDefault<AppState>(),
+    ...makeGameEngineOptions<AppState, AppActions>(['app', 'objects', 'paused', 'playerColor', 'contact']),
     workerContext: self,
-    reflectHandler: ({ fps }) => ({ fps })
+    reflectHandler: ({ fps, objects }) => {
+        const values = Object.values(objects);
+        return {
+            fps,
+            objectCount: values.length,
+            objects: values.map(({ id, x, y, width, height, health, body }) => ({
+                id,
+                x,
+                y,
+                width,
+                height,
+                health,
+                angle: -body.GetAngle()
+            }))
+        };
+    }
 } as GameEngineOptions<AppState>
 options.dispose = run(main, {
-    GameEngine: makeGameEngineDriver(initState, options)
+    GameEngine: makeGameEngineDriver(options)
 });

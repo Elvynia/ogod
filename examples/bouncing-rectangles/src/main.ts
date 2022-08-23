@@ -1,7 +1,7 @@
 import { canvas, div, h3, input, makeDOMDriver } from '@cycle/dom';
 import { run } from '@cycle/run';
 import { makeGameEngineWorker, WorkerMessage } from '@ogod/game-engine-worker';
-import { combineLatest, distinctUntilChanged, filter, first, from, map, merge, Observable, of, startWith, switchMap, take, takeUntil, throttleTime } from 'rxjs';
+import { combineLatest, distinctUntilKeyChanged, filter, first, from, map, merge, of, startWith, switchMap, take, takeUntil, throttleTime } from 'rxjs';
 import { AppSources } from './app/state';
 
 function main(sources: AppSources) {
@@ -11,7 +11,7 @@ function main(sources: AppSources) {
         take(1),
         map((offscreen) => [{ key: 'app', value: { canvas: offscreen } }, [offscreen]])
     );
-    const addRect$ = from(canvas$.events('mousedown') as any as Observable<MouseEvent>).pipe(
+    const addRect$ = from(canvas$.events('mousedown') as any).pipe(
         switchMap((e) => from(canvas$.events('mousemove') as any).pipe(
             startWith(e),
             throttleTime(100),
@@ -27,22 +27,26 @@ function main(sources: AppSources) {
             }] as WorkerMessage)
         ))
     );
+    let paused = false;
     const paused$ = from(canvas$.events('focus') as any).pipe(
         switchMap(() => from(canvas$.events('keydown') as any).pipe(
             takeUntil(from(canvas$.events('blur') as any)),
             filter((e: KeyboardEvent) => e.code === 'Space'),
-            map(() => false)
+            map(() => paused = !paused)
         )),
-    ).pipe(
-        startWith(false),
+        startWith(paused),
         map((value) => [{ key: 'paused', value }] as WorkerMessage)
     );
     const playerColor$ = from(sources.DOM.select('#playerColor').events('input') as any).pipe(
         map((e: Event) => (e.target as any).value),
         filter((value) => value && value.length === 7),
         startWith('#ff33ff'),
-        map((value) => [{ key: 'player', value }] as WorkerMessage)
+        map((value) => [{ key: 'playerColor', value }] as WorkerMessage)
     );
+    const app = {
+        width: 800,
+        height: 600
+    };
     return {
         GameWorker: merge(
             addRect$,
@@ -51,18 +55,50 @@ function main(sources: AppSources) {
             playerColor$
         ),
         DOM: combineLatest([
-            of(canvas({ attrs: { id: 'game', width: 800, height: 600, tabindex: 0 } })),
+            of(canvas({ attrs: { id: 'game', width: app.width, height: app.height, tabindex: 0 } })),
+            sources.GameWorker.input$.pipe(
+                map((state) => state.objects.map(({ id, x, y, angle, width, height, health }) => div({
+                    attrs: {
+                        id
+                    },
+                    class: {
+                        rect: true
+                    },
+                    style: {
+                        width: `${width}px`,
+                        height: `${height}px`,
+                        transform: `translate(calc(${x}px - 50%), calc(${app.height - y}px - 50%))rotate(${angle}rad)`
+                    }
+                }, [health.toString()])))
+            ),
             of(div([
                 input({ attrs: { id: 'playerColor', value: '#ff33ff' } })
             ])),
             sources.GameWorker.input$.pipe(
+                distinctUntilKeyChanged('fps'),
                 map((state: any) => state.fps),
                 startWith(''),
-                distinctUntilChanged(),
                 map((fps) => h3('FPS: ' + fps)),
+            ),
+            sources.GameWorker.input$.pipe(
+                distinctUntilKeyChanged('objectCount'),
+                map((state: any) => state.objectCount),
+                startWith('0'),
+                map((objects) => h3('Object count: ' + objects)),
             )
         ]).pipe(
-            map(([canvas, p, fps]) => div([canvas, div({ class: { content: true } }, [p, fps])]))
+            map(([canvas, divs, color, fps, objects]) => div([
+                div({
+                    class: {
+                        wrapper: true
+                    }
+                }, [canvas, ...divs]),
+                div({
+                    class: {
+                        content: true
+                    }
+                }, [color, fps, objects])
+            ]))
         )
     };
 }

@@ -1,41 +1,33 @@
+import { b2World } from '@box2d/core';
 import { GameEngineSource } from '@ogod/game-engine-driver';
-import { distinctUntilChanged, distinctUntilKeyChanged, first, map, merge, of, skip, startWith, switchMap, tap } from 'rxjs';
-import { objectUpdateMovement$ } from './movement';
-import { AppState } from './state';
+import { concat, map, of, takeWhile, tap } from 'rxjs';
+import { CreateRectFn, Rect } from './rectangle';
+import { AppSize, AppState, ObjectState } from './state';
 
-const objectUpdates$ = (engine: GameEngineSource<AppState>, app, addRect) => merge(
-    engine.state$.pipe(
-        map((state: any) => state.objects),
-        distinctUntilChanged(), // FIXME: Put before map
-        // tap((objects) => console.log('Objects array has changed !', objects)),
-        switchMap((objects: any[]) => objectUpdateMovement$(engine)(objects).pipe(
-            map(() => objects),
-            distinctUntilChanged()
-        ))
-    ),
-    engine.action$.objects.pipe(
-        switchMap(({ x, y }) => engine.state$.pipe(
-            first(),
-            map((state) => [...state.objects, addRect(x, app.height - y)])
-        ))
-    )
-);
+export const updateMovement = (_, obj: Rect, app: AppSize) => {
+    obj.x = Math.round(obj.body.GetPosition().x * app.scale);
+    obj.y = Math.round(obj.body.GetPosition().y * app.scale);
+    return obj.x < 0 || obj.x > app.width || obj.y < 0 || obj.y > app.height;
+};
 
-export function makeFeatureObjects(engine: GameEngineSource<AppState>, addRect) {
-    return engine.state$.pipe(
-        first(),
-        switchMap((initState) => engine.state$.pipe(
-            distinctUntilKeyChanged('paused'),
-            skip(1),
-            tap((state) => {
-                state.objects.forEach((obj) => {
-                    // let newColor = obj.toggleColor;
-                    // obj.toggleColor = obj.color;
-                    // obj.color = newColor;
-                });
-            }),
-            startWith(initState),
-            switchMap((state) => (state.paused ? of(state.objects) : objectUpdates$(engine, state.app, addRect)))
-        )),
-    );
+export function makeAddRandomRect$(engine: GameEngineSource<AppState>, createRect: CreateRectFn, world: b2World, objects: ObjectState,
+    app: AppSize) {
+    return (x, y) => {
+        const rect = createRect(x, app.height - y);
+        objects[rect.id] = rect;
+        return concat(
+            of(objects),
+            engine.update$.pipe(
+                takeWhile((delta) => rect.health > 0 && !updateMovement(delta, rect, app)),
+                tap({
+                    complete: () => {
+                        world.DestroyBody(rect.body);
+                        delete objects[rect.id];
+                    }
+                }),
+                map(() => objects)
+            ),
+            of(objects)
+        );
+    }
 }

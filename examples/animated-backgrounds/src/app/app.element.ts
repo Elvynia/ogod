@@ -1,6 +1,6 @@
 import { WorkerMessage } from '@ogod/game-engine-worker';
 import { define, html } from 'hybrids';
-import { debounceTime, distinctUntilChanged, fromEvent, map, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, fromEvent, map, startWith, Subject } from 'rxjs';
 import { runApp } from './app';
 
 interface SimpleCounter extends HTMLElement {
@@ -29,15 +29,14 @@ export default define<SimpleCounter>({
             host.render();
             const canvas = host.shadowRoot.querySelector('#target') as any;
             const offscreen = canvas.transferControlToOffscreen();
-            offscreen.width = canvas.clientWidth;
-            offscreen.height = canvas.clientHeight;
             host.app.output$.next([{
                 key: 'canvas',
                 complete: true,
                 value: offscreen
             } as any, [offscreen]] as WorkerMessage);
             fromEvent(window, 'resize').pipe(
-                debounceTime(16)
+                debounceTime(16),
+                startWith(null)
             ).subscribe(() => host.app.output$.next([{
                 key: 'app',
                 value: {

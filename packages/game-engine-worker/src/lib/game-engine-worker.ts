@@ -12,8 +12,8 @@ export interface WorkerAction {
 
 export type WorkerMessage = [WorkerAction, StructuredSerializeOptions?];
 
-export interface GameEngineWorker<S extends FeatureState> {
-    input$: ReplaySubject<S>;
+export interface GameEngineWorker<R> {
+    input$: ReplaySubject<R>;
     worker: Worker;
 }
 
