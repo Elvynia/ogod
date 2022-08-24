@@ -1,6 +1,6 @@
-import { Subject } from 'rxjs';
 import { MainDOMSource } from '@cycle/dom';
-import { GameEngineWorker } from '@ogod/game-engine-worker';
+import { GameEngineWorker } from '@ogod/game-worker-driver';
+import { Subject } from 'rxjs';
 import { Rect } from './rectangle';
 
 export interface Contact {

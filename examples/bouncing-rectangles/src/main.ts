@@ -1,6 +1,6 @@
 import { canvas, div, h3, input, makeDOMDriver } from '@cycle/dom';
 import { run } from '@cycle/run';
-import { makeGameEngineWorker, WorkerMessage } from '@ogod/game-engine-worker';
+import { makeGameEngineWorker, makeWorkerMessage } from '@ogod/game-worker-driver';
 import { combineLatest, distinctUntilKeyChanged, filter, first, from, map, merge, of, startWith, switchMap, take, takeUntil, throttleTime } from 'rxjs';
 import { AppSources } from './app/state';
 
@@ -9,10 +9,12 @@ function main(sources: AppSources) {
     const offscreen$ = from(canvas$.element() as any).pipe(
         map((canvas: any) => canvas.transferControlToOffscreen()),
         take(1),
-        map((offscreen) => [{ key: 'engine', value: {
-            type: 'OGOD_ENGINE_CANVAS',
-            canvas: offscreen
-        }}, [offscreen]])
+        map((offscreen) => makeWorkerMessage({
+            key: 'engine', value: {
+                type: 'OGOD_ENGINE_CANVAS',
+                canvas: offscreen
+            }
+        }, [offscreen]))
     );
     const addRect$ = from(canvas$.events('mousedown') as any).pipe(
         switchMap((e) => from(canvas$.events('mousemove') as any).pipe(
@@ -21,13 +23,13 @@ function main(sources: AppSources) {
             takeUntil(from(canvas$.events('mouseup') as any).pipe(
                 first()
             )),
-            map(({ clientX, clientY }) => [{
+            map(({ clientX, clientY }) => makeWorkerMessage({
                 key: 'objects',
                 value: {
                     x: clientX,
                     y: clientY
                 }
-            }] as WorkerMessage)
+            }))
         ))
     );
     let paused = false;
@@ -38,13 +40,13 @@ function main(sources: AppSources) {
             map(() => paused = !paused)
         )),
         startWith(paused),
-        map((value) => [{ key: 'paused', value }] as WorkerMessage)
+        map((value) => makeWorkerMessage({ key: 'paused', value }))
     );
     const playerColor$ = from(sources.DOM.select('#playerColor').events('input') as any).pipe(
         map((e: Event) => (e.target as any).value),
         filter((value) => value && value.length === 7),
         startWith('#ff33ff'),
-        map((value) => [{ key: 'playerColor', value }] as WorkerMessage)
+        map((value) => makeWorkerMessage({ key: 'playerColor', value }))
     );
     const app = {
         width: 800,

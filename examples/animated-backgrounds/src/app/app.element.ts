@@ -1,4 +1,4 @@
-import { WorkerMessage } from '@ogod/game-engine-worker';
+import { makeWorkerMessage, WorkerMessage } from '@ogod/game-worker-driver';
 import { define, html } from 'hybrids';
 import { debounceTime, distinctUntilChanged, fromEvent, map, startWith, Subject } from 'rxjs';
 import { runApp } from './app';
@@ -29,13 +29,13 @@ export default define<SimpleCounter>({
             host.render();
             const canvas = host.shadowRoot.querySelector('#target') as any;
             const offscreen = canvas.transferControlToOffscreen();
-            host.app.output$.next([{
+            host.app.output$.next(makeWorkerMessage({
                 key: 'engine',
                 value: {
                     type: 'OGOD_ENGINE_CANVAS',
                     canvas: offscreen
                 }
-            } as any, [offscreen]] as WorkerMessage);
+            }, [offscreen]));
             fromEvent(window, 'resize').pipe(
                 debounceTime(16),
                 startWith(null)
@@ -47,7 +47,7 @@ export default define<SimpleCounter>({
                 }
             }]));
             fromEvent(canvas, 'click').pipe(
-                map(() => ([{ key: 'reset' }] as WorkerMessage))
+                map(() => makeWorkerMessage({ key: 'reset' }))
             ).subscribe(host.app.output$);
             return () => {
                 console.log('[ROOT] Disconnect');

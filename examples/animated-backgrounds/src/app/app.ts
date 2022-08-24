@@ -1,5 +1,5 @@
 import run from '@cycle/run';
-import { makeGameEngineWorker } from '@ogod/game-engine-worker';
+import { makeGameEngineWorker } from '@ogod/game-worker-driver';
 import { from, fromEvent, map, merge, mergeMap, Observable } from 'rxjs';
 import { Stream } from 'xstream';
 import { AppSources, AppState } from './state';
@@ -20,6 +20,7 @@ function main(sources: AppSources) {
 function makeGameElementDriver(host: any) {
     return (sink$: Stream<AppState>) => {
         host.app.input$ = from(sink$ as any);
+        // TODO: dispose ?
         return host.app.output$;
     }
 }

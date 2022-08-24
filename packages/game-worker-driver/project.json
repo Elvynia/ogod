@@ -1,22 +1,22 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/game-engine-worker/src",
+  "sourceRoot": "packages/game-worker-driver/src",
   "projectType": "library",
   "targets": {
     "build": {
       "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/packages/game-engine-worker",
-        "main": "packages/game-engine-worker/src/index.ts",
-        "tsConfig": "packages/game-engine-worker/tsconfig.lib.json",
-        "assets": ["packages/game-engine-worker/*.md"]
+        "outputPath": "dist/packages/game-worker-driver",
+        "main": "packages/game-worker-driver/src/index.ts",
+        "tsConfig": "packages/game-worker-driver/tsconfig.lib.json",
+        "assets": ["packages/game-worker-driver/*.md"]
       }
     },
     "publish": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
-        "command": "node tools/scripts/publish.mjs game-engine-worker {args.ver} {args.tag}"
+        "command": "node tools/scripts/publish.mjs game-worker-driver {args.ver} {args.tag}"
       },
       "dependsOn": [
         {
@@ -29,14 +29,14 @@
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["packages/game-engine-worker/**/*.ts"]
+        "lintFilePatterns": ["packages/game-worker-driver/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/packages/game-engine-worker"],
+      "outputs": ["coverage/packages/game-worker-driver"],
       "options": {
-        "jestConfig": "packages/game-engine-worker/jest.config.ts",
+        "jestConfig": "packages/game-worker-driver/jest.config.ts",
         "passWithNoTests": true
       }
     }

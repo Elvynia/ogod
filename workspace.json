@@ -5,6 +5,6 @@
     "animated-backgrounds": "examples/animated-backgrounds",
     "bouncing-rectangles": "examples/bouncing-rectangles",
     "game-engine-driver": "packages/game-engine-driver",
-    "game-engine-worker": "packages/game-engine-worker"
+    "game-worker-driver": "packages/game-worker-driver"
   }
 }

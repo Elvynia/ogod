@@ -1,6 +1,6 @@
 /* eslint-disable */
 export default {
-  displayName: 'game-engine-worker',
+  displayName: 'game-worker-driver',
   preset: '../../jest.preset.js',
   globals: {
     'ts-jest': {
@@ -11,5 +11,5 @@ export default {
     '^.+\\.[tj]s$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../coverage/packages/game-engine-worker',
+  coverageDirectory: '../../coverage/packages/game-worker-driver',
 };

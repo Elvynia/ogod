@@ -16,7 +16,7 @@
     "baseUrl": ".",
     "paths": {
       "@ogod/game-engine-driver": ["packages/game-engine-driver/src/index.ts"],
-      "@ogod/game-engine-worker": ["packages/game-engine-worker/src/index.ts"]
+      "@ogod/game-worker-driver": ["packages/game-worker-driver/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
