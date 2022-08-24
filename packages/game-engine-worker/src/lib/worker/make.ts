@@ -1,20 +1,10 @@
 import { from, Observable, ReplaySubject } from 'rxjs';
 import { Stream } from 'xstream';
+import { WorkerMessage } from '../message/state';
+import { GameEngineWorker } from './state';
 
-export interface FeatureState {
+interface FeatureState {
     [key: string]: any;
-}
-
-export interface WorkerAction {
-    key: string;
-    value?: any;
-}
-
-export type WorkerMessage = [WorkerAction, StructuredSerializeOptions?];
-
-export interface GameEngineWorker<R> {
-    input$: ReplaySubject<R>;
-    worker: Worker;
 }
 
 export function makeGameEngineWorker<S extends FeatureState>(worker: Worker): (sinks$: Stream<WorkerMessage>) => GameEngineWorker<S> {
