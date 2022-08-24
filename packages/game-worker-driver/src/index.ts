@@ -1,2 +1,2 @@
 export * from './lib/message/make';
-export * from './lib/worker/make';
+export * from './lib/driver/make';
