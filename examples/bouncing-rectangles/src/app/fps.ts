@@ -1,5 +1,5 @@
-import { GameEngineSource } from '@ogod/game-engine-driver';
-import { bufferCount, distinctUntilChanged, map, tap } from 'rxjs';
+import { GameEngineSource } from '@ogod/game-core';
+import { bufferCount, distinctUntilChanged, map } from 'rxjs';
 
 export function makeFeatureFps(engine: GameEngineSource<any>, buffer: number = 10) {
     return engine.update$.pipe(

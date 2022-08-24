@@ -1,5 +1,5 @@
+import { GameEngineWorker, WorkerMessage } from '@ogod/game-core';
 import { Subject } from 'rxjs';
-import { GameEngineWorker, WorkerMessage } from '@ogod/game-worker-driver';
 import { BallState } from './ball';
 
 export interface AppState {

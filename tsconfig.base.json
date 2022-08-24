@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@ogod/game-core": ["packages/game-core/src/index.ts"],
       "@ogod/game-engine-driver": ["packages/game-engine-driver/src/index.ts"],
       "@ogod/game-worker-driver": ["packages/game-worker-driver/src/index.ts"]
     }

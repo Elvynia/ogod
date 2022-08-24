@@ -1,12 +1,9 @@
+import { FeatureState, GameEngineOptions, GameEngineSource, RuntimeState } from '@ogod/game-core';
 import { animationFrames, buffer, filter, map, pairwise, share, switchMap, withLatestFrom } from "rxjs";
 import { Stream } from "xstream";
 import { makeEngineActionHandlers } from '../action/make';
-import { FeatureState } from "../feature/state";
 import { makeGameEngineOptions } from '../options/make';
-import { GameEngineOptions } from '../options/state';
 import { makeRuntime$ } from "../runtime/make";
-import { RuntimeState } from '../runtime/state';
-import { GameEngineSource } from './state';
 
 export function makeGameEngineDriver<S extends FeatureState>(options: GameEngineOptions<S> = makeGameEngineOptions()) {
     const action$ = options.actionHandlers;

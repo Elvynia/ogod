@@ -4,6 +4,7 @@
   "projects": {
     "animated-backgrounds": "examples/animated-backgrounds",
     "bouncing-rectangles": "examples/bouncing-rectangles",
+    "game-core": "packages/game-core",
     "game-engine-driver": "packages/game-engine-driver",
     "game-worker-driver": "packages/game-worker-driver"
   }

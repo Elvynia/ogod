@@ -1,6 +1,5 @@
-import { RuntimeState } from '@ogod/game-engine-driver';
-import { combineLatest, from, map, Observable, ReplaySubject, switchMap, tap } from 'rxjs';
-import { FeatureState } from "./state";
+import { FeatureState, RuntimeState } from '@ogod/game-core';
+import { combineLatest, from, map, Observable, ReplaySubject, switchMap } from 'rxjs';
 
 export function makeFeature<F extends FeatureState>(runtime$: Observable<RuntimeState<F>>) {
     const subject = new ReplaySubject<F>(1);
@@ -18,9 +17,5 @@ export function makeFeature<F extends FeatureState>(runtime$: Observable<Runtime
             )
         })
     ).subscribe(subject);
-    // subject.subscribe({
-        // next: (value) => console.log('Next feature state: ', value),
-        // complete: () => console.log('Feature complete ?')
-    // })
     return subject;
 }

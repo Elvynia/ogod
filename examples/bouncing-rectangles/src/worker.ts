@@ -1,6 +1,7 @@
 import { b2World } from '@box2d/core';
 import run from '@cycle/run';
-import { GameEngineOptions, GameEngineSource, makeGameEngineDriver, makeGameEngineOptions } from '@ogod/game-engine-driver';
+import { GameEngineOptions, GameEngineSource } from '@ogod/game-core';
+import { makeGameEngineDriver, makeGameEngineOptions } from '@ogod/game-engine-driver';
 import { distinctUntilKeyChanged, EMPTY, filter, ignoreElements, map, merge, mergeMap, of, startWith, switchMap, tap } from 'rxjs';
 import { makeFeatureFps } from './app/fps';
 import { makeAddRandomRect$, updateMovement } from './app/objects';

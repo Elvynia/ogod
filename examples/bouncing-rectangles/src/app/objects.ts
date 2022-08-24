@@ -1,5 +1,5 @@
 import { b2World } from '@box2d/core';
-import { GameEngineSource } from '@ogod/game-engine-driver';
+import { GameEngineSource } from '@ogod/game-core';
 import { concat, map, of, takeWhile, tap } from 'rxjs';
 import { CreateRectFn, Rect } from './rectangle';
 import { AppSize, AppState, ObjectState } from './state';

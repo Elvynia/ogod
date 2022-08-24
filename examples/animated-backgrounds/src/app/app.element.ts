@@ -1,4 +1,5 @@
-import { makeWorkerMessage, WorkerMessage } from '@ogod/game-worker-driver';
+import { WorkerMessage } from '@ogod/game-core';
+import { makeWorkerMessage } from '@ogod/game-worker-driver';
 import { define, html } from 'hybrids';
 import { debounceTime, distinctUntilChanged, fromEvent, map, startWith, Subject } from 'rxjs';
 import { runApp } from './app';

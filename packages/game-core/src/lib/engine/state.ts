@@ -1,7 +1,7 @@
 import { Observable, Subject } from 'rxjs';
+import { ActionHandler } from '../action/state';
 import { FeatureState } from '../feature/state';
 import { GameEngineOptions } from '../options/state';
-import { ActionHandler } from './../action/state';
 
 export interface OffscreenCanvas {
     width: number;

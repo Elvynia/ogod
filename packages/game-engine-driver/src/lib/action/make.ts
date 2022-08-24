@@ -1,6 +1,5 @@
-import { FeatureState, GameEngineSource } from '@ogod/game-engine-driver';
+import { FeatureState, GameEngineSource, isEngineActionCanvas, isEngineActionHandlerAdd, isEngineActionHandlerAddKey, isEngineActionHandlerComplete } from '@ogod/game-core';
 import { filter, Subject } from 'rxjs';
-import { isEngineActionCanvas, isEngineActionHandlerAdd, isEngineActionHandlerAddKey, isEngineActionHandlerComplete } from './state';
 
 export function makeEngineActionHandlers<S extends FeatureState>(sources: GameEngineSource<S>) {
     // Handler Add

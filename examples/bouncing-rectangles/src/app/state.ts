@@ -1,5 +1,5 @@
 import { MainDOMSource } from '@cycle/dom';
-import { GameEngineWorker } from '@ogod/game-worker-driver';
+import { GameEngineWorker } from '@ogod/game-core';
 import { Subject } from 'rxjs';
 import { Rect } from './rectangle';
 

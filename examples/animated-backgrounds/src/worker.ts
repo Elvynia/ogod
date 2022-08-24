@@ -1,5 +1,6 @@
 import run from '@cycle/run';
-import { GameEngineOptions, GameEngineSource, isEngineActionCanvas, makeGameEngineDriver, makeGameEngineOptions } from '@ogod/game-engine-driver';
+import { GameEngineOptions, GameEngineSource, isEngineActionCanvas } from '@ogod/game-core';
+import { makeGameEngineDriver, makeGameEngineOptions } from '@ogod/game-engine-driver';
 import { gsap } from 'gsap';
 import { filter, first, mergeMap, of, startWith, switchMap, tap } from 'rxjs';
 import { makeRandomBall$ } from './app/ball';
