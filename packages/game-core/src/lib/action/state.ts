@@ -9,48 +9,51 @@ export type EngineActionType = 'OGOD_ENGINE_CLOSE'
 
 export interface EngineAction {
     type: EngineActionType;
+    payload?: any;
 }
 
-export interface EngineActionHandlerAdd<A = any> extends EngineAction {
+export interface EngineActionHandlerAdd extends EngineAction {
     type: 'OGOD_ENGINE_HANDLER_ADD';
-    handler: ActionState<A>;
+    payload: ActionState<any>;
 }
 
 export interface EngineActionHandlerAddKey extends EngineAction {
     type: 'OGOD_ENGINE_HANDLER_ADD_KEY';
-    key: string;
+    payload: string;
 }
 
 export interface EngineActionHandlerComplete extends EngineAction {
     type: 'OGOD_ENGINE_HANDLER_COMPLETE';
-    key: string;
+    payload: string;
 }
 
 export interface EngineActionCanvas extends EngineAction {
     type: 'OGOD_ENGINE_CANVAS';
-    canvas: OffscreenCanvas;
+    payload: OffscreenCanvas;
 }
 
-export function isEngineActionHandlerAdd<A = any>(action: EngineAction): action is EngineActionHandlerAdd<A> {
+export function isEngineActionHandlerAdd(action: EngineAction): action is EngineActionHandlerAdd {
     return action.type === 'OGOD_ENGINE_HANDLER_ADD';
 }
 
-export function isEngineActionHandlerAddKey<A = any>(action: EngineAction): action is EngineActionHandlerAddKey {
+export function isEngineActionHandlerAddKey(action: EngineAction): action is EngineActionHandlerAddKey {
     return action.type === 'OGOD_ENGINE_HANDLER_ADD_KEY';
 }
 
-export function isEngineActionHandlerComplete<A = any>(action: EngineAction): action is EngineActionHandlerComplete {
+export function isEngineActionHandlerComplete(action: EngineAction): action is EngineActionHandlerComplete {
     return action.type === 'OGOD_ENGINE_HANDLER_COMPLETE';
 }
 
-export function isEngineActionCanvas<A = any>(action: EngineAction): action is EngineActionCanvas {
+export function isEngineActionCanvas(action: EngineAction): action is EngineActionCanvas {
     return action.type === 'OGOD_ENGINE_CANVAS';
 }
 
-export type ActionState<A> = {
-    [key in keyof A]: Subject<any>;
+export type ActionState<S> = {
+    [K in keyof S]: Subject<S[K]>;
 };
 
-export type ActionHandler<A> = ActionState<A> & {
+export type EngineActionState = {
     engine: Subject<EngineAction>;
-};
+}
+
+export type ActionHandler<A> = ActionState<A> & EngineActionState;

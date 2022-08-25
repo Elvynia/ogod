@@ -1,5 +1,5 @@
 import gsap, { Elastic, Expo, Linear } from 'gsap';
-import { concat, concatWith, defer, EMPTY, finalize, from, Observable, of, takeUntil, tap } from 'rxjs';
+import { concat, concatWith, defer, EMPTY, finalize, from, ignoreElements, Observable, of, takeUntil, tap } from 'rxjs';
 import { Shape, shapes } from './render';
 
 export interface Ball {
@@ -50,7 +50,7 @@ function randBall(x: number, y: number): Ball {
 
 const resetDuration = 400;
 export function makeRandomBall$(reset$: Observable<void>, objects: BallState) {
-    return (x: number, y: number) => {
+    return (x: number, y: number): Observable<BallState> => {
         const duration = 2000;
         const obj = randBall(x + (150 - Math.random() * 300), y + (150 - Math.random() * 300));
         objects[obj.id] = obj;
@@ -85,7 +85,8 @@ export function makeRandomBall$(reset$: Observable<void>, objects: BallState) {
                 tween.invalidate();
                 return from(tween.then());
             })),
-            finalize(() => delete objects[obj.id])
+            finalize(() => delete objects[obj.id]),
+            ignoreElements()
         );
         return concat(
             of(objects),

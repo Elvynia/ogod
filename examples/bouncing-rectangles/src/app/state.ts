@@ -1,6 +1,6 @@
 import { MainDOMSource } from '@cycle/dom';
-import { GameEngineWorker } from '@ogod/game-core';
-import { Subject } from 'rxjs';
+import { GameBox2DSource } from '@ogod/game-box2d-driver';
+import { GameEngineSource, GameEngineWorker } from '@ogod/game-core';
 import { Rect } from './rectangle';
 
 export interface Contact {
@@ -29,7 +29,12 @@ export interface AppReflectState {
 
 export interface AppSources {
     GameWorker: GameEngineWorker<AppReflectState>;
-    DOM: MainDOMSource;
+    DOM: any;
+}
+
+export interface WorkerSources {
+    GameEngine: GameEngineSource<AppState, AppActions>;
+    World: GameBox2DSource;
 }
 
 export interface AppSize {
@@ -49,9 +54,6 @@ export interface AppState {
 
 // FIXME: define this automatically in makeGameEngineOptions.
 export interface AppActions {
-    app: Subject<any>;
-    objects: Subject<Event>;
-    paused: Subject<boolean>;
-    playerColor: Subject<string>;
-    contact: Subject<Contact>;
+    playerColor: string;
+    contact: Contact;
 }

@@ -1,11 +1,12 @@
-import { FeatureState, GameEngineOptions, GameEngineSource, RuntimeState } from '@ogod/game-core';
-import { animationFrames, buffer, filter, map, pairwise, share, switchMap, withLatestFrom } from "rxjs";
-import { Stream } from "xstream";
+import { ActionHandler, Driver, FeatureState, GameEngineOptions, GameEngineSource, RuntimeState } from '@ogod/game-core';
+import { animationFrames, buffer, filter, map, Observable, pairwise, share, switchMap, withLatestFrom } from "rxjs";
 import { makeEngineActionHandlers } from '../action/make';
 import { makeGameEngineOptions } from '../options/make';
 import { makeRuntime$ } from "../runtime/make";
 
-export function makeGameEngineDriver<S extends FeatureState>(options: GameEngineOptions<S> = makeGameEngineOptions()) {
+export function makeGameEngineDriver<S extends FeatureState, AS = {},
+    AH extends ActionHandler<Partial<S> & AS> = ActionHandler<Partial<S> & AS>>(
+        options: GameEngineOptions<S, AS, AH> = makeGameEngineOptions<S, AS, AH>()): Driver<Observable<RuntimeState<S>>, GameEngineSource<S, AS, AH>> {
     const action$ = options.actionHandlers;
     const frame$ = animationFrames();
     const state$ = options.state$;
@@ -14,14 +15,18 @@ export function makeGameEngineDriver<S extends FeatureState>(options: GameEngine
         map(([prev, cur]) => (cur.elapsed - prev.elapsed) / 1000),
         share()
     );
-    return function gameEngineDriver(sinks: Stream<RuntimeState<S>>): GameEngineSource<S> {
-        makeRuntime$(sinks, state$).subscribe(state$);
+    return (sink$: Promise<Observable<RuntimeState<S>>>): GameEngineSource<S, AS, AH> => {
+        console.debug('[GameEngine] Created');
+        sink$.then((runtime$) => {
+            console.debug('[GameEngine] Initialized');
+            makeRuntime$(runtime$, state$).subscribe(state$)
+        });
         const sources = {
             action$,
             dispose: () => {
-                console.log('Stopping game engine');
                 state$.complete();
                 Object.keys(action$).forEach((k) => action$[k].complete());
+                console.debug('[GameEngine] Disposed');
             },
             frame$,
             options,

@@ -5,5 +5,5 @@ import { Contact } from '../contact/state';
 export interface GameBox2DSource {
     contact$: Subject<Contact>;
     dispose: Function;
-    world: b2World;
+    instance: b2World;
 }

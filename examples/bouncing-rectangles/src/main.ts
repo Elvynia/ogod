@@ -1,20 +1,16 @@
 import { canvas, div, h3, input, makeDOMDriver } from '@cycle/dom';
-import { run } from '@cycle/run';
-import { makeGameEngineWorker, makeWorkerMessage } from '@ogod/game-worker-driver';
-import { combineLatest, distinctUntilKeyChanged, filter, first, from, map, merge, of, startWith, switchMap, take, takeUntil, throttleTime } from 'rxjs';
-import { AppSources } from './app/state';
+import { gameRun } from '@ogod/game-run';
+import { makeEngineAction, makeGameEngineWorker, makeWorkerMessage } from '@ogod/game-worker-driver';
+import { combineLatest, distinctUntilKeyChanged, filter, first, from, map, merge, of, startWith, Subject, switchMap, take, takeUntil, throttleTime } from 'rxjs';
+import xs from 'xstream';
+import { AppReflectState, AppSources } from './app/state';
 
 function main(sources: AppSources) {
     const canvas$ = sources.DOM.select('#game');
     const offscreen$ = from(canvas$.element() as any).pipe(
         map((canvas: any) => canvas.transferControlToOffscreen()),
         take(1),
-        map((offscreen) => makeWorkerMessage({
-            key: 'engine', value: {
-                type: 'OGOD_ENGINE_CANVAS',
-                canvas: offscreen
-            }
-        }, [offscreen]))
+        map((offscreen) => makeEngineAction('OGOD_ENGINE_CANVAS', offscreen, [offscreen]))
     );
     const addRect$ = from(canvas$.events('mousedown') as any).pipe(
         switchMap((e) => from(canvas$.events('mousemove') as any).pipe(
@@ -108,8 +104,13 @@ function main(sources: AppSources) {
     };
 }
 
-const dispose = run(main, {
-    GameWorker: makeGameEngineWorker(new Worker(new URL('worker.ts', import.meta.url))),
-    DOM: makeDOMDriver('#app')
+const dispose = gameRun(main, {
+    GameWorker: makeGameEngineWorker<AppReflectState>(new Worker(new URL('worker.ts', import.meta.url))),
+    DOM: (promise) => {
+        const dom = makeDOMDriver('#app');
+        const wrapper = new Subject();
+        promise.then((sink$) => sink$.subscribe(wrapper))
+        return dom(xs.from(wrapper));
+    }
 });
 window.onunload = (e) => dispose();

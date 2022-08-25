@@ -7,6 +7,7 @@
     "game-box2d-driver": "packages/game-box2d-driver",
     "game-core": "packages/game-core",
     "game-engine-driver": "packages/game-engine-driver",
+    "game-run": "packages/game-run",
     "game-worker-driver": "packages/game-worker-driver"
   }
 }

@@ -8,12 +8,13 @@ export interface OffscreenCanvas {
     height: number;
 }
 
-export interface GameEngineSource<S extends FeatureState, A = Partial<S>> {
-    action$: ActionHandler<A>;
+export interface GameEngineSource<S extends FeatureState, AS = {},
+    AH extends ActionHandler<Partial<S> & AS> = ActionHandler<Partial<S> & AS>> {
+    action$: AH;
     canvas?: OffscreenCanvas;
     dispose: Function;
     frame$: Observable<{ timestamp: number, elapsed: number }>;
-    options: GameEngineOptions<S, A>;
+    options: GameEngineOptions<S, AS, AH>;
     render$: Observable<[number, S]>;
     state$: Subject<S>;
     update$: Observable<number>;

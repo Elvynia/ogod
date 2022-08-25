@@ -1,5 +1,4 @@
-import { Subject } from 'rxjs';
-import { Stream } from 'xstream';
+import { from, Observable, Subject, switchMap, tap } from 'rxjs';
 import { makeBox2dContactListener } from '../contact/make';
 import { makeGameBox2dOptions } from '../options/make';
 import { GameBox2dOptions } from '../options/state';
@@ -8,17 +7,31 @@ import { GameBox2DSource } from './state';
 
 export function makeGameBox2dDriver(options: GameBox2dOptions = makeGameBox2dOptions()) {
     const contact$ = new Subject<Contact>();
-    options.world.SetContactListener(makeBox2dContactListener(contact$));
-    return (sink$: Stream<number>): GameBox2DSource => {
-        // const sub = sink$.subscribe((delta: number) => {
-
-        // })
+    options.world!.SetContactListener(makeBox2dContactListener(contact$));
+    return (sink$: Promise<Observable<number>>): GameBox2DSource => {
+        console.debug('[GameBox2d] Created');
+        const sub = from(sink$).pipe(
+            tap(() => console.debug('[GameBox2d] Initialized')),
+            switchMap((delta$) => delta$)
+        ).subscribe((delta: number) => {
+            options.world!.Step(delta, {
+                velocityIterations: 6,
+                positionIterations: 2
+            });
+        });
         return {
             contact$,
             dispose: () => {
-                // sub.unsubscribe();
+                sub.unsubscribe();
+                let body = options.world?.GetBodyList();
+                while (body) {
+                    options.world?.DestroyBody(body);
+                    body = body.GetNext();
+                }
+                delete options.world;
+                console.debug('[GameBox2d] Disposed');
             },
-            world: options.world
+            instance: options.world!
         }
     }
 }

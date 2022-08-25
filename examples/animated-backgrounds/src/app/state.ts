@@ -7,6 +7,11 @@ export interface AppState {
     objects: BallState;
 }
 
+export interface AppActions {
+    reset: void;
+    objects: { x: number, y: number};
+}
+
 export interface AppSources {
     GameWorker: GameEngineWorker<AppState>;
     ElementHost: Subject<WorkerMessage>;

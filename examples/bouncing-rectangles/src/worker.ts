@@ -1,46 +1,24 @@
 import { b2World } from '@box2d/core';
-import run from '@cycle/run';
-import { GameEngineOptions, GameEngineSource } from '@ogod/game-core';
+import { makeGameBox2dDriver } from '@ogod/game-box2d-driver';
+import { GameEngineSource } from '@ogod/game-core';
 import { makeGameEngineDriver, makeGameEngineOptions } from '@ogod/game-engine-driver';
+import { gameRun } from '@ogod/game-run';
 import { distinctUntilKeyChanged, EMPTY, filter, ignoreElements, map, merge, mergeMap, of, startWith, switchMap, tap } from 'rxjs';
 import { makeFeatureFps } from './app/fps';
 import { makeAddRandomRect$, updateMovement } from './app/objects';
 import { makeCreateRect } from './app/rectangle';
 import { makeRender } from './app/render';
-import { AppActions, AppState } from './app/state';
+import { AppActions, WorkerSources, AppState } from './app/state';
 
 declare var self: DedicatedWorkerGlobalScope;
 
-function main(sources: { GameEngine: GameEngineSource<AppState, AppActions> }) {
-    const world = b2World.Create({ x: 0, y: 0 });
-    world.SetContactListener({
-        BeginContact(contact) {
-            const idA = contact.GetFixtureA().GetBody().GetUserData();
-            const idB = contact.GetFixtureB().GetBody().GetUserData();
-            sources.GameEngine.action$.contact.next({
-                idA,
-                idB,
-                touching: true
-            });
-        },
-        EndContact(contact) {
-            const idA = contact.GetFixtureA().GetBody().GetUserData();
-            const idB = contact.GetFixtureB().GetBody().GetUserData();
-            sources.GameEngine.action$.contact.next({
-                idA,
-                idB,
-                touching: false
-            });
-        },
-        PreSolve() { },
-        PostSolve() { }
-    });
+function main(sources: WorkerSources) {
     const app = {
         width: 800,
         height: 600,
         scale: 10
     };
-    const createRect = makeCreateRect(app, world);
+    const createRect = makeCreateRect(app, sources.World.instance);
     const player = createRect(400, 400, 15, 25);
     const grounds = [
         createRect(400, 5, 600, 10, false, 50),
@@ -49,8 +27,8 @@ function main(sources: { GameEngine: GameEngineSource<AppState, AppActions> }) {
         createRect(400, 595, 600, 10, false, 50),
     ];
     const objects = {};
-    const addRandomRect$ = makeAddRandomRect$(sources.GameEngine, createRect, world, objects, app);
-    sources.GameEngine.action$.contact.pipe(
+    const addRandomRect$ = makeAddRandomRect$(sources.GameEngine, createRect, sources.World.instance, objects, app);
+    sources.World.contact$.pipe(
         filter((contact) => contact.touching),
         map(({ idA, idB }) => {
             const ids = [];
@@ -63,16 +41,6 @@ function main(sources: { GameEngine: GameEngineSource<AppState, AppActions> }) {
             return ids;
         })
     ).subscribe((ids: string[]) => ids.forEach((id) => --objects[id].health));
-    sources.GameEngine.state$.pipe(
-        distinctUntilKeyChanged('paused'),
-        map((state) => state.paused),
-        switchMap((paused) => paused ? EMPTY : sources.GameEngine.update$)
-    ).subscribe((delta) => {
-        world.Step(delta, {
-            velocityIterations: 6,
-            positionIterations: 2
-        });
-    });
     return {
         GameEngine: of({
             app,
@@ -81,7 +49,7 @@ function main(sources: { GameEngine: GameEngineSource<AppState, AppActions> }) {
                 mergeMap(({ x, y }) => addRandomRect$(x, y)),
                 startWith(objects)
             ),
-            paused$: sources.GameEngine.action$.paused,
+            paused$: sources.GameEngine.action$.paused.asObservable(),
             grounds,
             player$: merge(
                 sources.GameEngine.action$.playerColor.pipe(
@@ -95,7 +63,12 @@ function main(sources: { GameEngine: GameEngineSource<AppState, AppActions> }) {
                     ignoreElements()
                 )
             )
-        })
+        }),
+        World: sources.GameEngine.state$.pipe(
+            distinctUntilKeyChanged('paused'),
+            map((state) => state.paused),
+            switchMap((paused) => paused ? EMPTY : sources.GameEngine.update$)
+        )
     };
 }
 
@@ -119,7 +92,8 @@ let options = {
         };
     }),
     makeRender
-} as GameEngineOptions<AppState>
-options.dispose = run(main, {
-    GameEngine: makeGameEngineDriver(options)
+}
+options.dispose = gameRun(main, {
+    GameEngine: makeGameEngineDriver(options),
+    World: makeGameBox2dDriver()
 });

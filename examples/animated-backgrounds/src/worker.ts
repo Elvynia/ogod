@@ -1,16 +1,16 @@
-import run from '@cycle/run';
-import { GameEngineOptions, GameEngineSource, isEngineActionCanvas } from '@ogod/game-core';
+import { GameEngineSource, isEngineActionCanvas } from '@ogod/game-core';
 import { makeGameEngineDriver, makeGameEngineOptions } from '@ogod/game-engine-driver';
+import { gameRun } from '@ogod/game-run';
 import { gsap } from 'gsap';
 import { filter, first, mergeMap, of, startWith, switchMap, tap } from 'rxjs';
-import { makeRandomBall$ } from './app/ball';
+import { BallState, makeRandomBall$ } from './app/ball';
 import { makeRender } from './app/render';
-import { AppState } from './app/state';
+import { AppActions, AppState } from './app/state';
 
 declare var self: DedicatedWorkerGlobalScope;
 
-function main(sources: { GameEngine: GameEngineSource<AppState> }) {
-    const objects = {};
+function main(sources: { GameEngine: GameEngineSource<AppState, AppActions> }) {
+    const objects = {} as BallState;
     const randomBall$ = makeRandomBall$(sources.GameEngine.action$['reset'], objects);
     gsap.ticker.remove(gsap.updateRoot);
     sources.GameEngine.frame$.subscribe(({ elapsed }) => gsap.updateRoot(elapsed / 1000));
@@ -19,10 +19,10 @@ function main(sources: { GameEngine: GameEngineSource<AppState> }) {
             app$: sources.GameEngine.action$.engine.pipe(
                 filter(isEngineActionCanvas),
                 first(),
-                switchMap(({ canvas }) => sources.GameEngine.action$.app.pipe(
+                switchMap(({ payload }) => sources.GameEngine.action$.app.pipe(
                     tap((app) => {
-                        canvas.width = app.width;
-                        canvas.height = app.height;
+                        payload.width = app.width;
+                        payload.height = app.height;
                     })
                 ))
             ),
@@ -35,13 +35,13 @@ function main(sources: { GameEngine: GameEngineSource<AppState> }) {
 }
 
 let options = {
-    ...makeGameEngineOptions<AppState, any>(['app', 'objects', 'reset']),
+    ...makeGameEngineOptions<AppState, AppActions>(['app', 'objects', 'reset']),
     workerContext: self,
     reflectHandler: of((state) => ({
         objects: Object.keys(state.objects).length
     })),
     makeRender
-} as GameEngineOptions<AppState>;
-options.dispose = run(main, {
+};
+options.dispose = gameRun(main, {
     GameEngine: makeGameEngineDriver(options)
 });

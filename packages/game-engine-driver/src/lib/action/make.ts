@@ -1,28 +1,28 @@
-import { FeatureState, GameEngineSource, isEngineActionCanvas, isEngineActionHandlerAdd, isEngineActionHandlerAddKey, isEngineActionHandlerComplete } from '@ogod/game-core';
+import { GameEngineSource, isEngineActionCanvas, isEngineActionHandlerAdd, isEngineActionHandlerAddKey, isEngineActionHandlerComplete } from '@ogod/game-core';
 import { filter, Subject } from 'rxjs';
 
-export function makeEngineActionHandlers<S extends FeatureState>(sources: GameEngineSource<S>) {
+export function makeEngineActionHandlers(sources: GameEngineSource<any>) {
     // Handler Add
     sources.action$.engine.pipe(
         filter(isEngineActionHandlerAdd)
-    ).subscribe(({ handler }) => Object.assign(sources.options.actionHandlers, handler));
+    ).subscribe(({ payload }) => Object.assign(sources.options.actionHandlers, payload));
     // Handler add by key
     sources.action$.engine.pipe(
         filter(isEngineActionHandlerAddKey)
-    ).subscribe(({ key }) => Object.assign(sources.options.actionHandlers, { [key]: new Subject<any>() }));
+    ).subscribe(({ payload }) => Object.assign(sources.options.actionHandlers, { [payload]: new Subject<any>() }));
     // Handler complete and remove
     sources.action$.engine.pipe(
         filter(isEngineActionHandlerComplete)
-    ).subscribe(({ key }) => {
-        sources.options.actionHandlers[key].complete();
-        delete sources.options.actionHandlers[key];
+    ).subscribe(({ payload }) => {
+        sources.options.actionHandlers[payload].complete();
+        delete sources.options.actionHandlers[payload];
     });
     // Canvas
     if (sources.options.makeRender) {
         sources.action$.engine.pipe(
             filter(isEngineActionCanvas)
-        ).subscribe(({ canvas }) => {
-            const render = sources.options.makeRender!(canvas);
+        ).subscribe(({ payload }) => {
+            const render = sources.options.makeRender!(payload);
             sources.render$.subscribe(([delta, state]) => render(delta, state));
         });
     }

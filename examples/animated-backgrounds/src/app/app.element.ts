@@ -1,13 +1,13 @@
 import { WorkerMessage } from '@ogod/game-core';
-import { makeWorkerMessage } from '@ogod/game-worker-driver';
+import { makeEngineAction, makeWorkerMessage } from '@ogod/game-worker-driver';
 import { define, html } from 'hybrids';
-import { debounceTime, distinctUntilChanged, fromEvent, map, startWith, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, fromEvent, map, merge, Observable, of, startWith, Subject } from 'rxjs';
 import { runApp } from './app';
 
 interface SimpleCounter extends HTMLElement {
     app: {
         input$: Subject<{ objects: number }>;
-        output$: Subject<WorkerMessage>;
+        output$: Observable<WorkerMessage>;
     };
     count: number;
     render: Function;
@@ -20,36 +20,34 @@ export function increaseCount(host: SimpleCounter) {
 export default define<SimpleCounter>({
     tag: 'ogod-root',
     app: {
-        get: () => ({
-            input$: undefined,
-            output$: new Subject()
-        }),
-        connect(host) {
-            console.log('[ROOT] Connect');
-            const dispose = runApp(new Worker(new URL('../worker.ts', import.meta.url)), host);
+        get: (host) => {
             host.render();
             const canvas = host.shadowRoot.querySelector('#target') as any;
             const offscreen = canvas.transferControlToOffscreen();
-            host.app.output$.next(makeWorkerMessage({
-                key: 'engine',
-                value: {
-                    type: 'OGOD_ENGINE_CANVAS',
-                    canvas: offscreen
-                }
-            }, [offscreen]));
-            fromEvent(window, 'resize').pipe(
-                debounceTime(16),
-                startWith(null)
-            ).subscribe(() => host.app.output$.next([{
-                key: 'app',
-                value: {
-                    width: canvas.clientWidth,
-                    height: canvas.clientHeight
-                }
-            }]));
-            fromEvent(canvas, 'click').pipe(
-                map(() => makeWorkerMessage({ key: 'reset' }))
-            ).subscribe(host.app.output$);
+            return {
+                input$: undefined,
+                output$: merge(
+                    of(makeEngineAction('OGOD_ENGINE_CANVAS', offscreen, [offscreen])),
+                    fromEvent(window, 'resize').pipe(
+                        debounceTime(16),
+                        startWith(null),
+                        map(() => makeWorkerMessage({
+                            key: 'app',
+                            value: {
+                                width: canvas.clientWidth,
+                                height: canvas.clientHeight
+                            }
+                        }))
+                    ),
+                    fromEvent(canvas, 'click').pipe(
+                        map(() => makeWorkerMessage({ key: 'reset' }))
+                    )
+                )
+            }
+        },
+        connect(host) {
+            console.log('[ROOT] Connect');
+            const dispose = runApp(new Worker(new URL('../worker.ts', import.meta.url)), host);
             return () => {
                 console.log('[ROOT] Disconnect');
                 dispose();
