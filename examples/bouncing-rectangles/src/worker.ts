@@ -1,6 +1,5 @@
-import { b2World } from '@box2d/core';
+import { b2Vec2 } from '@box2d/core';
 import { makeGameBox2dDriver } from '@ogod/game-box2d-driver';
-import { GameEngineSource } from '@ogod/game-core';
 import { makeGameEngineDriver, makeGameEngineOptions } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import { distinctUntilKeyChanged, EMPTY, filter, ignoreElements, map, merge, mergeMap, of, startWith, switchMap, tap } from 'rxjs';
@@ -8,7 +7,7 @@ import { makeFeatureFps } from './app/fps';
 import { makeAddRandomRect$, updateMovement } from './app/objects';
 import { makeCreateRect } from './app/rectangle';
 import { makeRender } from './app/render';
-import { AppActions, WorkerSources, AppState } from './app/state';
+import { AppActions, AppState, WorkerSources } from './app/state';
 
 declare var self: DedicatedWorkerGlobalScope;
 

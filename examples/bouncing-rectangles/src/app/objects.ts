@@ -5,9 +5,25 @@ import { CreateRectFn, Rect } from './rectangle';
 import { AppSize, AppState, ObjectState } from './state';
 
 export const updateMovement = (_, obj: Rect, app: AppSize) => {
+    const pos = obj.body.GetPosition();
+    const newPos = pos.Clone();
+    const appWidth = app.width / app.scale;
+    const appHeight = app.height / app.scale;
+    if (pos.x < 0) {
+        newPos.Set(pos.x + appWidth, appHeight - pos.y);
+    } else if (pos.x > appWidth) {
+        newPos.Set(pos.x - appWidth, appHeight - pos.y);
+    }
+    if (pos.y < 0) {
+        newPos.Set(appWidth - newPos.x, pos.y + appHeight);
+    } else if (pos.y > appHeight) {
+        newPos.Set(appWidth - newPos.x, pos.y - appHeight);
+    }
+    if (pos.x !== newPos.x || pos.y !== newPos.y) {
+        obj.body.SetTransformVec(newPos, 0);
+    }
     obj.x = Math.round(obj.body.GetPosition().x * app.scale);
     obj.y = Math.round(obj.body.GetPosition().y * app.scale);
-    return obj.x < 0 || obj.x > app.width || obj.y < 0 || obj.y > app.height;
 };
 
 export function makeAddRandomRect$(engine: GameEngineSource<AppState>, createRect: CreateRectFn, world: b2World, objects: ObjectState,
@@ -18,8 +34,9 @@ export function makeAddRandomRect$(engine: GameEngineSource<AppState>, createRec
         return concat(
             of(objects),
             engine.update$.pipe(
-                takeWhile((delta) => rect.health > 0 && !updateMovement(delta, rect, app)),
+                takeWhile((delta) => rect.health > 0),
                 tap({
+                    next: (delta) => updateMovement(delta, rect, app),
                     complete: () => {
                         world.DestroyBody(rect.body);
                         delete objects[rect.id];

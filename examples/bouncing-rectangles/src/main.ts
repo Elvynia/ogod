@@ -1,7 +1,7 @@
 import { canvas, div, h3, input, makeDOMDriver } from '@cycle/dom';
 import { gameRun } from '@ogod/game-run';
 import { makeEngineAction, makeGameEngineWorker, makeWorkerMessage } from '@ogod/game-worker-driver';
-import { combineLatest, distinctUntilKeyChanged, filter, first, from, map, merge, of, startWith, Subject, switchMap, take, takeUntil, throttleTime } from 'rxjs';
+import { combineLatest, distinctUntilKeyChanged, filter, first, from, fromEvent, interval, map, merge, of, startWith, Subject, switchMap, take, takeUntil, throttleTime } from 'rxjs';
 import xs from 'xstream';
 import { AppReflectState, AppSources } from './app/state';
 
@@ -13,17 +13,16 @@ function main(sources: AppSources) {
         map((offscreen) => makeEngineAction('OGOD_ENGINE_CANVAS', offscreen, [offscreen]))
     );
     const addRect$ = from(canvas$.events('mousedown') as any).pipe(
-        switchMap((e) => from(canvas$.events('mousemove') as any).pipe(
-            startWith(e),
-            throttleTime(100),
-            takeUntil(from(canvas$.events('mouseup') as any).pipe(
+        switchMap((e) => interval(200).pipe(
+            map(() => e),
+            takeUntil(fromEvent(document, 'mouseup').pipe(
                 first()
             )),
             map(({ clientX, clientY }) => makeWorkerMessage({
                 key: 'objects',
                 value: {
-                    x: clientX,
-                    y: clientY
+                    x: clientX,// + Math.round(100 - Math.random() * 50),
+                    y: clientY// + Math.round(100 - Math.random() * 50)
                 }
             }))
         ))
