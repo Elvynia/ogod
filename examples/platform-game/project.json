@@ -1,0 +1,64 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "examples/platform-game/src",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nrwl/web:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/examples/platform-game",
+        "compiler": "babel",
+        "index": "examples/platform-game/src/index.html",
+        "baseHref": "/",
+        "main": "examples/platform-game/src/main.ts",
+        "polyfills": "examples/platform-game/src/polyfills.ts",
+        "tsConfig": "examples/platform-game/tsconfig.app.json",
+        "assets": [
+          "examples/platform-game/src/favicon.ico",
+          "examples/platform-game/src/assets"
+        ],
+        "styles": ["examples/platform-game/src/styles.css"],
+        "scripts": [],
+        "webpackConfig": "examples/bouncing-rectangles/webpack.config.js"
+      },
+      "configurations": {
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "examples/platform-game/src/environments/environment.ts",
+              "with": "examples/platform-game/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/web:dev-server",
+      "options": {
+        "buildTarget": "platform-game:build",
+        "port": 4202
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "platform-game:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["examples/platform-game/**/*.ts"]
+      }
+    }
+  }
+}

@@ -8,6 +8,7 @@
     "game-core": "packages/game-core",
     "game-engine-driver": "packages/game-engine-driver",
     "game-run": "packages/game-run",
-    "game-worker-driver": "packages/game-worker-driver"
+    "game-worker-driver": "packages/game-worker-driver",
+    "platform-game": "examples/platform-game"
   }
 }

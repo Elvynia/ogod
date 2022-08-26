@@ -1,4 +1,3 @@
-import { b2Vec2 } from '@box2d/core';
 import { makeGameBox2dDriver } from '@ogod/game-box2d-driver';
 import { makeGameEngineDriver, makeGameEngineOptions } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
@@ -72,7 +71,7 @@ function main(sources: WorkerSources) {
 }
 
 let options = {
-    ...makeGameEngineOptions<AppState, AppActions>(['app', 'objects', 'paused', 'playerColor', 'contact']),
+    ...makeGameEngineOptions<AppState, AppActions>(['app', 'objects', 'paused', 'playerColor']),
     workerContext: self,
     reflectHandler: of(({ fps, objects }) => {
         const values = Object.values(objects);

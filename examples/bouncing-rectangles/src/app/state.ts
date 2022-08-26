@@ -3,12 +3,6 @@ import { GameBox2DSource } from '@ogod/game-box2d-driver';
 import { GameEngineSource, GameEngineWorker } from '@ogod/game-core';
 import { Rect } from './rectangle';
 
-export interface Contact {
-    idA: string;
-    idB: string;
-    touching: boolean;
-}
-
 export interface ObjectState {
     [id: string]: Rect;
 }
@@ -29,7 +23,7 @@ export interface AppReflectState {
 
 export interface AppSources {
     GameWorker: GameEngineWorker<AppReflectState>;
-    DOM: any;
+    DOM: MainDOMSource;
 }
 
 export interface WorkerSources {
@@ -55,5 +49,4 @@ export interface AppState {
 // FIXME: define this automatically in makeGameEngineOptions.
 export interface AppActions {
     playerColor: string;
-    contact: Contact;
 }
