@@ -18,24 +18,24 @@ function main(sources: AppSources) {
         first(),
         map((offscreen) => makeEngineAction('OGOD_ENGINE_CANVAS', offscreen, [offscreen]))
     );
-    const app = {
+    const camera = {
+        x: 0,
+        y: 0,
         width: 800,
         height: 600,
         scale: 10
     };
     return {
         GameWorker: merge(
-            makeControls$({ jump: 'Space', left: 'KeyA', right: 'KeyD' }).pipe(
-                tap((val) => console.log(val[0].value))
-            ),
+            makeControls$({ jump: 'Space', left: 'KeyA', right: 'KeyD' }),
             offscreen$,
             of(makeWorkerMessage({
-                key: 'app',
-                value: app
+                key: 'camera',
+                value: camera
             }))
         ),
         DOM: combineLatest([
-            of(canvas({ attrs: { id: 'game', width: app.width, height: app.height, tabindex: 0 } })),
+            of(canvas({ attrs: { id: 'game', width: camera.width, height: camera.height, tabindex: 0 } })),
             sources.GameWorker.input$.pipe(
                 distinctUntilKeyChanged('fps'),
                 map((state: any) => state.fps),

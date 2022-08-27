@@ -1,10 +1,11 @@
 import { b2BodyType, b2PolygonShape, b2World } from "@box2d/core";
 import { concat, distinctUntilChanged, filter, first, ignoreElements, map, merge, of, switchMap, takeUntil, tap, timer, withLatestFrom } from "rxjs";
+import { Camera } from '../camera/state';
 import { makeShape } from "../shape/make";
-import { AppSize, WorkerSources } from "../state";
+import { WorkerSources } from "../state";
 import { Player, PlayerFeet, PlayerId } from "./state";
 
-export function makePlayer(world: b2World, app: AppSize): Player {
+export function makePlayer(world: b2World, camera: Camera): Player {
     const width = 16;
     const height = 30;
     const player = makeShape<Player>({
@@ -19,7 +20,7 @@ export function makePlayer(world: b2World, app: AppSize): Player {
         density: 50,
         grounded: 0,
         jumping: false
-    }, world, app);
+    }, world, camera);
     const feetShape = new b2PolygonShape().SetAsBox(0.2, 0.2, { x: 0, y: -1.5 });
     player.body.CreateFixture({
         shape: feetShape,
@@ -88,7 +89,7 @@ export function makePlayerUpdate$(sources: WorkerSources) {
                                 tap({
                                     next: (delta: number) => {
                                         const velocity = player.body.GetLinearVelocity();
-                                        player.body.SetLinearVelocity({ x: velocity.x, y: Math.min(velocity.y + delta * 100, 10) })
+                                        player.body.SetLinearVelocity({ x: velocity.x, y: Math.min(velocity.y + delta * 200, 15) })
                                     },
                                     complete: () => {
                                         player.jumping = false;

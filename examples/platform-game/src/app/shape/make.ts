@@ -1,29 +1,30 @@
 import { b2BodyType, b2PolygonShape, b2World } from "@box2d/core";
 import { GameEngineSource } from "@ogod/game-core";
 import { distinctUntilKeyChanged, first, ignoreElements, merge, of, switchMap, tap } from "rxjs";
+import { Camera } from '../camera/state';
 import { makeCreatePlatform } from "../platform/make";
 import { makePlayer, makePlayerUpdate$ } from "../player/make";
-import { AppSize, AppState, WorkerSources } from "../state";
+import { AppState, WorkerSources } from "../state";
 import { randNum } from "../util";
 import { Shape, Shapes } from "./state";
 
 export function makeShape<R extends Shape = Shape, T extends Omit<R, 'body'> = Omit<R, 'body'>>(
-    shape: T, world: b2World, app: AppSize): T & Pick<Shape, 'body'> {
+    shape: T, world: b2World, camera: Camera): T & Pick<Shape, 'body'> {
     const id = shape.id || randNum(8).toString();
-    const b2Width = shape.width / (2 * app.scale);
-    const b2Height = shape.height / (2 * app.scale);
+    const b2Width = shape.width / (2 * camera.scale);
+    const b2Height = shape.height / (2 * camera.scale);
     const body = world.CreateBody({
         position: {
-            x: shape.x / app.scale,
-            y: shape.y / app.scale
+            x: shape.x / camera.scale,
+            y: shape.y / camera.scale
         },
         type: shape.bodyType,
         angle: shape.angle,
         userData: id
     });
-    body.CreateFixture({
+    const fix = body.CreateFixture({
         shape: new b2PolygonShape().SetAsBox(b2Width, b2Height),
-        density: shape.density || shape.bodyType === b2BodyType.b2_dynamicBody ? 1 : undefined,
+        density: shape.density || (shape.bodyType === b2BodyType.b2_dynamicBody ? 1 : undefined),
         restitution: 0
     });
     return {
@@ -42,8 +43,8 @@ export function makeShapeUpdate$(engine: GameEngineSource<AppState>) {
             return engine.update$.pipe(
                 tap(() => {
                     shapes.forEach((shape) => {
-                        shape.x = Math.round(shape.body.GetPosition().x * state.app.scale);
-                        shape.y = Math.round(shape.body.GetPosition().y * state.app.scale);
+                        shape.x = Math.round(shape.body.GetPosition().x * state.camera.scale);
+                        shape.y = Math.round(shape.body.GetPosition().y * state.camera.scale);
                     });
                 }),
                 ignoreElements()
@@ -53,15 +54,19 @@ export function makeShapeUpdate$(engine: GameEngineSource<AppState>) {
 }
 
 export function makeShapes$(sources: WorkerSources) {
-    return sources.GameEngine.action$.app.pipe(
+    return sources.GameEngine.action$.camera.pipe(
         first(),
-        switchMap((app) => {
-            const makePlatform = makeCreatePlatform(sources.World.instance, app);
-            const ground0 = makePlatform(400, 0);
-            const player = makePlayer(sources.World.instance, app);
+        switchMap((camera) => {
+            const makePlatform = makeCreatePlatform(sources.World.instance, camera);
+            const ground0 = makePlatform(400, 5, 'ground0');
+            const ground1 = makePlatform(800, 150, 'ground1');
+            const ground2 = makePlatform(1200, 300, 'ground2');
+            const player = makePlayer(sources.World.instance, camera);
             return merge(
                 of({
-                    [ground0.id]: ground0,
+                    ground0,
+                    ground1,
+                    ground2,
                     player
                 } as Shapes),
                 makeShapeUpdate$(sources.GameEngine),
