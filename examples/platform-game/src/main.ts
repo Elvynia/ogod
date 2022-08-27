@@ -1,8 +1,9 @@
 import { canvas, div, h3, makeDOMDriver } from '@cycle/dom';
 import { gameRun } from '@ogod/game-run';
 import { makeEngineAction, makeGameEngineWorker, makeWorkerMessage } from '@ogod/game-worker-driver';
-import { combineLatest, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, map, merge, of, startWith, Subject } from 'rxjs';
+import { combineLatest, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, map, merge, of, startWith, Subject, tap } from 'rxjs';
 import xs from 'xstream';
+import { makeControls$ } from './app/controls/make';
 import { AppReflectState, AppSources } from "./app/state";
 
 function main(sources: AppSources) {
@@ -17,23 +18,6 @@ function main(sources: AppSources) {
         first(),
         map((offscreen) => makeEngineAction('OGOD_ENGINE_CANVAS', offscreen, [offscreen]))
     );
-    const jump$ = combineLatest([
-        merge(
-            fromEvent(document, 'keydown').pipe(
-                filter((e: KeyboardEvent) => e.code === 'Space'),
-                map(() => true)
-            ),
-            fromEvent(document, 'keyup').pipe(
-                filter((e: KeyboardEvent) => e.code === 'Space'),
-                map(() => false)
-            )
-        ).pipe(
-            distinctUntilChanged()
-        )
-    ]).pipe(
-        startWith([false]),
-        map(([jump]) => makeWorkerMessage({ key: 'controls', value: { jump } })),
-    );
     const app = {
         width: 800,
         height: 600,
@@ -41,7 +25,9 @@ function main(sources: AppSources) {
     };
     return {
         GameWorker: merge(
-            jump$,
+            makeControls$({ jump: 'Space', left: 'KeyA', right: 'KeyD' }).pipe(
+                tap((val) => console.log(val[0].value))
+            ),
             offscreen$,
             of(makeWorkerMessage({
                 key: 'app',

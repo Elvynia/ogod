@@ -23,7 +23,7 @@ export interface AppState {
     app: AppSize;
     fps: number;
     shapes: Shapes;
-    controls: Controls;
+    controls: Controls<any>;
 }
 
 export interface AppActions {
