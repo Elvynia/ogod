@@ -1,21 +1,8 @@
-import { Observable, Subject } from 'rxjs';
 import { ActionHandler } from '../action/state';
+import { Driver } from '../driver/state';
 import { FeatureState } from '../feature/state';
-import { GameEngineOptions } from '../options/state';
+import { GameEngineSink } from './sink/state';
+import { GameEngineSource } from './source/state';
 
-export interface OffscreenCanvas {
-    width: number;
-    height: number;
-}
-
-export interface GameEngineSource<S extends FeatureState, AS = {},
-    AH extends ActionHandler<Partial<S> & AS> = ActionHandler<Partial<S> & AS>> {
-    action$: AH;
-    canvas?: OffscreenCanvas;
-    dispose: Function;
-    frame$: Observable<{ timestamp: number, elapsed: number }>;
-    options: GameEngineOptions<S, AS, AH>;
-    render$: Observable<[number, S]>;
-    state$: Subject<S>;
-    update$: Observable<number>;
-}
+export type GameEngineDriver<S extends FeatureState, AS = {}, R = any,
+    AH extends ActionHandler<Partial<S> & AS> = ActionHandler<Partial<S> & AS>> = Driver<GameEngineSink<S, R>, GameEngineSource<S, AS, AH>>;

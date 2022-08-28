@@ -15,7 +15,7 @@ export function makeGenerateMap$(width: number, height: number): Observable<Load
                     let y = 0;
                     while (y < height) {
                         const value = noise(x, y);
-                        console.log(x, y, value);
+                        // console.log(x, y, value);
                         ++y;
                     }
                 }),

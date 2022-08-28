@@ -1,21 +1,26 @@
 import { RuntimeState } from '@ogod/game-core';
-import { EMPTY, map } from 'rxjs';
+import { last, map, takeUntil } from 'rxjs';
 import { makeFeatureFps } from '../fps';
 import { makeGenerateMap$ } from '../map/make';
 import { AppState, WorkerSources } from '../state';
 
-export function makeIntroScene(sources: WorkerSources): RuntimeState<Pick<AppState, 'fps' | 'loading' | 'gameMap'>> {
+export function makeIntroScene(sources: WorkerSources): RuntimeState<Partial<AppState>> {
     const gameMap = {
         platforms: {},
-        width: 100,
+        width: 10,
         height: 10,
         scale: 10
     };
+    const loading$ = makeGenerateMap$(gameMap.width, gameMap.height).pipe(
+        map((l) => ({ ['map']: l }))
+    );
     return {
         gameMap,
-        loading$: makeGenerateMap$(gameMap.width, gameMap.height).pipe(
-            map((l) => ({ ['map']: l }))
-        ),
-        fps$: makeFeatureFps(sources.GameEngine)
+        loading$,
+        fps$: makeFeatureFps(sources.GameEngine).pipe(
+            takeUntil(loading$.pipe(
+                last()
+            ))
+        )
     }
 }

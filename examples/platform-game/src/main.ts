@@ -1,14 +1,14 @@
 import { canvas, div, h3, makeDOMDriver } from '@cycle/dom';
 import { gameRun } from '@ogod/game-run';
 import { makeEngineAction, makeGameEngineWorker, makeWorkerMessage } from '@ogod/game-worker-driver';
-import { combineLatest, concatWith, distinctUntilKeyChanged, filter, first, from, map, merge, of, startWith, Subject, takeWhile, tap } from 'rxjs';
+import { combineLatest, concatWith, distinctUntilKeyChanged, filter, first, from, map, merge, of, startWith, Subject, takeWhile } from 'rxjs';
 import xs from 'xstream';
 import { makeControls$ } from './app/controls/make';
 import { AppReflectState, AppSources } from "./app/state";
 
 function main(sources: AppSources) {
-    const canvas$ = sources.DOM.select('#game');
-    const offscreen$ = from(canvas$.element() as any).pipe(
+    const canvas$ = from(sources.DOM.select('#game').element() as any);
+    const offscreen$ = canvas$.pipe(
         map((canvas: any) => {
             const offscreen = canvas.transferControlToOffscreen();
             offscreen.width = canvas.clientWidth;
@@ -18,30 +18,31 @@ function main(sources: AppSources) {
         first(),
         map((offscreen) => makeEngineAction('OGOD_ENGINE_CANVAS', offscreen, [offscreen]))
     );
-    const camera = {
-        x: 0,
-        y: 0,
-        width: 800,
-        height: 600,
-        scale: 10
-    };
     return {
         GameWorker: merge(
             makeControls$({ jump: 'Space', left: 'KeyA', right: 'KeyD' }),
             offscreen$,
-            of(makeWorkerMessage({
-                key: 'camera',
-                value: camera
-            }))
+            canvas$.pipe(
+                first(),
+                map((canvas: any) => makeWorkerMessage({
+                    key: 'camera',
+                    value: {
+                        x: 0,
+                        y: 0,
+                        width: canvas.clientWidth,
+                        height: canvas.clientHeight,
+                        scale: 10
+                    }
+                }))
+            )
         ),
         DOM: combineLatest([
             sources.GameWorker.input$.pipe(
+                takeWhile((state) => !!state.loading),
                 map((state) => Object.values(state.loading)),
                 filter((loadings) => loadings.length > 0),
-                tap((loadings) => console.log('generating map', loadings[0].progress)),
-                takeWhile((loadings) => loadings.some((l) => l.progress < 1)),
                 map((loadings) => loadings.map((l) => div(l.message))),
-                concatWith(of(canvas({ attrs: { id: 'game', width: camera.width, height: camera.height, tabindex: 0 } })))
+                concatWith(of(canvas({ attrs: { id: 'game', tabindex: 0 } })))
             ),
             sources.GameWorker.input$.pipe(
                 distinctUntilKeyChanged('fps'),

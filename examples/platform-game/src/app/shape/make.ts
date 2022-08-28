@@ -1,6 +1,6 @@
 import { b2BodyType, b2PolygonShape, b2World } from "@box2d/core";
 import { GameEngineSource } from "@ogod/game-core";
-import { distinctUntilKeyChanged, first, ignoreElements, merge, of, switchMap, tap } from "rxjs";
+import { distinctUntilKeyChanged, filter, first, ignoreElements, map, merge, of, startWith, switchMap, tap } from "rxjs";
 import { Camera } from '../camera/state';
 import { makeCreatePlatform } from "../platform/make";
 import { makePlayer, makePlayerUpdate$ } from "../player/make";
@@ -54,7 +54,9 @@ export function makeShapeUpdate$(engine: GameEngineSource<AppState>) {
 }
 
 export function makeShapes$(sources: WorkerSources) {
-    return sources.GameEngine.action$.camera.pipe(
+    return sources.GameEngine.state$.pipe(
+        filter((state) => !!state.camera),
+        map((state) => state.camera),
         first(),
         switchMap((camera) => {
             const makePlatform = makeCreatePlatform(sources.World.instance, camera);
@@ -72,6 +74,7 @@ export function makeShapes$(sources: WorkerSources) {
                 makeShapeUpdate$(sources.GameEngine),
                 makePlayerUpdate$(sources)
             )
-        })
+        }),
+        startWith({} as Shapes)
     );
 }

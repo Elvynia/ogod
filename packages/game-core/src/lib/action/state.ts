@@ -1,5 +1,4 @@
 import { Subject } from "rxjs";
-import { OffscreenCanvas } from '../engine/state';
 
 export type EngineActionType = 'OGOD_ENGINE_CLOSE'
     | 'OGOD_ENGINE_HANDLER_ADD'

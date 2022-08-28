@@ -34,6 +34,8 @@ export function makeRender(canvas: any) {
     const drawHandlers = makeDrawHandlers(ctx);
     return (delta: number, state: AppState) => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // Object.values(state.shapes).forEach((obj) => drawHandlers[obj.type](obj, state.camera));
+        if (state.shapes) {
+            Object.values(state.shapes).forEach((obj) => drawHandlers[obj.type](obj, state.camera));
+        }
     };
 }
