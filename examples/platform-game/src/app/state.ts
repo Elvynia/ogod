@@ -22,7 +22,7 @@ export interface AppState {
     fps: number;
     shapes: Shapes;
     controls: Controls<any>;
-    gameMap: MapState;
+    gmap: MapState;
     loading?: LoadingState;
 }
 
@@ -30,6 +30,6 @@ export interface AppActions {
 }
 
 export interface WorkerSources {
-    GameEngine: GameEngineSource<AppState, AppActions>;
+    GameEngine: GameEngineSource;
     World: GameBox2DSource;
 }

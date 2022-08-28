@@ -1,11 +1,11 @@
-import { Driver, FeatureState, GameEngineWorker, WorkerMessage } from '@ogod/game-core';
+import { Driver, GameEngineWorker, WorkerMessage } from '@ogod/game-core';
 import { AsyncSubject, from, Observable, ReplaySubject, switchMap, tap } from 'rxjs';
 
-export function makeGameEngineWorker<S extends FeatureState>(worker: Worker): Driver<Observable<WorkerMessage>, GameEngineWorker<S>> {
+export function makeGameEngineWorker<R>(worker: Worker): Driver<Observable<WorkerMessage>, GameEngineWorker<R>> {
     return (sink$: Promise<Observable<WorkerMessage>>) => {
         console.debug('[GameWorker] Created');
         const initialized$ = new AsyncSubject<void>();
-        const input$ = new ReplaySubject<S>(1);
+        const input$ = new ReplaySubject<R>(1);
         const sub = from(sink$).pipe(
             tap(() => console.debug('[GameWorker] Initialized')),
             switchMap((input$) => {

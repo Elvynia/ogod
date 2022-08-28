@@ -1,12 +1,10 @@
-import { ActionHandler, FeatureState, GameEngineDriver, GameEngineOptions, GameEngineSink, GameEngineSource } from '@ogod/game-core';
-import { animationFrames, buffer, filter, map, pairwise, share, switchMap, withLatestFrom } from "rxjs";
+import { GameEngineDriver, GameEngineOptions, GameEngineSink, GameEngineSource } from '@ogod/game-core';
+import { animationFrames, buffer, filter, map, pairwise, share, switchMap, tap, withLatestFrom } from "rxjs";
 import { makeEngineActionHandlers } from '../action/make';
 import { makeGameEngineOptions } from '../options/make';
 import { makeRuntime$ } from "../runtime/make";
 
-export function makeGameEngineDriver<S extends FeatureState, AS = {}, R = any,
-    AH extends ActionHandler<Partial<S> & AS> = ActionHandler<Partial<S> & AS>>(
-        options: GameEngineOptions<S, AS, AH> = makeGameEngineOptions<S, AS, AH>()): GameEngineDriver<S, AS, R, AH> {
+export function makeGameEngineDriver(options: GameEngineOptions = makeGameEngineOptions()): GameEngineDriver {
     const action$ = options.actionHandlers;
     const frame$ = animationFrames();
     const state$ = options.state$;
@@ -15,7 +13,7 @@ export function makeGameEngineDriver<S extends FeatureState, AS = {}, R = any,
         map(([prev, cur]) => (cur.elapsed - prev.elapsed) / 1000),
         share()
     );
-    return (sink$: Promise<GameEngineSink<S>>): GameEngineSource<S, AS, AH> => {
+    return (sink$: Promise<GameEngineSink>): GameEngineSource => {
         console.debug('[GameEngine] Created');
         sink$.then((sink) => {
             console.debug('[GameEngine] Initialized');

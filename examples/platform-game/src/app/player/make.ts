@@ -1,11 +1,10 @@
 import { b2BodyType, b2PolygonShape, b2World } from "@box2d/core";
 import { concat, distinctUntilChanged, filter, first, ignoreElements, map, merge, of, switchMap, takeUntil, tap, timer, withLatestFrom } from "rxjs";
-import { Camera } from '../camera/state';
 import { makeShape } from "../shape/make";
 import { WorkerSources } from "../state";
 import { Player, PlayerFeet, PlayerId } from "./state";
 
-export function makePlayer(world: b2World, camera: Camera): Player {
+export function makePlayer(world: b2World, scale: number): Player {
     const width = 16;
     const height = 30;
     const player = makeShape<Player>({
@@ -13,14 +12,14 @@ export function makePlayer(world: b2World, camera: Camera): Player {
         id: PlayerId,
         type: 'rect',
         x: 400,
-        y: 50,
+        y: 300,
         width,
         height,
         bodyType: b2BodyType.b2_dynamicBody,
         density: 50,
         grounded: 0,
         jumping: false
-    }, world, camera);
+    }, world, scale);
     const feetShape = new b2PolygonShape().SetAsBox(0.2, 0.2, { x: 0, y: -1.5 });
     player.body.CreateFixture({
         shape: feetShape,
@@ -32,9 +31,9 @@ export function makePlayer(world: b2World, camera: Camera): Player {
 
 export function makePlayerUpdate$(sources: WorkerSources) {
     return sources.GameEngine.state$.pipe(
-        filter((state) => !!state.shapes.player),
+        filter((state: any) => !!state.shapes.player),
         first(),
-        switchMap((state) => {
+        switchMap((state: any) => {
             const player = state.shapes.player;
             return merge(
                 sources.World.contact$.pipe(
@@ -72,14 +71,14 @@ export function makePlayerUpdate$(sources: WorkerSources) {
                     ignoreElements()
                 ),
                 sources.GameEngine.state$.pipe(
-                    filter((state) => !player.jumping && state.controls.jump && player.grounded > 0),
-                    switchMap((state) => {
+                    filter((state: any) => !player.jumping && state.controls.jump && player.grounded > 0),
+                    switchMap((state: any) => {
                         player.jumping = true;
                         return concat(
                             sources.GameEngine.update$.pipe(
                                 takeUntil(merge(
                                     sources.GameEngine.state$.pipe(
-                                        map((state) => state.controls.jump),
+                                        map((state: any) => state.controls.jump),
                                         filter((jump) => !jump),
                                         first()
                                     ),

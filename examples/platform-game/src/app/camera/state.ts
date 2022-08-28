@@ -3,5 +3,4 @@ export interface Camera {
     y: number;
     width: number;
     height: number;
-    scale: number;
 }

@@ -1,7 +1,7 @@
-import { GameEngineSource, isEngineActionHandlerAdd, isEngineActionHandlerAddKey, isEngineActionHandlerComplete } from '@ogod/game-core';
+import { GameEngineSource, isEngineActionCanvas, isEngineActionHandlerAdd, isEngineActionHandlerAddKey, isEngineActionHandlerComplete } from '@ogod/game-core';
 import { filter, Subject } from 'rxjs';
 
-export function makeEngineActionHandlers(sources: GameEngineSource<any>) {
+export function makeEngineActionHandlers(sources: GameEngineSource) {
     // Handler Add
     sources.action$.engine.pipe(
         filter(isEngineActionHandlerAdd)
@@ -16,6 +16,12 @@ export function makeEngineActionHandlers(sources: GameEngineSource<any>) {
     ).subscribe(({ payload }) => {
         sources.options.actionHandlers[payload].complete();
         delete sources.options.actionHandlers[payload];
+    });
+    // Set canvas
+    sources.action$.engine.pipe(
+        filter(isEngineActionCanvas)
+    ).subscribe(({ payload }) => {
+        sources.canvas = payload;
     });
     // Close
     const actualClose = sources.options.workerContext!.close;

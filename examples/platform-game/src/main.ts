@@ -1,7 +1,7 @@
 import { canvas, div, h3, makeDOMDriver } from '@cycle/dom';
 import { gameRun } from '@ogod/game-run';
 import { makeEngineAction, makeGameEngineWorker, makeWorkerMessage } from '@ogod/game-worker-driver';
-import { combineLatest, concatWith, distinctUntilKeyChanged, filter, first, from, map, merge, of, startWith, Subject, takeWhile } from 'rxjs';
+import { combineLatest, concatWith, distinctUntilKeyChanged, filter, first, from, fromEvent, map, merge, of, startWith, Subject, switchMap, takeWhile, tap, throttleTime } from 'rxjs';
 import xs from 'xstream';
 import { makeControls$ } from './app/controls/make';
 import { AppReflectState, AppSources } from "./app/state";
@@ -24,16 +24,17 @@ function main(sources: AppSources) {
             offscreen$,
             canvas$.pipe(
                 first(),
-                map((canvas: any) => makeWorkerMessage({
-                    key: 'camera',
-                    value: {
-                        x: 0,
-                        y: 0,
-                        width: canvas.clientWidth,
-                        height: canvas.clientHeight,
-                        scale: 10
-                    }
-                }))
+                switchMap((canvas: any) => fromEvent(window, 'resize').pipe(
+                    throttleTime(16),
+                    startWith(null),
+                    map(() => makeWorkerMessage({
+                        key: 'camera',
+                        value: {
+                            width: canvas.clientWidth,
+                            height: canvas.clientHeight
+                        }
+                    }))
+                ))
             )
         ),
         DOM: combineLatest([

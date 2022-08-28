@@ -1,11 +1,10 @@
 import { b2BodyType, b2World } from "@box2d/core";
-import { Camera } from '../camera/state';
 import { makeShape } from "../shape/make";
 
-export function makeCreatePlatform(world: b2World, camera: Camera) {
-    return (x: number, y: number, id?: string, width: number = 400, height: number = 10, angle: number = 0) => makeShape({
+export function makeCreatePlatform(world: b2World, scale: number) {
+    return (x: number, y: number, width: number = 400, height: number = 10, angle: number = 0) => makeShape({
         color: '#B244A5',
-        id,
+        id: undefined,
         x,
         y,
         width,
@@ -13,5 +12,5 @@ export function makeCreatePlatform(world: b2World, camera: Camera) {
         angle,
         type: 'rect',
         bodyType: b2BodyType.b2_staticBody
-    }, world, camera);
+    }, world, scale);
 }

@@ -28,7 +28,7 @@ export interface EngineActionHandlerComplete extends EngineAction {
 
 export interface EngineActionCanvas extends EngineAction {
     type: 'OGOD_ENGINE_CANVAS';
-    payload: OffscreenCanvas;
+    payload: any;
 }
 
 export function isEngineActionHandlerAdd(action: EngineAction): action is EngineActionHandlerAdd {

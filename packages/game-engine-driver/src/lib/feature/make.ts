@@ -1,21 +1,76 @@
-import { FeatureState, RuntimeState } from '@ogod/game-core';
-import { combineLatest, concatMap, from, map, Observable, ReplaySubject } from 'rxjs';
+import { ComplexFeature, Feature, FeatureState, isComplexFeature } from '@ogod/game-core';
+import { concat, concatMap, map, merge, mergeMap, Observable, of, shareReplay, startWith, tap } from 'rxjs';
 
-export function makeFeature<F extends FeatureState>(runtime$: Observable<RuntimeState<F>>) {
-    const subject = new ReplaySubject<F>(1);
-    from(runtime$).pipe(
-        concatMap((runtime) => {
-            const obsKeys = Object.keys(runtime)
-                .filter((k) => k.endsWith('$'));
-            const constants = Object.keys(runtime)
-                .filter((k) => !k.endsWith('$'))
-                .reduce((a, b) => Object.assign(a, { [b]: runtime[b] }), {});
-            return combineLatest(obsKeys.map((k) => runtime[k] as Observable<typeof runtime[typeof k]>)).pipe(
-                map((slices) => obsKeys.map((k, i) => ({ [k.replace('$', '')]: slices[i] }))
-                    .reduce((state, slice) => Object.assign(state, slice), { ...constants } as F)
-                )
-            )
+export function makeFeatureConstant<K extends string, T>(key: K, value: T): Feature<K, T> {
+    return {
+        key,
+        value
+    }
+}
+
+export function makeFeatureObservable<K extends string, T>(key: K, value$: Observable<T>, value?: T, remove: boolean = true): Feature<K, T> {
+    return {
+        key,
+        value,
+        value$,
+        remove
+    }
+}
+
+export function makeFeatureComplex(value$: Observable<Feature[]>, mapper = concatMap): ComplexFeature {
+    return {
+        value$,
+        mapper
+    }
+}
+
+export function makeFeatureBasic$(feature: Feature, state: any) {
+    let f$;
+    if (feature.value$) {
+        f$ = feature.value$;
+        if (feature.value) {
+            f$ = f$.pipe(
+                startWith(feature.value)
+            );
+        }
+    } else {
+        f$ = of(feature.value);
+    }
+    f$ = f$.pipe(
+        map((value) => {
+            state[feature.key] = value;
+            return { ...state };
         })
-    ).subscribe(subject);
-    return subject;
+    );
+    if (feature.remove) {
+        f$ = concat(
+            f$,
+            of(state).pipe(
+                tap(() => delete state[feature.key])
+            )
+        );
+    }
+    return f$;
+}
+
+export function makeFeatureComplex$<F extends Feature>(feature: ComplexFeature, state: FeatureState<F>): Observable<FeatureState<F>> {
+    return feature.value$.pipe(
+        feature.mapper((features) => merge(...features.map((f) => makeFeatureBasic$(f, state))))
+    ) as Observable<FeatureState<F>>;
+}
+
+export function makeFeature$<F extends Feature>(sink$: Observable<F>, mapper = mergeMap): Observable<FeatureState<F>> {
+    const state: FeatureState<F> = {};
+    return sink$.pipe(
+        mapper((feature) => {
+            let f$: Observable<FeatureState<F>>;
+            if (isComplexFeature(feature)) {
+                f$ = makeFeatureComplex$(feature, state);
+            } else {
+                f$ = makeFeatureBasic$(feature, state);
+            }
+            return f$;
+        }),
+        shareReplay(1)
+    )
 }

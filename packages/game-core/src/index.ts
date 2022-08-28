@@ -6,6 +6,5 @@ export * from './lib/engine/sink/state';
 export * from './lib/engine/source/state';
 export * from './lib/engine/state';
 export * from './lib/feature/state';
-export * from './lib/runtime/state';
 export * from './lib/worker/message/state';
 export * from './lib/worker/state';

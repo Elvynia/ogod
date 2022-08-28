@@ -1,28 +1,43 @@
-import { concat, map, Observable, of, range, delay, concatMap, tap } from 'rxjs';
-import { Loading } from '../loading/state';
+import { Feature } from '@ogod/game-core';
+import { makeFeatureObservable } from '@ogod/game-engine-driver';
+import { concat, first, map, of, range, switchMap, tap, timer } from 'rxjs';
 import { createNoise2D } from 'simplex-noise';
+import { LoadingState } from '../loading/state';
+import { makeCreatePlatform } from '../platform/make';
+import { WorkerSources } from '../state';
+import { MapState } from './state';
 
-export function makeGenerateMap$(width: number, height: number): Observable<Loading> {
+export function makeFeatureLoadMap$(sources: WorkerSources): Feature<'loading', LoadingState> {
     const loading = {
         progress: 0,
         message: 'Generating map platforms !'
     }
     const noise = createNoise2D();
-    return concat(
-        range(0, width).pipe(
-            concatMap((x) => of(x).pipe(
-                tap((x) => {
-                    let y = 0;
-                    while (y < height) {
-                        const value = noise(x, y);
-                        // console.log(x, y, value);
-                        ++y;
-                    }
-                }),
-                delay(16),
-                map((i) => ({ ...loading, progress: i / 100 }))
-            ))
+    return makeFeatureObservable('loading', concat(
+        sources.GameEngine.state$.pipe(
+            first(),
+            map((state) => state.gmap),
+            switchMap((gmap: MapState) => {
+                const makePlatform = makeCreatePlatform(sources.World.instance, gmap.scale)
+                return range(0, gmap.width).pipe(
+                    tap((x) => {
+                        let y = 0;
+                        while (y < gmap.height) {
+                            const value = noise(x, y);
+                            if (value > 0) {
+                                const p = makePlatform(x * 100, y * 100, 100, 10);
+                                gmap.platforms[p.id] = p;
+                            }
+                            ++y;
+                        }
+                    }),
+                    map((i) => ({ ...loading, progress: i / 100 }))
+                )
+            })
         ),
-        of({ ...loading, progress: 1 })
-    )
+        of({ ...loading, progress: 1 }),
+        timer(16).pipe(map(() => null))
+    ).pipe(
+        map((l) => ({ map: l }))
+    ), { map: loading });
 }
