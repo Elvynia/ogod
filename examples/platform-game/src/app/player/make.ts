@@ -73,7 +73,6 @@ export function makePlayerUpdate$(sources: WorkerSources) {
                 ),
                 sources.GameEngine.state$.pipe(
                     filter((state) => !player.jumping && state.controls.jump && player.grounded > 0),
-                    // tap(() => console.log('Starting jump')),
                     switchMap((state) => {
                         player.jumping = true;
                         return concat(
@@ -91,10 +90,7 @@ export function makePlayerUpdate$(sources: WorkerSources) {
                                         const velocity = player.body.GetLinearVelocity();
                                         player.body.SetLinearVelocity({ x: velocity.x, y: Math.min(velocity.y + delta * 200, 15) })
                                     },
-                                    complete: () => {
-                                        player.jumping = false;
-                                        // console.log('Complete jump');
-                                    }
+                                    complete: () => player.jumping = false
                                 }),
                                 ignoreElements()
                             ),

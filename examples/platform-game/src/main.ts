@@ -1,7 +1,7 @@
 import { canvas, div, h3, makeDOMDriver } from '@cycle/dom';
 import { gameRun } from '@ogod/game-run';
 import { makeEngineAction, makeGameEngineWorker, makeWorkerMessage } from '@ogod/game-worker-driver';
-import { combineLatest, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, map, merge, of, startWith, Subject, tap } from 'rxjs';
+import { combineLatest, concatWith, distinctUntilKeyChanged, filter, first, from, map, merge, of, startWith, Subject, takeWhile, tap } from 'rxjs';
 import xs from 'xstream';
 import { makeControls$ } from './app/controls/make';
 import { AppReflectState, AppSources } from "./app/state";
@@ -35,7 +35,14 @@ function main(sources: AppSources) {
             }))
         ),
         DOM: combineLatest([
-            of(canvas({ attrs: { id: 'game', width: camera.width, height: camera.height, tabindex: 0 } })),
+            sources.GameWorker.input$.pipe(
+                map((state) => Object.values(state.loading)),
+                filter((loadings) => loadings.length > 0),
+                tap((loadings) => console.log('generating map', loadings[0].progress)),
+                takeWhile((loadings) => loadings.some((l) => l.progress < 1)),
+                map((loadings) => loadings.map((l) => div(l.message))),
+                concatWith(of(canvas({ attrs: { id: 'game', width: camera.width, height: camera.height, tabindex: 0 } })))
+            ),
             sources.GameWorker.input$.pipe(
                 distinctUntilKeyChanged('fps'),
                 map((state: any) => state.fps),
@@ -43,7 +50,7 @@ function main(sources: AppSources) {
                 map((fps) => h3('FPS: ' + fps)),
             )
         ]).pipe(
-            map(([canvas, fps]) => div([canvas, fps]))
+            map(([canvas, fps]) => Array.isArray(canvas) ? div([...canvas, fps]) : div([canvas, fps]))
         )
     }
 }

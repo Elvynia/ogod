@@ -3,10 +3,13 @@ import { GameBox2DSource } from '@ogod/game-box2d-driver';
 import { GameEngineSource, GameEngineWorker } from '@ogod/game-core';
 import { Camera } from './camera/state';
 import { Controls } from './controls/state';
+import { LoadingState } from './loading/state';
+import { MapState } from './map/state';
 import { Shapes } from './shape/state';
 
 export interface AppReflectState {
     fps: number;
+    loading: LoadingState;
 }
 
 export interface AppSources {
@@ -19,6 +22,8 @@ export interface AppState {
     fps: number;
     shapes: Shapes;
     controls: Controls<any>;
+    gameMap: MapState;
+    loading?: LoadingState;
 }
 
 export interface AppActions {
