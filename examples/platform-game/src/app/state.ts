@@ -18,6 +18,9 @@ export interface AppSources {
 }
 
 export interface AppState {
+    splash: {
+        logos: string[]
+    };
     camera: Camera;
     fps: number;
     shapes: Shapes;

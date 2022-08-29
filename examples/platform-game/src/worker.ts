@@ -1,8 +1,8 @@
 import { makeGameBox2dDriver, makeGameBox2dOptions } from '@ogod/game-box2d-driver';
 import { Feature, isEngineActionCanvas } from '@ogod/game-core';
-import { makeFeatureConstant, makeFeatureObservable, makeGameEngineDriver, makeGameEngineOptions } from '@ogod/game-engine-driver';
+import { makeFeatureConstant, makeFeatureObservable, makeGameEngineDriver, makeGameEngineOptions, makeRenderer } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
-import { concat, filter, first, map, of, switchMap } from "rxjs";
+import { concat, delayWhen, filter, first, map, of, switchMap } from "rxjs";
 import { makeFeatureFps } from './app/fps';
 import { makeFeatureLoadMap$ } from './app/map/make';
 import { MapState } from './app/map/state';
@@ -30,7 +30,22 @@ function main(sources: WorkerSources) {
             reflector$: of(({ fps, loading }) => ({ fps, loading } as AppReflectState)),
             renderer$: sources.GameEngine.action$.engine.pipe(
                 filter(isEngineActionCanvas),
-                map(({ payload }) => makeRender(payload))
+                switchMap(({ payload }) => {
+                    const renderers = makeRender(payload);
+                    return concat(
+                        of(makeRenderer(renderers.splash, sources.GameEngine.state$.pipe(
+                            filter((state) => !state.splash),
+                            first()
+                        ))),
+                        of(makeRenderer(renderers.play)).pipe(
+                            delayWhen(() => sources.GameEngine.state$.pipe(
+                                filter((state) => state.shapes),
+                                first()
+                            ))
+                        )
+                    );
+                }),
+
             )
         },
         World: sources.GameEngine.update$

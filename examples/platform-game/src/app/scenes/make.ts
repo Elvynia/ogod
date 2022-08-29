@@ -3,9 +3,11 @@ import { concat, of } from 'rxjs';
 import { WorkerSources } from '../state';
 import { makeIntroScene } from './intro';
 import { makePlayScene$ } from './play';
+import { makeSplashScene } from './splash';
 
 export function makeFeatureScene(sources: WorkerSources) {
     return makeFeatureComplex(concat(
+        of(makeSplashScene()),
         of(makeIntroScene(sources)),
         makePlayScene$(sources)
     ));

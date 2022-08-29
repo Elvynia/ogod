@@ -1,5 +1,5 @@
 import { GameEngineDriver, GameEngineOptions, GameEngineSink, GameEngineSource } from '@ogod/game-core';
-import { animationFrames, buffer, filter, map, pairwise, share, switchMap, tap, withLatestFrom } from "rxjs";
+import { animationFrames, buffer, concatMap, filter, map, pairwise, share, switchMap, takeUntil, tap, withLatestFrom } from "rxjs";
 import { makeEngineActionHandlers } from '../action/make';
 import { makeGameEngineOptions } from '../options/make';
 import { makeRuntime$ } from "../runtime/make";
@@ -29,9 +29,19 @@ export function makeGameEngineDriver(options: GameEngineOptions = makeGameEngine
                 ).subscribe((state) => options.workerContext!.postMessage(state));
             }
             if (sink.renderer$) {
-                sources.render$.pipe(
-                    withLatestFrom(sink.renderer$),
-                ).subscribe(([[delta, state], render]) => render(delta, state));
+                sink.renderer$.pipe(
+                    concatMap((renderer) => {
+                        let source = sources.render$.pipe(
+                            map((args: any[]) => [...args, renderer.render])
+                        );
+                        if (renderer.observable) {
+                            source = source.pipe(
+                                takeUntil(renderer.observable)
+                            );
+                        }
+                        return source;
+                    })
+                ).subscribe(([delta, state, render]) => render(delta, state));
             }
         });
         const sources = {
