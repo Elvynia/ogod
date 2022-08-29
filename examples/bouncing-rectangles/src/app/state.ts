@@ -27,7 +27,7 @@ export interface AppSources {
 }
 
 export interface WorkerSources {
-    GameEngine: GameEngineSource<AppState, AppActions>;
+    GameEngine: GameEngineSource;
     World: GameBox2DSource;
 }
 

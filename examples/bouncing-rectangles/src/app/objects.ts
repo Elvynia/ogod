@@ -2,7 +2,7 @@ import { b2World } from '@box2d/core';
 import { GameEngineSource } from '@ogod/game-core';
 import { concat, map, of, takeWhile, tap } from 'rxjs';
 import { CreateRectFn, Rect } from './rectangle';
-import { AppSize, AppState, ObjectState } from './state';
+import { AppSize, ObjectState } from './state';
 
 export const updateMovement = (_, obj: Rect, app: AppSize) => {
     const pos = obj.body.GetPosition();
@@ -26,7 +26,7 @@ export const updateMovement = (_, obj: Rect, app: AppSize) => {
     obj.y = Math.round(obj.body.GetPosition().y * app.scale);
 };
 
-export function makeAddRandomRect$(engine: GameEngineSource<AppState>, createRect: CreateRectFn, world: b2World, objects: ObjectState,
+export function makeAddRandomRect$(engine: GameEngineSource, createRect: CreateRectFn, world: b2World, objects: ObjectState,
     app: AppSize) {
     return (x, y) => {
         const rect = createRect(x, app.height - y);

@@ -1,8 +1,9 @@
 import { GameEngineSource } from '@ogod/game-core';
+import { makeFeatureObservable } from '@ogod/game-engine-driver';
 import { bufferCount, distinctUntilChanged, map } from 'rxjs';
 
-export function makeFeatureFps(engine: GameEngineSource<any>, buffer: number = 10) {
-    return engine.update$.pipe(
+export function makeFeatureFps(engine: GameEngineSource, buffer: number = 10) {
+    return makeFeatureObservable('fps', engine.update$.pipe(
         bufferCount(buffer),
         map((frames: number[]) => {
             const total = frames.reduce((acc, curr) => {
@@ -13,5 +14,5 @@ export function makeFeatureFps(engine: GameEngineSource<any>, buffer: number = 1
         }),
         map((fps) => Math.round(fps)),
         distinctUntilChanged()
-    );
+    ), 0);
 }
