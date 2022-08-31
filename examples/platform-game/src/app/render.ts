@@ -31,13 +31,13 @@ export function makeDrawSvg(ctx: CanvasRenderingContext2D) {
         const [cx, cy] = sp.center
         sp.save()
             .beginPath()
-            .translate(-cx, -cy)
-            .rotate(45)
-            .scale(10)
-            .translate(cx, cy)
+            // .translate(-cx, -cy)
+            // .rotate(45)
+            // .scale(10)
+            // .translate(cx, cy)
             .translate(350, 350)
             .strokeStyle('red')
-            .lineWidth(3)
+            .lineWidth(10)
             .to(ctx)
             .stroke();
     }
