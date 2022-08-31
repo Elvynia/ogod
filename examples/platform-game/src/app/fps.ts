@@ -9,7 +9,7 @@ export function makeFeatureFps(engine: GameEngineSource, buffer: number = 10) {
             const total = frames.reduce((acc, curr) => {
                 acc += curr;
                 return acc;
-            }, 0);
+            }, 0) / 1000;
             return 1 / (total / frames.length);
         }),
         map((fps) => Math.round(fps)),

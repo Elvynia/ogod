@@ -1,5 +1,5 @@
-import { Rect } from './rectangle';
-import { AppState } from './state';
+import { Rect } from "../rect";
+import { AppState } from "../state";
 
 function makeDrawRect(canvas, ctx: CanvasRenderingContext2D) {
     return (rect: Rect) => {

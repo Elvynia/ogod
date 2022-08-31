@@ -8,7 +8,6 @@ body {
 }
 
 canvas {
-    border: 2px solid #bababa;
     user-select: none;
 }
 
@@ -16,6 +15,7 @@ canvas {
     display: table-cell;
     position: absolute;
     text-align: center;
+    user-select: none;
 }
 
 .content {

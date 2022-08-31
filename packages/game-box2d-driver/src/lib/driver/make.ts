@@ -14,7 +14,7 @@ export function makeGameBox2dDriver(options: GameBox2dOptions = makeGameBox2dOpt
             tap(() => console.debug('[GameBox2d] Initialized')),
             switchMap((delta$) => delta$)
         ).subscribe((delta: number) => {
-            options.world!.Step(delta, {
+            options.world!.Step(delta / 1000, {
                 velocityIterations: 6,
                 positionIterations: 2
             });

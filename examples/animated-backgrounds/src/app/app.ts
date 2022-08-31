@@ -1,7 +1,7 @@
 import { gameRun } from '@ogod/game-run';
 import { makeEngineAction, makeGameEngineWorker } from '@ogod/game-worker-driver';
 import { from, fromEvent, map, merge, mergeMap, Observable, switchMap } from 'rxjs';
-import { AppSources, AppState } from './state';
+import { AppReflectState, AppSources } from './state';
 
 function main(sources: AppSources) {
     const objects$ = merge(
@@ -17,7 +17,7 @@ function main(sources: AppSources) {
 }
 
 function makeGameElementDriver(host: any) {
-    return (sink$: Promise<Observable<AppState>>) => {
+    return (sink$: Promise<Observable<AppReflectState>>) => {
         host.app.input$ = from(sink$).pipe(
             switchMap((input$) => input$)
         );

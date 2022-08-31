@@ -62,7 +62,7 @@ export function makePlayerUpdate$(sources: WorkerSources) {
                         if (state.controls.left || state.controls.right) {
                             const dir = state.controls.left ? -1 : 1;
                             if (Math.abs(velocity.x) < 10) {
-                                player.body.SetLinearVelocity({ x: velocity.x + dir * delta * 10, y: velocity.y });
+                                player.body.SetLinearVelocity({ x: velocity.x + dir * delta / 100, y: velocity.y });
                             }
                         } else {
                             player.body.SetLinearVelocity({ x: 0, y: velocity.y });
@@ -87,7 +87,7 @@ export function makePlayerUpdate$(sources: WorkerSources) {
                                 tap({
                                     next: (delta: number) => {
                                         const velocity = player.body.GetLinearVelocity();
-                                        player.body.SetLinearVelocity({ x: velocity.x, y: Math.min(velocity.y + delta * 200, 15) })
+                                        player.body.SetLinearVelocity({ x: velocity.x, y: Math.min(velocity.y + delta / 5, 15) })
                                     },
                                     complete: () => player.jumping = false
                                 }),

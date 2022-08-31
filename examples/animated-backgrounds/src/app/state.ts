@@ -2,17 +2,21 @@ import { GameEngineWorker, WorkerMessage } from '@ogod/game-core';
 import { Subject } from 'rxjs';
 import { BallState } from './ball';
 
+export interface Screen {
+    width: number;
+    height: number;
+}
+
 export interface AppState {
-    app: { width: number, height: number };
+    screen: Screen;
     objects: BallState;
 }
 
-export interface AppActions {
-    reset: void;
-    objects: { x: number, y: number};
+export interface AppReflectState {
+    objects: number;
 }
 
 export interface AppSources {
-    GameWorker: GameEngineWorker<AppState>;
+    GameWorker: GameEngineWorker<AppReflectState>;
     ElementHost: Subject<WorkerMessage>;
 }

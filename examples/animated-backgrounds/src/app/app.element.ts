@@ -4,7 +4,7 @@ import { define, html } from 'hybrids';
 import { debounceTime, distinctUntilChanged, fromEvent, map, merge, Observable, of, startWith, Subject } from 'rxjs';
 import { runApp } from './app';
 
-interface SimpleCounter extends HTMLElement {
+interface AppElement extends HTMLElement {
     app: {
         input$: Subject<{ objects: number }>;
         output$: Observable<WorkerMessage>;
@@ -13,12 +13,12 @@ interface SimpleCounter extends HTMLElement {
     render: Function;
 }
 
-export function increaseCount(host: SimpleCounter) {
+export function increaseCount(host: AppElement) {
     host.count += 1;
 }
 
-export default define<SimpleCounter>({
-    tag: 'ogod-root',
+export default define<AppElement>({
+    tag: 'app-root',
     app: {
         get: (host) => {
             host.render();
@@ -32,7 +32,7 @@ export default define<SimpleCounter>({
                         debounceTime(16),
                         startWith(null),
                         map(() => makeWorkerMessage({
-                            key: 'app',
+                            key: 'screen',
                             value: {
                                 width: canvas.clientWidth,
                                 height: canvas.clientHeight

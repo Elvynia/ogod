@@ -10,7 +10,7 @@ export function makeGameEngineDriver(options: GameEngineOptions = makeGameEngine
     const state$ = options.state$;
     const update$ = frame$.pipe(
         pairwise(),
-        map(([prev, cur]) => (cur.elapsed - prev.elapsed) / 1000),
+        map(([prev, cur]) => cur.elapsed - prev.elapsed),
         share()
     );
     return (sink$: Promise<GameEngineSink>): GameEngineSource => {

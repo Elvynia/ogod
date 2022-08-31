@@ -28,7 +28,7 @@ export function makeFeatureBasic$(feature: Feature, state: any) {
     let f$;
     if (feature.value$) {
         f$ = feature.value$;
-        if (feature.value) {
+        if (feature.value !== undefined) {
             f$ = f$.pipe(
                 startWith(feature.value)
             );
@@ -39,7 +39,8 @@ export function makeFeatureBasic$(feature: Feature, state: any) {
     f$ = f$.pipe(
         map((value) => {
             state[feature.key] = value;
-            return { ...state };
+            // TODO: use immutable to alter state.
+            return state;
         })
     );
     if (feature.remove) {

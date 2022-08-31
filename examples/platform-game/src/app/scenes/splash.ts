@@ -9,7 +9,7 @@ export function makeSplashScene(): Feature[] {
         ]
     };
     return [
-        makeFeatureObservable('splash', timer(5000).pipe(
+        makeFeatureObservable('splash', timer(1000).pipe(
             map(() => null)
         ), splash)
     ]
