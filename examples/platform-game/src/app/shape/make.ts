@@ -1,7 +1,6 @@
 import { b2BodyType, b2PolygonShape, b2World } from "@box2d/core";
 import { GameEngineSource } from "@ogod/game-core";
 import { distinctUntilKeyChanged, filter, first, ignoreElements, map, merge, of, startWith, switchMap, tap } from "rxjs";
-import { makeCreatePlatform } from "../platform/make";
 import { makePlayer, makePlayerUpdate$ } from "../player/make";
 import { WorkerSources } from "../state";
 import { randNum } from "../util";
@@ -58,16 +57,9 @@ export function makeShapes$(sources: WorkerSources) {
         map((state: any) => state.gmap.scale),
         first(),
         switchMap((scale) => {
-            const makePlatform = makeCreatePlatform(sources.World.instance, scale);
-            // const ground0 = makePlatform(400, 5, 'ground0');
-            // const ground1 = makePlatform(800, 150, 'ground1');
-            // const ground2 = makePlatform(1200, 300, 'ground2');
             const player = makePlayer(sources.World.instance, scale);
             return merge(
                 of({
-                    // ground0,
-                    // ground1,
-                    // ground2,
                     player
                 } as Shapes),
                 makeShapeUpdate$(sources.GameEngine),

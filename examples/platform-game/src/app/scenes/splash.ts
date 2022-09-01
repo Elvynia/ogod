@@ -1,16 +1,26 @@
-import { timer, map } from 'rxjs';
 import { Feature } from '@ogod/game-core';
-import { makeFeatureConstant, makeFeatureObservable } from '@ogod/game-engine-driver';
+import { makeFeatureObservable } from '@ogod/game-engine-driver';
+import { filter, first, ignoreElements, mergeMap, range, switchMap, timer } from 'rxjs';
+import { makeSleet } from '../sleet/make';
+import { AppState, WorkerSources } from '../state';
 
-export function makeSplashScene(): Feature[] {
-    const splash = {
-        logos: [
-            'M505,55c0-27.6-22.4-50-50-50s-50,22.4-50,50c0-27.6-22.4-50-50-50s-50,22.4-50,50c0-27.6-22.4-50-50-50s-50,22.4-50,50 c0-27.6-22.4-50-50-50s-50,22.4-50,50c0-27.6-22.4-50-50-50S5,27.4,5,55'
-        ]
-    };
+export function makeSplashScene(sources: WorkerSources): Feature[] {
+    const splash = {};
     return [
-        makeFeatureObservable('splash', timer(1000).pipe(
-            map(() => null)
+        makeFeatureObservable('splash', sources.GameEngine.state$.pipe(
+            filter((s) => s.camera),
+            first(),
+            switchMap((state: AppState) => range(0, state.camera.width / 100).pipe(
+                mergeMap((x) => range(0, state.camera.height / 100).pipe(
+                    mergeMap((y) => {
+                        const sleet = makeSleet(x * 100, y * 100);
+                        state.splash[sleet.id] = sleet;
+                        return timer(1000).pipe(
+                            ignoreElements()
+                        );
+                    })
+                ))
+            ))
         ), splash)
     ]
 }

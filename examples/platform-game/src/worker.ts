@@ -1,15 +1,14 @@
 import { makeGameBox2dDriver, makeGameBox2dOptions } from '@ogod/game-box2d-driver';
-import { Feature, isEngineActionCanvas } from '@ogod/game-core';
-import { makeFeatureConstant, makeFeatureObservable, makeGameEngineDriver, makeGameEngineOptions, makeRenderer } from '@ogod/game-engine-driver';
+import { isEngineActionCanvas } from '@ogod/game-core';
+import { makeFeatureConstant, makeGameEngineDriver, makeGameEngineOptions, makeRenderer } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
-import { concat, delayWhen, filter, first, map, of, switchMap } from "rxjs";
+import { concat, delayWhen, filter, first, map, of, switchMap, tap } from "rxjs";
+import { makeFeatureCamera$ } from './app/camera/make';
 import { makeFeatureFps } from './app/fps';
-import { makeFeatureLoadMap$ } from './app/map/make';
 import { MapState } from './app/map/state';
 import { makeRender } from './app/render';
 import { makeFeatureScene } from './app/scenes/make';
-import { makeShapes$ } from './app/shape/make';
-import { AppReflectState, AppState, WorkerSources } from './app/state';
+import { AppReflectState, WorkerSources } from './app/state';
 
 declare var self: DedicatedWorkerGlobalScope;
 
@@ -23,6 +22,7 @@ function main(sources: WorkerSources) {
     return {
         GameEngine: {
             runtime$: concat(
+                makeFeatureCamera$(sources),
                 of(makeFeatureFps(sources.GameEngine)),
                 of(makeFeatureConstant('gmap', gmap)),
                 of(makeFeatureScene(sources))
@@ -33,10 +33,14 @@ function main(sources: WorkerSources) {
                 switchMap(({ payload }) => {
                     const renderers = makeRender(payload);
                     return concat(
-                        of(makeRenderer(renderers.splash, sources.GameEngine.state$.pipe(
-                            filter((state) => !state.splash),
-                            first()
-                        ))),
+                        sources.GameEngine.state$.pipe(
+                            filter((s) => s.splash),
+                            first(),
+                            map(() => makeRenderer(renderers.splash, sources.GameEngine.state$.pipe(
+                                filter((state) => !state.splash),
+                                first()
+                            )))
+                        ),
                         of(makeRenderer(renderers.play)).pipe(
                             delayWhen(() => sources.GameEngine.state$.pipe(
                                 filter((state) => state.shapes),

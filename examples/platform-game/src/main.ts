@@ -38,13 +38,13 @@ function main(sources: AppSources) {
             )
         ),
         DOM: combineLatest([
-            sources.GameWorker.input$.pipe(
-                takeWhile((state) => !!state.loading),
-                map((state) => Object.values(state.loading)),
-                filter((loadings) => loadings.length > 0),
-                map((loadings) => loadings.map((l) => div(l.message))),
-                concatWith(of(canvas({ attrs: { id: 'game', tabindex: 0 } })))
-            ),
+            of(canvas({ attrs: { id: 'game', tabindex: 0 } })),
+            // sources.GameWorker.input$.pipe(
+            //     takeWhile((state) => !!state.loading),
+            //     map((state) => Object.values(state.loading)),
+            //     filter((loadings) => loadings.length > 0),
+            //     map((loadings) => loadings.map((l) => div(l.message)))
+            // ),
             sources.GameWorker.input$.pipe(
                 distinctUntilKeyChanged('fps'),
                 map((state: any) => state.fps),

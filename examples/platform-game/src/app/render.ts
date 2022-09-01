@@ -1,6 +1,6 @@
-import SvgPath from 'svg-path-to-canvas';
 import { Camera } from './camera/state';
 import { Shape } from "./shape/state";
+import { Sleet } from './sleet/state';
 import { AppState } from './state';
 
 const PI2 = 2 * Math.PI;
@@ -26,20 +26,13 @@ export function makeDrawCircle(ctx: CanvasRenderingContext2D) {
 }
 
 export function makeDrawSvg(ctx: CanvasRenderingContext2D) {
-    return (svg: string) => {
-        const sp = new SvgPath(svg)
-        const [cx, cy] = sp.center
-        sp.save()
-            .beginPath()
-            // .translate(-cx, -cy)
-            // .rotate(45)
-            // .scale(10)
-            // .translate(cx, cy)
-            .translate(350, 350)
-            .strokeStyle('red')
-            .lineWidth(10)
-            .to(ctx)
-            .stroke();
+    ctx.lineCap = 'round';
+    return (sleet: Sleet) => {
+        ctx.beginPath();
+        ctx.lineWidth = sleet.width;
+        ctx.strokeStyle = sleet.color;
+        ctx.arc(sleet.x, sleet.y, sleet.radius, sleet.angleStart, sleet.angleStop);
+        ctx.stroke();
     }
 }
 
@@ -55,7 +48,7 @@ export function makeRender(canvas: any) {
     return {
         splash: (delta: number, state: AppState) => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            state.splash.logos.forEach((obj) => drawHandlers['svg'](obj));
+            Object.values(state.splash).forEach((obj) => drawHandlers['svg'](obj));
         },
         play: (delta: number, state: AppState) => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);

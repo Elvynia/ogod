@@ -6,6 +6,7 @@ import { Controls } from './controls/state';
 import { LoadingState } from './loading/state';
 import { MapState } from './map/state';
 import { Shapes } from './shape/state';
+import { Sleet } from './sleet/state';
 
 export interface AppReflectState {
     fps: number;
@@ -19,7 +20,7 @@ export interface AppSources {
 
 export interface AppState {
     splash: {
-        logos: string[]
+        [id: string]: Sleet;
     };
     camera: Camera;
     fps: number;
