@@ -1,7 +1,7 @@
 import { canvas, div, h3, makeDOMDriver } from '@cycle/dom';
 import { gameRun } from '@ogod/game-run';
 import { makeEngineAction, makeGameEngineWorker, makeWorkerMessage } from '@ogod/game-worker-driver';
-import { combineLatest, concatWith, distinctUntilKeyChanged, filter, first, from, fromEvent, map, merge, of, startWith, Subject, switchMap, takeWhile, tap, throttleTime } from 'rxjs';
+import { combineLatest, concatWith, distinctUntilChanged, distinctUntilKeyChanged, endWith, filter, first, from, fromEvent, map, merge, of, repeat, startWith, Subject, switchMap, takeWhile, tap, throttleTime } from 'rxjs';
 import xs from 'xstream';
 import { makeControls$ } from './app/controls/make';
 import { AppReflectState, AppSources } from "./app/state";
@@ -39,12 +39,20 @@ function main(sources: AppSources) {
         ),
         DOM: combineLatest([
             of(canvas({ attrs: { id: 'game', tabindex: 0 } })),
-            // sources.GameWorker.input$.pipe(
-            //     takeWhile((state) => !!state.loading),
-            //     map((state) => Object.values(state.loading)),
-            //     filter((loadings) => loadings.length > 0),
-            //     map((loadings) => loadings.map((l) => div(l.message)))
-            // ),
+            sources.GameWorker.input$.pipe(
+                map((state) => !!state.loading),
+                startWith(false),
+                distinctUntilChanged(),
+                switchMap((shouldLoad) => shouldLoad ? sources.GameWorker.input$.pipe(
+                    map((state) => Object.values(state.loading)),
+                    filter((loadings) => loadings.length > 0),
+                    map((loadings) => loadings.map((l) => div({
+                        class: {
+                            loading: true
+                        },
+                    }, [l.message])))
+                ) : of([]))
+            ),
             sources.GameWorker.input$.pipe(
                 distinctUntilKeyChanged('fps'),
                 map((state: any) => state.fps),
@@ -52,7 +60,14 @@ function main(sources: AppSources) {
                 map((fps) => h3('FPS: ' + fps)),
             )
         ]).pipe(
-            map(([canvas, fps]) => Array.isArray(canvas) ? div([...canvas, fps]) : div([canvas, fps]))
+            map(([canvas, loadings, fps]) => div([
+                div({
+                    attrs: {
+                        id: 'wrapper'
+                    }
+                }, [canvas, ...loadings]),
+                fps
+            ]))
         )
     }
 }

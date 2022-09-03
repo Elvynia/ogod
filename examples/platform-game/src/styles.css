@@ -3,7 +3,18 @@ body {
     margin: 0;
 }
 
+#wrapper {
+    position: relative;
+}
+
 canvas {
     width: 100%;
     height: auto;
+}
+
+.loading {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 }
