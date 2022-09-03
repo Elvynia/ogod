@@ -5,7 +5,7 @@ import { WorkerSources } from '../state';
 
 export function makePlayScene(sources: WorkerSources): Feature[] {
     return [
-        makeFeatureObservable('controls', sources.GameEngine.action$.controls, {}),
+        makeFeatureObservable('controls', sources.GameEngine.actions.controls, {}),
         makeFeatureObservable('shapes', makeShapes$(sources))
     ]
 }

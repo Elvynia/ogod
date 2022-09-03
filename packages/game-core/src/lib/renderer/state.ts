@@ -1,8 +1,8 @@
 import { Observable } from 'rxjs';
 
-export type RenderFunction = (delta: number, state: any) => void;
+export type RenderFunction<S = any> = (delta: number, state: S) => void;
 
-export interface Renderer {
-    render: RenderFunction;
+export interface Renderer<S = any> {
+    render: RenderFunction<S>;
     observable?: Observable<any>;
 }

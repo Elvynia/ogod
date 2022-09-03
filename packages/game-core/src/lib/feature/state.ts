@@ -7,13 +7,13 @@ export interface Feature<K extends string = string, T = any> {
     remove?: boolean;
 }
 
-export interface ComplexFeature {
+export interface ComplexFeature<K extends string = string> {
     mapper: typeof mergeMap;
-    value$: Observable<Feature[]>;
+    value$: Observable<Feature<K>[]>;
 }
 
-export type FeatureState<F extends Feature> = {
-    [K in Pick<F, 'key'> & string]: Pick<F, 'value'>;
+export type FeatureState<K extends string> = {
+    [G in K]: any;
 }
 
 export function isComplexFeature(f: any): f is ComplexFeature {

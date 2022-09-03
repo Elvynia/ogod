@@ -1,9 +1,10 @@
 import { Subject } from 'rxjs';
-import { ActionHandler } from '../../action/state';
+import { ActionState } from '../../action/state';
+import { FeatureState } from '../../feature/state';
 
-export interface GameEngineOptions {
-    actionHandlers: ActionHandler<any>;
+export interface GameEngineOptions<S = any, A extends string = any, AS extends ActionState<A> = ActionState<A>, FS = FeatureState<keyof S & string>> {
+    actionHandlers: AS;
     dispose?: () => void;
-    state$: Subject<any>;
+    state$: Subject<FS>;
     workerContext?: DedicatedWorkerGlobalScope;
 }

@@ -14,7 +14,7 @@ export function makeFeaturePlayer(sources: WorkerSources, screen: Screen) {
         dynamic: true
     }, sources.World.instance, screen.scale);
     return makeFeatureObservable('player', merge(
-        sources.GameEngine.action$.playerColor.pipe(
+        sources.GameEngine.actions.playerColor.pipe(
             map((color: string) => {
                 player.color = color;
                 return player;

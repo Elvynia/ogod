@@ -13,6 +13,8 @@ import { AppReflectState, WorkerSources } from './app/state';
 declare var self: DedicatedWorkerGlobalScope;
 
 function main(sources: WorkerSources) {
+    // gsap.ticker.remove(gsap.updateRoot);
+    // sources.GameEngine.frame$.subscribe(({ elapsed }) => gsap.updateRoot(elapsed / 1000));
     const gmap: MapState = {
         platforms: {},
         width: 20,
@@ -28,7 +30,7 @@ function main(sources: WorkerSources) {
                 of(makeFeatureScene(sources))
             ),
             reflector$: of(({ fps, loading }) => ({ fps, loading } as AppReflectState)),
-            renderer$: sources.GameEngine.action$.engine.pipe(
+            renderer$: sources.GameEngine.actions.engine.pipe(
                 filter(isEngineActionCanvas),
                 switchMap(({ payload }) => {
                     const renderers = makeRender(payload);

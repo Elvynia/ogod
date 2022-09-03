@@ -41,7 +41,7 @@ export function makeFeatureObjects(sources: WorkerSources, screen: Screen, objec
             return ids;
         })
     ).subscribe((ids: string[]) => ids.forEach((id) => --objects[id].health));
-    return makeFeatureObservable('objects', sources.GameEngine.action$.objects.pipe(
+    return makeFeatureObservable('objects', sources.GameEngine.actions.objects.pipe(
         mergeMap(({ x, y }) => {
             const rect = makeRect({
                 x,

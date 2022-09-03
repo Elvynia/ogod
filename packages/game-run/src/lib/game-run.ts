@@ -1,5 +1,4 @@
-import { DisposeFunction } from '@ogod/game-core';
-import { Drivers, Sinks } from './state';
+import { DisposeFunction, Drivers, Sinks } from '@ogod/game-core';
 
 export function gameRun<D extends Drivers<SO, SI>, SO, SI extends Sinks<SO>>(main: (sources: SO) => SI, drivers: D): DisposeFunction {
     if (typeof drivers !== `object` || drivers === null) {

@@ -10,24 +10,24 @@ import { makeFeaturePlayer } from './app/player/make';
 import { makeReflector$ } from './app/reflector/make';
 import { makeRender } from './app/renderer/make';
 import { makeFeatureScreen } from './app/screen/make';
-import { WorkerSources } from './app/state';
+import { AppActions, AppState, WorkerSources } from './app/state';
 
 declare var self: DedicatedWorkerGlobalScope;
 
 function main(sources: WorkerSources) {
-    const canvas$ = sources.GameEngine.action$.engine.pipe(
+    const canvas$ = sources.GameEngine.actions.engine.pipe(
         filter(isEngineActionCanvas)
     );
     return {
         GameEngine: {
             runtime$: merge(
                 of(makeFeatureFps(sources.GameEngine)),
-                of(makeFeatureObservable('paused', sources.GameEngine.action$.paused)),
+                of(makeFeatureObservable('paused', sources.GameEngine.actions.paused)),
                 canvas$.pipe(
-                    map(({ payload }) => makeFeatureScreen(sources.GameEngine.action$.screen, payload))
+                    map(({ payload }) => makeFeatureScreen(sources.GameEngine.actions.screen, payload))
                 ),
                 sources.GameEngine.state$.pipe(
-                    filter((state) => state.screen),
+                    filter((state) => !!state.screen),
                     first(),
                     switchMap((state) => merge(
                         of(makeFeatureGrounds(sources, state.screen)),
@@ -39,7 +39,7 @@ function main(sources: WorkerSources) {
             reflector$: makeReflector$(sources),
             renderer$: canvas$.pipe(
                 delayWhen(() => sources.GameEngine.state$.pipe(
-                    filter((state) => state.screen && state.player && state.objects),
+                    filter((state) => state.screen && state.player && !!state.objects),
                     first()
                 )),
                 map(({ payload }) => makeRenderer(makeRender(payload)))
@@ -53,7 +53,7 @@ function main(sources: WorkerSources) {
     };
 }
 
-let options = makeGameEngineOptions(self, ['screen', 'objects', 'paused'], {
+let options = makeGameEngineOptions<AppState, AppActions>(self, ['screen', 'objects', 'paused'], {
     playerColor: new ReplaySubject<string>(1)
 });
 options.dispose = gameRun(main, {

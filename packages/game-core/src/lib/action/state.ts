@@ -47,12 +47,8 @@ export function isEngineActionCanvas(action: EngineAction): action is EngineActi
     return action.type === 'OGOD_ENGINE_CANVAS';
 }
 
-export type ActionState<S> = {
-    [K in keyof S]: Subject<S[K]>;
-};
-
 export type EngineActionState = {
     engine: Subject<EngineAction>;
 }
 
-export type ActionHandler<A> = ActionState<A> & EngineActionState;
+export type ActionState<A extends string> = Record<A, Subject<any>> & EngineActionState;

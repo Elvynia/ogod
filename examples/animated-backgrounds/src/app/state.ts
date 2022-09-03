@@ -1,4 +1,4 @@
-import { GameEngineWorker, WorkerMessage } from '@ogod/game-core';
+import { GameEngineSource, GameEngineWorker, WorkerMessage } from '@ogod/game-core';
 import { Subject } from 'rxjs';
 import { BallState } from './ball';
 
@@ -19,4 +19,8 @@ export interface AppReflectState {
 export interface AppSources {
     GameWorker: GameEngineWorker<AppReflectState>;
     ElementHost: Subject<WorkerMessage>;
+}
+
+export interface WorkerSources {
+    GameEngine: GameEngineSource<AppState, 'screen' | 'objects' | 'reset'>;
 }

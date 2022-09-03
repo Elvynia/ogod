@@ -1,11 +1,12 @@
-import { GameEngineDriver, GameEngineOptions, GameEngineSink, GameEngineSource } from '@ogod/game-core';
-import { animationFrames, buffer, concatMap, filter, map, pairwise, share, switchMap, takeUntil, tap, withLatestFrom } from "rxjs";
+import { ActionState, GameEngineDriver, GameEngineOptions, GameEngineSink, GameEngineSource } from '@ogod/game-core';
+import { animationFrames, buffer, concatMap, filter, map, pairwise, share, switchMap, takeUntil, withLatestFrom } from "rxjs";
 import { makeEngineActionHandlers } from '../action/make';
 import { makeGameEngineOptions } from '../options/make';
 import { makeRuntime$ } from "../runtime/make";
 
-export function makeGameEngineDriver(options: GameEngineOptions = makeGameEngineOptions()): GameEngineDriver {
-    const action$ = options.actionHandlers;
+export function makeGameEngineDriver<S = any, A extends string = any, AS extends ActionState<A> = ActionState<A>>
+    (options: GameEngineOptions<S, A, AS> = makeGameEngineOptions<S, A, AS>()): GameEngineDriver<S, A, AS> {
+    const actions = options.actionHandlers;
     const frame$ = animationFrames();
     const state$ = options.state$;
     const update$ = frame$.pipe(
@@ -13,7 +14,7 @@ export function makeGameEngineDriver(options: GameEngineOptions = makeGameEngine
         map(([prev, cur]) => cur.elapsed - prev.elapsed),
         share()
     );
-    return (sink$: Promise<GameEngineSink>): GameEngineSource => {
+    return (sink$: Promise<GameEngineSink>): GameEngineSource<S, A, AS> => {
         console.debug('[GameEngine] Created');
         sink$.then((sink) => {
             console.debug('[GameEngine] Initialized');
@@ -45,10 +46,10 @@ export function makeGameEngineDriver(options: GameEngineOptions = makeGameEngine
             }
         });
         const sources = {
-            action$,
+            actions,
             dispose: () => {
                 state$.complete();
-                Object.keys(action$).forEach((k) => action$[k].complete());
+                Object.keys(actions).forEach((k) => actions[k as keyof AS].complete());
                 console.debug('[GameEngine] Disposed');
             },
             frame$,
@@ -60,7 +61,7 @@ export function makeGameEngineDriver(options: GameEngineOptions = makeGameEngine
             update$
         };
         if (options.workerContext) {
-            options.workerContext.onmessage = (event: any) => action$[event.data.key].next(event.data.value);
+            options.workerContext.onmessage = (event: any) => actions[event.data.key as keyof AS].next(event.data.value);
             makeEngineActionHandlers(sources);
         }
         return sources;

@@ -54,17 +54,17 @@ export function makeFeatureBasic$(feature: Feature, state: any) {
     return f$;
 }
 
-export function makeFeatureComplex$<F extends Feature>(feature: ComplexFeature, state: FeatureState<F>): Observable<FeatureState<F>> {
+export function makeFeatureComplex$<K extends string>(feature: ComplexFeature<K>, state: FeatureState<K>): Observable<FeatureState<K>> {
     return feature.value$.pipe(
         feature.mapper((features) => merge(...features.map((f) => makeFeatureBasic$(f, state))))
-    ) as Observable<FeatureState<F>>;
+    ) as Observable<FeatureState<K>>;
 }
 
-export function makeFeature$<F extends Feature>(sink$: Observable<F>, mapper = mergeMap): Observable<FeatureState<F>> {
-    const state: FeatureState<F> = {};
+export function makeFeature$<K extends string>(sink$: Observable<Feature<K> | ComplexFeature<K>>, mapper = mergeMap): Observable<FeatureState<K>> {
+    const state: FeatureState<K> = {} as FeatureState<K>;
     return sink$.pipe(
         mapper((feature) => {
-            let f$: Observable<FeatureState<F>>;
+            let f$: Observable<FeatureState<K>>;
             if (isComplexFeature(feature)) {
                 f$ = makeFeatureComplex$(feature, state);
             } else {

@@ -3,13 +3,13 @@ import { filter, first, ignoreElements, map, merge, switchMap, tap } from "rxjs"
 import { WorkerSources } from "../state";
 
 export function makeFeatureCamera$(sources: WorkerSources) {
-    return sources.GameEngine.action$.camera.pipe(
+    return sources.GameEngine.actions.camera.pipe(
         first(),
         map((camera) => {
             camera.x = 0;
             camera.y = 0;
             return makeFeatureObservable('camera', merge(
-                sources.GameEngine.action$.camera.pipe(
+                sources.GameEngine.actions.camera.pipe(
                     map(({ width, height }) => {
                         sources.GameEngine.canvas.width = width;
                         sources.GameEngine.canvas.height = height;
