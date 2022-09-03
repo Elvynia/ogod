@@ -1,5 +1,5 @@
 import gsap, { Linear } from 'gsap';
-import { from } from 'rxjs';
+import { delay, from } from 'rxjs';
 import { AppState } from '../state';
 import { Sleet } from './state';
 
@@ -36,12 +36,16 @@ function makeBounce(splash: AppState['splash'], tl: gsap.core.Timeline, sleet: S
             onComplete: () => delete splash[sleet.id]
         }, start + 0.5);
         splash[sleet.id] = sleet;
+    } else {
+        delete splash[sleet.id]
     }
     return tl;
 }
 
 export function makeSleetBounce$(state: AppState) {
     return (x: number, y: number) => {
-        return from(makeBounce(state.splash, gsap.timeline(), makeSleet({ x, y, radius: 30 }), 0, 3).then());
+        return from(makeBounce(state.splash, gsap.timeline(), makeSleet({ x, y, radius: 30 }), 0, 3).then()).pipe(
+            delay(200),
+        );
     }
 }

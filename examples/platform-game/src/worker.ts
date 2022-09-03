@@ -2,7 +2,8 @@ import { makeGameBox2dDriver, makeGameBox2dOptions } from '@ogod/game-box2d-driv
 import { isEngineActionCanvas } from '@ogod/game-core';
 import { makeFeatureConstant, makeGameEngineDriver, makeGameEngineOptions, makeRenderer } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
-import { concat, delayWhen, filter, first, map, of, switchMap, tap } from "rxjs";
+import gsap from 'gsap';
+import { concat, delayWhen, filter, first, map, of, switchMap } from "rxjs";
 import { makeFeatureCamera$ } from './app/camera/make';
 import { makeFeatureFps } from './app/fps';
 import { MapState } from './app/map/state';
@@ -13,8 +14,8 @@ import { AppReflectState, WorkerSources } from './app/state';
 declare var self: DedicatedWorkerGlobalScope;
 
 function main(sources: WorkerSources) {
-    // gsap.ticker.remove(gsap.updateRoot);
-    // sources.GameEngine.frame$.subscribe(({ elapsed }) => gsap.updateRoot(elapsed / 1000));
+    gsap.ticker.remove(gsap.updateRoot);
+    sources.GameEngine.frame$.subscribe(({ elapsed }) => gsap.updateRoot(elapsed / 1000));
     const gmap: MapState = {
         platforms: {},
         width: 20,

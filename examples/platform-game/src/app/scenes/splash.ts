@@ -1,8 +1,7 @@
 import { Feature } from '@ogod/game-core';
 import { makeFeatureObservable } from '@ogod/game-engine-driver';
-import gsap, { Bounce, Linear } from 'gsap';
-import { filter, first, from, mergeMap, range, switchMap } from 'rxjs';
-import { makeSleet, makeSleetBounce$ } from '../sleet/make';
+import { filter, first, mergeMap, range, switchMap } from 'rxjs';
+import { makeSleetBounce$ } from '../sleet/make';
 import { AppState, WorkerSources } from '../state';
 
 export function makeSplashScene(sources: WorkerSources): Feature[] {
