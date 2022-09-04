@@ -1,4 +1,9 @@
-import { merge, Observable } from 'rxjs';
+import { merge, Observable, ObservableInput, ObservableInputTuple, ObservedValueOf, OperatorFunction } from 'rxjs';
+
+export type FeatureMapperFunction<T, O extends ObservableInput<any> = ObservableInput<any>>
+    = (project: (value: T, index: number) => O) => OperatorFunction<T, ObservedValueOf<O>>;
+export type FeatureFactoryFunction<A extends readonly unknown[]>
+    = (...sources: [...ObservableInputTuple<A>]) => Observable<A[number]>;
 
 export interface Feature<S = any, K extends keyof S = keyof S, T = S[K]> {
     key: K;

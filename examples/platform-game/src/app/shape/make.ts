@@ -1,6 +1,6 @@
 import { b2BodyType, b2PolygonShape, b2World } from "@box2d/core";
 import { GameEngineSource } from "@ogod/game-core";
-import { distinctUntilKeyChanged, filter, first, ignoreElements, map, merge, of, startWith, switchMap, tap } from "rxjs";
+import { distinctUntilKeyChanged, filter, first, ignoreElements, map, merge, Observable, of, startWith, switchMap, tap } from "rxjs";
 import { makePlayer, makePlayerUpdate$ } from "../player/make";
 import { WorkerSources } from "../state";
 import { randNum } from "../util";
@@ -51,7 +51,7 @@ export function makeShapeUpdate$(engine: GameEngineSource) {
     )
 }
 
-export function makeShapes$(sources: WorkerSources) {
+export function makeShapes$(sources: WorkerSources): Observable<Shapes> {
     return sources.GameEngine.state$.pipe(
         filter((state: any) => !!state.gmap),
         map((state: any) => state.gmap.scale),

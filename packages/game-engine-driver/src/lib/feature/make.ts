@@ -1,4 +1,4 @@
-import { Feature, FeatureArray, isFeatureArray } from '@ogod/game-core';
+import { Feature, FeatureArray, FeatureFactoryFunction, FeatureMapperFunction, isFeatureArray } from '@ogod/game-core';
 import { concat, map, merge, mergeMap, Observable, of, shareReplay, startWith, tap } from 'rxjs';
 
 export function makeFeatureConstant<S = any, K extends keyof S = keyof S, T = S[K]>(key: K, value: T): Feature<S, K, T> {
@@ -18,7 +18,7 @@ export function makeFeatureObservable<S = any, K extends keyof S = keyof S, T = 
     }
 }
 
-export function makeFeatureArray<K extends string>(values: Feature<K>[], factory$ = merge): FeatureArray<K> {
+export function makeFeatureArray<S>(values: Feature<S>[], factory$: FeatureFactoryFunction<Feature<S>[]> = merge): FeatureArray<S> {
     return {
         values,
         factory$
@@ -40,9 +40,8 @@ export function makeFeatureBasic$<S>(feature: Feature<S>, state: S): Observable<
         throw new Error('Cannot make basic feature for key ' + (feature.key as string) + ': value and value$ properties are not defined')
     }
     f$ = f$.pipe(
-        map((value) => {
-            state[feature.key] = value as any;
-            // TODO: use immutable to alter state.
+        map((value: S[keyof S]) => {
+            state[feature.key] = value;
             return state;
         })
     );
@@ -61,8 +60,8 @@ export function makeFeatureArray$<S>(feature: FeatureArray<S>, state: S): Observ
     return feature.factory$(...feature.values.map((f) => makeFeatureBasic$(f, state)));
 }
 
-export function makeFeature$<S>(feature$: Observable<Feature<S> | FeatureArray<S>>,
-    state: S = {} as S, mapper = mergeMap): Observable<S> {
+export function makeFeature$<S = any, F = Feature<S> | FeatureArray<S>>(feature$: Observable<F>,
+    state: S = {} as S, mapper: FeatureMapperFunction<F> = mergeMap): Observable<S> {
     return feature$.pipe(
         mapper((feature) => {
             let f$: Observable<S>;

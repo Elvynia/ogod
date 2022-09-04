@@ -3,7 +3,7 @@ import { isEngineActionCanvas } from '@ogod/game-core';
 import { makeFeature$, makeGameEngineDriver, makeGameEngineOptions, makeRenderer } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import gsap from 'gsap';
-import { concat, concatMap, delayWhen, filter, first, map, merge, Observable, of, switchMap } from "rxjs";
+import { concat, concatMap, delayWhen, filter, first, map, merge, of, switchMap } from "rxjs";
 import { makeFeatureCamera$ } from './app/camera/make';
 import { makeFeatureFps } from './app/fps';
 import { makeRender } from './app/render';
@@ -37,7 +37,7 @@ function main(sources: WorkerSources) {
                     of(makeIntroScene(sources)),
                     of(makePlayScene(sources))
                 ), state, concatMap)
-            ) as Observable<AppState>,
+            ),
             reflector$: of(({ fps, loading }) => ({ fps, loading } as AppReflectState)),
             renderer$: sources.GameEngine.actions.engine.pipe(
                 filter(isEngineActionCanvas),
