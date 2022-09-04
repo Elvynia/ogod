@@ -1,8 +1,7 @@
 import { ActionState, GameEngineDriver, GameEngineOptions, GameEngineSink, GameEngineSource } from '@ogod/game-core';
-import { animationFrames, buffer, concatMap, filter, map, pairwise, share, switchMap, takeUntil, withLatestFrom } from "rxjs";
+import { animationFrames, buffer, concatMap, filter, last, map, pairwise, share, switchMap, takeUntil, withLatestFrom } from "rxjs";
 import { makeEngineActionHandlers } from '../action/make';
 import { makeGameEngineOptions } from '../options/make';
-import { makeRuntime$ } from "../runtime/make";
 
 export function makeGameEngineDriver<S = any, A extends string = any, AS extends ActionState<A> = ActionState<A>>
     (options: GameEngineOptions<S, A, AS> = makeGameEngineOptions<S, A, AS>()): GameEngineDriver<S, A, AS> {
@@ -18,7 +17,9 @@ export function makeGameEngineDriver<S = any, A extends string = any, AS extends
         console.debug('[GameEngine] Created');
         sink$.then((sink) => {
             console.debug('[GameEngine] Initialized');
-            makeRuntime$(sink.runtime$, state$).subscribe(state$);
+            sink.runtime$.pipe(
+                takeUntil(state$.pipe(last()))
+            ).subscribe(state$);
             if (sink.reflector$) {
                 sink.reflector$.pipe(
                     switchMap((reflectHandler) => state$.pipe(
