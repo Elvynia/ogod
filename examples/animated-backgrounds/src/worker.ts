@@ -1,12 +1,12 @@
 import { isEngineActionCanvas } from '@ogod/game-core';
-import { makeGameEngineDriver, makeGameEngineOptions, makeRenderer } from '@ogod/game-engine-driver';
+import { makeFeature$, makeGameEngineDriver, makeGameEngineOptions, makeRenderer } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import { gsap } from 'gsap';
 import { filter, map, merge, of } from 'rxjs';
 import { makeFeatureObjects } from './app/objects';
 import { makeRender } from './app/render';
 import { makeFeatureScreen } from './app/screen';
-import { WorkerSources } from './app/state';
+import { AppAction, AppState, WorkerSources } from './app/state';
 
 declare var self: DedicatedWorkerGlobalScope;
 
@@ -15,10 +15,10 @@ function main(sources: WorkerSources) {
     sources.GameEngine.frame$.subscribe(({ elapsed }) => gsap.updateRoot(elapsed / 1000));
     return {
         GameEngine: {
-            runtime$: merge(
+            runtime$: makeFeature$(merge(
                 of(makeFeatureScreen(sources.GameEngine)),
                 of(makeFeatureObjects(sources.GameEngine))
-            ),
+            )),
             reflector$: of((state) => ({
                 objects: Object.keys(state.objects).length
             })),
@@ -30,7 +30,7 @@ function main(sources: WorkerSources) {
     };
 }
 
-let options = makeGameEngineOptions(self, ['screen', 'objects', 'reset']);
+let options = makeGameEngineOptions<AppState, AppAction>(self, ['screen', 'objects', 'reset']);
 options.dispose = gameRun(main, {
     GameEngine: makeGameEngineDriver(options)
 });

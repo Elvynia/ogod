@@ -30,9 +30,9 @@ export interface AppState {
     loading?: LoadingState;
 }
 
-export type AppActions = 'camera' | 'controls';
+export type AppAction = 'camera' | 'controls';
 
 export interface WorkerSources {
-    GameEngine: GameEngineSource<AppState, AppActions>;
+    GameEngine: GameEngineSource<AppState, AppAction>;
     World: GameBox2DSource;
 }

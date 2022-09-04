@@ -1,14 +1,15 @@
-import { ComplexFeature, Feature, FeatureState, isComplexFeature } from '@ogod/game-core';
-import { concat, concatMap, map, merge, mergeMap, Observable, of, shareReplay, startWith, tap } from 'rxjs';
+import { Feature, FeatureArray, isFeatureArray } from '@ogod/game-core';
+import { concat, map, merge, mergeMap, Observable, of, shareReplay, startWith, tap } from 'rxjs';
 
-export function makeFeatureConstant<K extends string, T>(key: K, value: T): Feature<K, T> {
+export function makeFeatureConstant<S = any, K extends keyof S = keyof S, T = S[K]>(key: K, value: T): Feature<S, K, T> {
     return {
         key,
         value
     }
 }
 
-export function makeFeatureObservable<K extends string, T>(key: K, value$: Observable<T>, value?: T, remove: boolean = true): Feature<K, T> {
+export function makeFeatureObservable<S = any, K extends keyof S = keyof S, T = S[K]>(key: K, value$: Observable<T>,
+    value?: T, remove: boolean = true): Feature<S, K, T> {
     return {
         key,
         value,
@@ -17,14 +18,14 @@ export function makeFeatureObservable<K extends string, T>(key: K, value$: Obser
     }
 }
 
-export function makeFeatureComplex(value$: Observable<Feature[]>, mapper = concatMap): ComplexFeature {
+export function makeFeatureArray<K extends string>(values: Feature<K>[], factory$ = merge): FeatureArray<K> {
     return {
-        value$,
-        mapper
+        values,
+        factory$
     }
 }
 
-export function makeFeatureBasic$(feature: Feature, state: any) {
+export function makeFeatureBasic$<S>(feature: Feature<S>, state: S): Observable<S> {
     let f$;
     if (feature.value$) {
         f$ = feature.value$;
@@ -33,12 +34,14 @@ export function makeFeatureBasic$(feature: Feature, state: any) {
                 startWith(feature.value)
             );
         }
-    } else {
+    } else if (feature.value !== undefined) {
         f$ = of(feature.value);
+    } else {
+        throw new Error('Cannot make basic feature for key ' + (feature.key as string) + ': value and value$ properties are not defined')
     }
     f$ = f$.pipe(
         map((value) => {
-            state[feature.key] = value;
+            state[feature.key] = value as any;
             // TODO: use immutable to alter state.
             return state;
         })
@@ -54,21 +57,19 @@ export function makeFeatureBasic$(feature: Feature, state: any) {
     return f$;
 }
 
-export function makeFeatureComplex$<K extends string>(feature: ComplexFeature<K>, state: FeatureState<K>): Observable<FeatureState<K>> {
-    return feature.value$.pipe(
-        feature.mapper((features) => merge(...features.map((f) => makeFeatureBasic$(f, state))))
-    ) as Observable<FeatureState<K>>;
+export function makeFeatureArray$<S>(feature: FeatureArray<S>, state: S): Observable<S> {
+    return feature.factory$(...feature.values.map((f) => makeFeatureBasic$(f, state)));
 }
 
-export function makeFeature$<K extends string>(sink$: Observable<Feature<K> | ComplexFeature<K>>, mapper = mergeMap): Observable<FeatureState<K>> {
-    const state: FeatureState<K> = {} as FeatureState<K>;
-    return sink$.pipe(
+export function makeFeature$<S>(feature$: Observable<Feature<S> | FeatureArray<S>>,
+    state: S = {} as S, mapper = mergeMap): Observable<S> {
+    return feature$.pipe(
         mapper((feature) => {
-            let f$: Observable<FeatureState<K>>;
-            if (isComplexFeature(feature)) {
-                f$ = makeFeatureComplex$(feature, state);
+            let f$: Observable<S>;
+            if (isFeatureArray(feature)) {
+                f$ = makeFeatureArray$(feature, state);
             } else {
-                f$ = makeFeatureBasic$(feature, state);
+                f$ = makeFeatureBasic$(feature as Feature<S>, state);
             }
             return f$;
         }),

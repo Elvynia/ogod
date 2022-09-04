@@ -20,9 +20,9 @@ export interface AppState {
     player: Rect;
 }
 
-export type AppActions = 'screen' | 'objects' | 'paused' | 'playerColor';
+export type AppAction = 'screen' | 'objects' | 'paused' | 'playerColor';
 
 export interface WorkerSources {
-    GameEngine: GameEngineSource<AppState, AppActions>;
+    GameEngine: GameEngineSource<AppState, AppAction>;
     World: GameBox2DSource;
 }

@@ -14,7 +14,7 @@ export function makeGameEngineOptions<S = any, A extends string = any, AS extend
     }
     return {
         actionHandlers,
-        state$: new ReplaySubject<any>(1),
+        state$: new ReplaySubject<S>(1),
         workerContext
     }
 }

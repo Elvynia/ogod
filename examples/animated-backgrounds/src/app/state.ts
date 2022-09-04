@@ -21,6 +21,8 @@ export interface AppSources {
     ElementHost: Subject<WorkerMessage>;
 }
 
+export type AppAction = 'screen' | 'objects' | 'reset';
+
 export interface WorkerSources {
-    GameEngine: GameEngineSource<AppState, 'screen' | 'objects' | 'reset'>;
+    GameEngine: GameEngineSource<AppState, AppAction>;
 }

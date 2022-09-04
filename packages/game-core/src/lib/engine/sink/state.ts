@@ -1,10 +1,9 @@
 import { Observable } from 'rxjs';
-import { ComplexFeature, Feature } from '../../feature/state';
 import { ReflectFunction } from '../../reflector/state';
 import { Renderer } from '../../renderer/state';
 
-export interface GameEngineSink<S = any, K extends string = keyof S & string> {
-    runtime$: Observable<Feature<K> | ComplexFeature<K>>;
+export interface GameEngineSink<S = any> {
+    runtime$: Observable<S>;
     reflector$?: Observable<ReflectFunction>;
     renderer$?: Observable<Renderer<S>>;
 }

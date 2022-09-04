@@ -3,6 +3,4 @@ export interface Loading {
     message: string;
 }
 
-export interface LoadingState {
-    [key: string]: Loading;
-}
+export type LoadingState = Record<string, Loading>;

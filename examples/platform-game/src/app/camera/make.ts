@@ -19,7 +19,7 @@ export function makeFeatureCamera$(sources: WorkerSources) {
                     })
                 ),
                 sources.GameEngine.state$.pipe(
-                    filter((s) => s.shapes?.player),
+                    filter((s) => !!s.shapes?.player),
                     first(),
                     switchMap(({ shapes, camera }) => sources.GameEngine.update$.pipe(
                         tap((delta) => {

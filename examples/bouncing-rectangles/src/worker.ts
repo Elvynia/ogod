@@ -1,6 +1,6 @@
 import { makeGameBox2dDriver } from '@ogod/game-box2d-driver';
 import { isEngineActionCanvas } from '@ogod/game-core';
-import { makeFeatureObservable, makeGameEngineDriver, makeGameEngineOptions, makeRenderer } from '@ogod/game-engine-driver';
+import { makeFeatureObservable, makeGameEngineDriver, makeGameEngineOptions, makeRenderer, makeFeature$ } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import { delayWhen, distinctUntilKeyChanged, EMPTY, filter, first, map, merge, of, ReplaySubject, switchMap } from 'rxjs';
 import { makeFeatureFps } from './app/fps';
@@ -10,7 +10,7 @@ import { makeFeaturePlayer } from './app/player/make';
 import { makeReflector$ } from './app/reflector/make';
 import { makeRender } from './app/renderer/make';
 import { makeFeatureScreen } from './app/screen/make';
-import { AppActions, AppState, WorkerSources } from './app/state';
+import { AppAction, AppState, WorkerSources } from './app/state';
 
 declare var self: DedicatedWorkerGlobalScope;
 
@@ -20,7 +20,7 @@ function main(sources: WorkerSources) {
     );
     return {
         GameEngine: {
-            runtime$: merge(
+            runtime$: makeFeature$(merge(
                 of(makeFeatureFps(sources.GameEngine)),
                 of(makeFeatureObservable('paused', sources.GameEngine.actions.paused)),
                 canvas$.pipe(
@@ -35,7 +35,7 @@ function main(sources: WorkerSources) {
                         of(makeFeatureObjects(sources, state.screen))
                     ))
                 )
-            ),
+            )),
             reflector$: makeReflector$(sources),
             renderer$: canvas$.pipe(
                 delayWhen(() => sources.GameEngine.state$.pipe(
@@ -53,7 +53,7 @@ function main(sources: WorkerSources) {
     };
 }
 
-let options = makeGameEngineOptions<AppState, AppActions>(self, ['screen', 'objects', 'paused'], {
+let options = makeGameEngineOptions<AppState, AppAction>(self, ['screen', 'objects', 'paused'], {
     playerColor: new ReplaySubject<string>(1)
 });
 options.dispose = gameRun(main, {

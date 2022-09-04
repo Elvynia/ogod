@@ -1,17 +1,16 @@
-import { Feature } from '@ogod/game-core';
 import { makeFeatureObservable } from '@ogod/game-engine-driver';
-import { concat, first, map, of, range, switchMap, tap, timer, concatMap, delay } from 'rxjs';
+import { concat, concatMap, delay, first, map, of, range, switchMap, tap, timer } from 'rxjs';
 import { createNoise2D } from 'simplex-noise';
-import { LoadingState } from '../loading/state';
+import { Loading, LoadingState } from '../loading/state';
 import { makeCreatePlatform } from '../platform/make';
 import { WorkerSources } from '../state';
 import { MapState } from './state';
 
-export function makeFeatureLoadMap$(sources: WorkerSources): Feature<'loading', LoadingState> {
+export function makeFeatureLoadMap$(sources: WorkerSources) {
     const loading = {
         progress: 0,
         message: 'Generating map platforms !'
-    }
+    } as Loading;
     const noise = createNoise2D();
     return makeFeatureObservable('loading', concat(
         sources.GameEngine.state$.pipe(
@@ -41,6 +40,6 @@ export function makeFeatureLoadMap$(sources: WorkerSources): Feature<'loading', 
         of({ ...loading, progress: 1 }),
         timer(16).pipe(map(() => null))
     ).pipe(
-        map((l) => ({ map: l }))
-    ), { map: loading });
+        map((l) => ({ map: l } as LoadingState))
+    ), { map: loading } as LoadingState);
 }

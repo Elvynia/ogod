@@ -4,7 +4,7 @@ import { WorkerSources } from "../state";
 
 export function makeReflector$(sources: WorkerSources): Observable<ReflectFunction> {
     return sources.GameEngine.state$.pipe(
-        filter((state) => state.screen && state.player && state.objects),
+        filter((state) => state.screen && state.player && !!state.objects),
         first(),
         map(() => (state) => {
             const values = Object.values(state.objects || {});

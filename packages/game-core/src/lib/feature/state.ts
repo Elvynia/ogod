@@ -1,21 +1,17 @@
-import { mergeMap, Observable } from 'rxjs';
+import { merge, Observable } from 'rxjs';
 
-export interface Feature<K extends string = string, T = any> {
+export interface Feature<S = any, K extends keyof S = keyof S, T = S[K]> {
     key: K;
     value?: T;
     value$?: Observable<T>;
     remove?: boolean;
 }
 
-export interface ComplexFeature<K extends string = string> {
-    mapper: typeof mergeMap;
-    value$: Observable<Feature<K>[]>;
+export interface FeatureArray<S = any> {
+    values: Feature<S>[];
+    factory$: typeof merge;
 }
 
-export type FeatureState<K extends string> = {
-    [G in K]: any;
-}
-
-export function isComplexFeature(f: any): f is ComplexFeature {
-    return f.value$?.subscribe && f.mapper;
+export function isFeatureArray(f: any): f is FeatureArray {
+    return f.values && Array.isArray(f.values) && f.factory$ && typeof f.factory$ === 'function';
 }
