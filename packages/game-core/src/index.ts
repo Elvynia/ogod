@@ -8,5 +8,6 @@ export * from './lib/engine/state';
 export * from './lib/feature/state';
 export * from './lib/reflector/state';
 export * from './lib/renderer/state';
+export * from './lib/runtime/state';
 export * from './lib/worker/message/state';
 export * from './lib/worker/state';

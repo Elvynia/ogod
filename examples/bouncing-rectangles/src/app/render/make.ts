@@ -1,5 +1,8 @@
+import { isEngineActionCanvas, RenderState } from "@ogod/game-core";
+import { makeRuntime } from "@ogod/game-engine-driver";
+import { delayWhen, filter, first, map, Observable } from "rxjs";
 import { Rect } from "../rect";
-import { AppState } from "../state";
+import { AppState, WorkerSources } from "../state";
 
 function makeDrawRect(canvas, ctx: CanvasRenderingContext2D) {
     return (rect: Rect) => {
@@ -21,4 +24,15 @@ export const makeRender = (canvas: any) => {
         state.grounds.forEach(drawRect);
         drawRect(state.player);
     };
+}
+
+export function makeRender$(sources: WorkerSources): Observable<RenderState> {
+    return sources.GameEngine.actions.engine.pipe(
+        filter(isEngineActionCanvas),
+        delayWhen(() => sources.GameEngine.state$.pipe(
+            filter((state) => state.screen && state.player && !!state.objects),
+            first()
+        )),
+        map(({ payload }) => makeRuntime(makeRender(payload)))
+    );
 }

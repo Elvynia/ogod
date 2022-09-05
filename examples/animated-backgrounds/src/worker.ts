@@ -1,31 +1,28 @@
-import { isEngineActionCanvas } from '@ogod/game-core';
-import { makeFeature$, makeGameEngineDriver, makeGameEngineOptions, makeRenderer } from '@ogod/game-engine-driver';
+import { ReflectState } from '@ogod/game-core';
+import { makeFeature$, makeFeatureArray, makeGameEngineDriver, makeGameEngineOptions, makeRuntime } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import { gsap } from 'gsap';
-import { filter, map, merge, of } from 'rxjs';
+import { of } from 'rxjs';
 import { makeFeatureObjects } from './app/objects';
-import { makeRender } from './app/render';
+import { makeRender$ } from './app/render';
 import { makeFeatureScreen } from './app/screen';
-import { AppAction, AppState, WorkerSources } from './app/state';
+import { AppAction, AppState, WorkerSinks, WorkerSources } from './app/state';
 
 declare var self: DedicatedWorkerGlobalScope;
 
-function main(sources: WorkerSources) {
+function main(sources: WorkerSources): WorkerSinks {
     gsap.ticker.remove(gsap.updateRoot);
     sources.GameEngine.frame$.subscribe(({ elapsed }) => gsap.updateRoot(elapsed / 1000));
     return {
         GameEngine: {
-            runtime$: makeFeature$(merge(
-                of(makeFeatureScreen(sources.GameEngine)),
-                of(makeFeatureObjects(sources.GameEngine))
-            )),
-            reflector$: of((state) => ({
+            feature$: makeFeature$(of(makeFeatureArray([
+                makeFeatureScreen(sources.GameEngine),
+                makeFeatureObjects(sources.GameEngine)
+            ]))),
+            reflect$: of(makeRuntime<ReflectState>((state) => ({
                 objects: Object.keys(state.objects).length
-            })),
-            renderer$: sources.GameEngine.actions.engine.pipe(
-                filter(isEngineActionCanvas),
-                map(({ payload }) => makeRenderer(makeRender(payload)))
-            )
+            }))),
+            render$: makeRender$(sources)
         }
     };
 }

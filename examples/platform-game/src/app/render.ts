@@ -1,7 +1,10 @@
+import { isEngineActionCanvas, RenderState } from '@ogod/game-core';
+import { makeRuntime } from '@ogod/game-engine-driver';
+import { concat, delayWhen, filter, first, map, of, switchMap } from 'rxjs';
 import { Camera } from './camera/state';
 import { Shape } from "./shape/state";
 import { Sleet } from './sleet/state';
-import { AppState } from './state';
+import { AppState, WorkerSources } from './state';
 
 const PI2 = 2 * Math.PI;
 
@@ -56,4 +59,30 @@ export function makeRender(canvas: any) {
             Object.values(state.shapes).forEach((obj) => drawHandlers[obj.type](obj, state.camera));
         }
     };
+}
+
+export function makeRender$(sources: WorkerSources) {
+    return sources.GameEngine.actions.engine.pipe(
+        filter(isEngineActionCanvas),
+        switchMap(({ payload }) => {
+            const renderers = makeRender(payload);
+            return concat(
+                sources.GameEngine.state$.pipe(
+                    filter((s) => !!s.splash),
+                    first(),
+                    map(() => makeRuntime<RenderState>(renderers.splash, sources.GameEngine.state$.pipe(
+                        filter((state) => !state.splash),
+                        first()
+                    )))
+                ),
+                of(makeRuntime<RenderState>(renderers.play)).pipe(
+                    delayWhen(() => sources.GameEngine.state$.pipe(
+                        filter((state) => !!state.shapes),
+                        first()
+                    ))
+                )
+            );
+        }),
+
+    )
 }

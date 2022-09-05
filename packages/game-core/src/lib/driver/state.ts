@@ -2,9 +2,7 @@ import { Observable } from 'rxjs';
 
 export type Driver<SI, SO> = (sink$: Promise<SI>) => SO;
 
-export interface ObservableState {
-    [key: string]: Observable<any>;
-}
+export type ObservableState = Record<string, Observable<any>>;
 
 export type Sinks<SO> = {
     [K in keyof SO]: Observable<any> | ObservableState;

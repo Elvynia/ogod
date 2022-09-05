@@ -1,4 +1,4 @@
-import { GameEngineSource, GameEngineWorker, WorkerMessage } from '@ogod/game-core';
+import { GameEngineSink, GameEngineSource, GameEngineWorker, WorkerMessage } from '@ogod/game-core';
 import { Subject } from 'rxjs';
 import { BallState } from './ball';
 
@@ -25,4 +25,8 @@ export type AppAction = 'screen' | 'objects' | 'reset';
 
 export interface WorkerSources {
     GameEngine: GameEngineSource<AppState, AppAction>;
+}
+
+export interface WorkerSinks {
+    GameEngine: GameEngineSink<AppState, AppReflectState>;
 }

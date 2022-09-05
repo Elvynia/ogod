@@ -1,12 +1,12 @@
 import { makeGameBox2dDriver, makeGameBox2dOptions } from '@ogod/game-box2d-driver';
-import { isEngineActionCanvas } from '@ogod/game-core';
-import { makeFeature$, makeGameEngineDriver, makeGameEngineOptions, makeRenderer } from '@ogod/game-engine-driver';
+import { ReflectState } from '@ogod/game-core';
+import { makeFeature$, makeGameEngineDriver, makeGameEngineOptions, makeRuntime } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import gsap from 'gsap';
-import { concat, concatMap, delayWhen, filter, first, map, merge, of, switchMap } from "rxjs";
+import { concat, concatMap, merge, of } from "rxjs";
 import { makeFeatureCamera$ } from './app/camera/make';
 import { makeFeatureFps } from './app/fps';
-import { makeRender } from './app/render';
+import { makeRender$ } from './app/render';
 import { makeIntroScene } from './app/scenes/intro';
 import { makePlayScene } from './app/scenes/play';
 import { makeSplashScene } from './app/scenes/splash';
@@ -27,7 +27,7 @@ function main(sources: WorkerSources) {
     } as AppState;
     return {
         GameEngine: {
-            runtime$: merge(
+            feature$: merge(
                 makeFeature$(merge(
                     makeFeatureCamera$(sources),
                     of(makeFeatureFps(sources.GameEngine))
@@ -38,30 +38,8 @@ function main(sources: WorkerSources) {
                     of(makePlayScene(sources))
                 ), state, concatMap)
             ),
-            reflector$: of(({ fps, loading }) => ({ fps, loading } as AppReflectState)),
-            renderer$: sources.GameEngine.actions.engine.pipe(
-                filter(isEngineActionCanvas),
-                switchMap(({ payload }) => {
-                    const renderers = makeRender(payload);
-                    return concat(
-                        sources.GameEngine.state$.pipe(
-                            filter((s) => !!s.splash),
-                            first(),
-                            map(() => makeRenderer(renderers.splash, sources.GameEngine.state$.pipe(
-                                filter((state) => !state.splash),
-                                first()
-                            )))
-                        ),
-                        of(makeRenderer(renderers.play)).pipe(
-                            delayWhen(() => sources.GameEngine.state$.pipe(
-                                filter((state) => !!state.shapes),
-                                first()
-                            ))
-                        )
-                    );
-                }),
-
-            )
+            reflect$: of(makeRuntime<ReflectState>(({ fps, loading }) => ({ fps, loading } as AppReflectState))),
+            render$: makeRender$(sources)
         },
         World: sources.GameEngine.update$
     }

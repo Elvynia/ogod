@@ -3,7 +3,7 @@ import { gameRun } from '@ogod/game-run';
 import { makeEngineAction, makeGameEngineWorker, makeWorkerMessage } from '@ogod/game-worker-driver';
 import { combineLatest, concat, debounceTime, distinctUntilKeyChanged, filter, first, from, fromEvent, interval, map, merge, of, startWith, Subject, switchMap, take, takeUntil } from 'rxjs';
 import xs from 'xstream';
-import { ReflectState } from './app/reflector/state';
+import { ReflectState } from './app/reflect/state';
 import { makeScreen } from './app/screen/make';
 import { AppSources } from './app/state';
 

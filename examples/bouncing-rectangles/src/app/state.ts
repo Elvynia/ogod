@@ -3,7 +3,7 @@ import { GameBox2DSource } from '@ogod/game-box2d-driver';
 import { GameEngineSource, GameEngineWorker } from '@ogod/game-core';
 import { ObjectState } from './object/state';
 import { Rect } from './rect';
-import { ReflectState } from './reflector/state';
+import { ReflectState } from './reflect/state';
 import { Screen } from './screen/state';
 
 export interface AppSources {

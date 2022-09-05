@@ -1,4 +1,7 @@
-import { AppState } from './state';
+import { isEngineActionCanvas, RenderState } from '@ogod/game-core';
+import { makeRuntime } from '@ogod/game-engine-driver';
+import { filter, map, Observable } from 'rxjs';
+import { AppState, WorkerSources } from './state';
 
 export type Shape = 'circle' | 'rect';
 export const shapes: Shape[] = ['circle', 'rect'];
@@ -33,4 +36,11 @@ export function makeRender(canvas: any) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         Object.values(state.objects).forEach((obj) => drawHandlers[obj.shape](obj));
     };
+}
+
+export function makeRender$(sources: WorkerSources): Observable<RenderState> {
+    return sources.GameEngine.actions.engine.pipe(
+        filter(isEngineActionCanvas),
+        map(({ payload }) => makeRuntime(makeRender(payload)))
+    );
 }

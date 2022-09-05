@@ -1,5 +1,5 @@
 import { ActionState, EngineAction, GameEngineOptions } from '@ogod/game-core';
-import { ReplaySubject, Subject } from 'rxjs';
+import { concatMap, ReplaySubject, Subject } from 'rxjs';
 
 export function makeGameEngineOptions<S = any, A extends string = any, AS extends ActionState<A> = ActionState<A>>(
     workerContext?: DedicatedWorkerGlobalScope, keys: Array<A> = [],
@@ -15,6 +15,8 @@ export function makeGameEngineOptions<S = any, A extends string = any, AS extend
     return {
         actionHandlers,
         state$: new ReplaySubject<S>(1),
-        workerContext
+        workerContext,
+        reflectMapper: concatMap,
+        renderMapper: concatMap
     }
 }

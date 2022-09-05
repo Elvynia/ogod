@@ -1,12 +1,13 @@
-import { ReflectFunction } from "@ogod/game-core";
+import { ReflectState } from "@ogod/game-core";
+import { makeRuntime } from "@ogod/game-engine-driver";
 import { filter, first, map, Observable } from "rxjs";
 import { WorkerSources } from "../state";
 
-export function makeReflector$(sources: WorkerSources): Observable<ReflectFunction> {
+export function makeReflect$(sources: WorkerSources): Observable<ReflectState> {
     return sources.GameEngine.state$.pipe(
         filter((state) => state.screen && state.player && !!state.objects),
         first(),
-        map(() => (state) => {
+        map(() => makeRuntime((state) => {
             const values = Object.values(state.objects || {});
             return {
                 fps: state.fps,
@@ -21,6 +22,6 @@ export function makeReflector$(sources: WorkerSources): Observable<ReflectFuncti
                     angle: -body.GetAngle()
                 }))
             };
-        })
+        }))
     )
 }

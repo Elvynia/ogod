@@ -1,5 +1,5 @@
 import { ActionState, GameEngineDriver, GameEngineOptions, GameEngineSink, GameEngineSource } from '@ogod/game-core';
-import { animationFrames, buffer, concatMap, filter, last, map, pairwise, share, switchMap, takeUntil, withLatestFrom } from "rxjs";
+import { animationFrames, buffer, concatMap, filter, last, map, pairwise, share, takeUntil, withLatestFrom } from "rxjs";
 import { makeEngineActionHandlers } from '../action/make';
 import { makeGameEngineOptions } from '../options/make';
 
@@ -13,32 +13,40 @@ export function makeGameEngineDriver<S = any, A extends string = any, AS extends
         map(([prev, cur]) => cur.elapsed - prev.elapsed),
         share()
     );
-    return (sink$: Promise<GameEngineSink>): GameEngineSource<S, A, AS> => {
+    return (sink$: Promise<GameEngineSink<S>>): GameEngineSource<S, A, AS> => {
         console.debug('[GameEngine] Created');
         sink$.then((sink) => {
             console.debug('[GameEngine] Initialized');
-            sink.runtime$.pipe(
+            sink.feature$.pipe(
                 takeUntil(state$.pipe(last()))
             ).subscribe(state$);
-            if (sink.reflector$) {
-                sink.reflector$.pipe(
-                    switchMap((reflectHandler) => state$.pipe(
-                        buffer(update$),
-                        map((states) => states.pop()),
-                        filter((state) => !!state),
-                        map((state: any) => reflectHandler!(state))
-                    ))
+            if (sink.reflect$) {
+                sink.reflect$.pipe(
+                    options.reflectMapper((reflect) => {
+                        let source = state$.pipe(
+                            buffer(update$),
+                            map((states) => states.pop()),
+                            filter((state) => !!state),
+                            map((state: any) => reflect.value!(state))
+                        );
+                        if (reflect.takeUntil$) {
+                            source = source.pipe(
+                                takeUntil(reflect.takeUntil$)
+                            )
+                        }
+                        return source;
+                    })
                 ).subscribe((state) => options.workerContext!.postMessage(state));
             }
-            if (sink.renderer$) {
-                sink.renderer$.pipe(
-                    concatMap((renderer) => {
+            if (sink.render$) {
+                sink.render$.pipe(
+                    options.renderMapper((render) => {
                         let source = sources.render$.pipe(
-                            map((args: any[]) => [...args, renderer.render])
+                            map((args: any[]) => [...args, render.value])
                         );
-                        if (renderer.observable) {
+                        if (render.takeUntil$) {
                             source = source.pipe(
-                                takeUntil(renderer.observable)
+                                takeUntil(render.takeUntil$)
                             );
                         }
                         return source;
