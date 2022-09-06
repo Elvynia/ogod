@@ -3,7 +3,7 @@ import { ReflectState } from '@ogod/game-core';
 import { makeFeature$, makeGameEngineDriver, makeGameEngineOptions, makeRuntime } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import gsap from 'gsap';
-import { concat, concatMap, merge, of } from "rxjs";
+import { concat, concatMap, filter, first, merge, of, switchMap } from "rxjs";
 import { makeFeatureCamera$ } from './app/camera/make';
 import { makeFeatureFps } from './app/fps';
 import { makeRender$ } from './app/render';
@@ -43,7 +43,11 @@ function main(sources: WorkerSources) {
             reflect$: of(makeRuntime<ReflectState>(({ fps, loading, loaded }) => ({ fps, loading, loaded } as AppReflectState))),
             render$: makeRender$(sources)
         },
-        World: sources.GameEngine.update$
+        World: sources.GameEngine.state$.pipe(
+            filter((s) => s.start),
+            first(),
+            switchMap(() => sources.GameEngine.update$)
+        )
     }
 }
 

@@ -12,7 +12,7 @@ export function makePlayer(world: b2World, scale: number): Player {
         id: PlayerId,
         type: 'rect',
         x: 400,
-        y: 300,
+        y: 325,
         width,
         height,
         bodyType: b2BodyType.b2_dynamicBody,
