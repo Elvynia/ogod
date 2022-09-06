@@ -1,5 +1,6 @@
 import { b2BodyType, b2PolygonShape, b2World } from "@box2d/core";
 import { GameEngineSource } from "@ogod/game-core";
+import { makeFeatureObservable } from '@ogod/game-engine-driver';
 import { distinctUntilKeyChanged, filter, first, ignoreElements, map, merge, Observable, of, startWith, switchMap, tap } from "rxjs";
 import { makePlayer, makePlayerUpdate$ } from "../player/make";
 import { WorkerSources } from "../state";
@@ -32,13 +33,13 @@ export function makeShape<R extends Shape = Shape, T extends Omit<R, 'body'> = O
     };
 }
 
-export function makeShapeUpdate$(engine: GameEngineSource) {
-    return engine.state$.pipe(
+export function makeShapeUpdate$(sources: WorkerSources) {
+    return sources.GameEngine.state$.pipe(
         distinctUntilKeyChanged('shapes'),
         switchMap((state) => {
             const shapes = Object.values(state.shapes)
                 .filter((s: any) => s.bodyType === b2BodyType.b2_dynamicBody);
-            return engine.update$.pipe(
+            return sources.GameEngine.update$.pipe(
                 tap(() => {
                     shapes.forEach((shape: any) => {
                         shape.x = Math.round(shape.body.GetPosition().x * state.gmap.scale);
@@ -51,21 +52,20 @@ export function makeShapeUpdate$(engine: GameEngineSource) {
     )
 }
 
-export function makeShapes$(sources: WorkerSources): Observable<Shapes> {
-    return sources.GameEngine.state$.pipe(
+export function makeFeaturePrepareShapes$(sources: WorkerSources) {
+    return makeFeatureObservable('shapes', sources.GameEngine.state$.pipe(
         filter((state: any) => !!state.gmap),
         map((state: any) => state.gmap.scale),
         first(),
-        switchMap((scale) => {
-            const player = makePlayer(sources.World.instance, scale);
-            return merge(
-                of({
-                    player
-                } as Shapes),
-                makeShapeUpdate$(sources.GameEngine),
-                makePlayerUpdate$(sources)
-            )
-        }),
-        startWith({} as Shapes)
-    );
+        map((scale) => ({
+            player: makePlayer(sources.World.instance, scale)
+        }))
+    ), undefined, false);
+}
+
+export function makeFeatureUpdateShapes(sources: WorkerSources) {
+    return makeFeatureObservable('shapes', merge(
+        makeShapeUpdate$(sources),
+        makePlayerUpdate$(sources)
+    ));
 }

@@ -1,7 +1,7 @@
-import { canvas, div, h3, makeDOMDriver } from '@cycle/dom';
+import { canvas, div, h, h3, makeDOMDriver } from '@cycle/dom';
 import { gameRun } from '@ogod/game-run';
 import { makeEngineAction, makeGameEngineWorker, makeWorkerMessage } from '@ogod/game-worker-driver';
-import { combineLatest, concatWith, distinctUntilChanged, distinctUntilKeyChanged, endWith, filter, first, from, fromEvent, map, merge, of, repeat, startWith, Subject, switchMap, takeWhile, tap, throttleTime } from 'rxjs';
+import { combineLatest, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, map, merge, Observable, of, startWith, Subject, switchMap, throttleTime } from 'rxjs';
 import xs from 'xstream';
 import { makeControls$ } from './app/controls/make';
 import { AppReflectState, AppSources } from "./app/state";
@@ -35,23 +35,43 @@ function main(sources: AppSources) {
                         }
                     }))
                 ))
+            ),
+            from(sources.DOM.select('#start').events('click') as any as Observable<MouseEvent>).pipe(
+                map((e) => {
+                    (e.target as any).remove();
+                    return makeWorkerMessage({
+                        key: 'start',
+                        value: true
+                    });
+                })
             )
         ),
         DOM: combineLatest([
             of(canvas({ attrs: { id: 'game', tabindex: 0 } })),
-            sources.GameWorker.input$.pipe(
-                map((state) => !!state.loading),
-                startWith(false),
-                distinctUntilChanged(),
-                switchMap((shouldLoad) => shouldLoad ? sources.GameWorker.input$.pipe(
-                    map((state) => Object.values(state.loading)),
-                    filter((loadings) => loadings.length > 0),
-                    map((loadings) => loadings.map((l) => div({
-                        class: {
-                            loading: true
-                        },
-                    }, [l.message])))
-                ) : of([]))
+            merge(
+                sources.GameWorker.input$.pipe(
+                    map((state) => !!state.loading),
+                    startWith(false),
+                    distinctUntilChanged(),
+                    switchMap((shouldLoad) => shouldLoad ? sources.GameWorker.input$.pipe(
+                        map((state) => Object.values(state.loading)),
+                        filter((loadings) => loadings.length > 0),
+                        map((loadings) => loadings.map((l) => div({
+                            class: {
+                                loading: true
+                            },
+                        }, [l.message])))
+                    ) : of([]))
+                ),
+                sources.GameWorker.input$.pipe(
+                    filter((s) => s.loaded),
+                    first(),
+                    map(() => [h('div', {
+                        props: {
+                            id: 'start'
+                        }
+                    }, 'START')])
+                )
             ),
             sources.GameWorker.input$.pipe(
                 distinctUntilKeyChanged('fps'),
@@ -60,12 +80,12 @@ function main(sources: AppSources) {
                 map((fps) => h3('FPS: ' + fps)),
             )
         ]).pipe(
-            map(([canvas, loadings, fps]) => div([
+            map(([canvas, uis, fps]) => div([
                 div({
                     attrs: {
                         id: 'wrapper'
                     }
-                }, [canvas, ...loadings]),
+                }, [canvas, ...uis]),
                 fps
             ]))
         )

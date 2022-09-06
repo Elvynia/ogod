@@ -7,12 +7,18 @@ body {
     position: relative;
 }
 
+#start {
+    font-size: 3rem;
+    color: #1C9C3C;
+    cursor: pointer;
+}
+
 canvas {
     width: 100%;
     height: auto;
 }
 
-.loading {
+.loading, #start {
     position: absolute;
     left: 50%;
     top: 50%;

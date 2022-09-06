@@ -77,7 +77,7 @@ export function makeRender$(sources: WorkerSources) {
                 ),
                 of(makeRuntime<RenderState>(renderers.play)).pipe(
                     delayWhen(() => sources.GameEngine.state$.pipe(
-                        filter((state) => !!state.shapes),
+                        filter((state) => state.start),
                         first()
                     ))
                 )

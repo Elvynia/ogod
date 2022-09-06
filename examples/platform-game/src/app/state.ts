@@ -11,6 +11,7 @@ import { Sleet } from './sleet/state';
 export interface AppReflectState {
     fps: number;
     loading: LoadingState;
+    loaded: boolean;
 }
 
 export interface AppSources {
@@ -28,9 +29,11 @@ export interface AppState {
     controls: Controls<any>;
     gmap: MapState;
     loading?: LoadingState;
+    loaded?: boolean;
+    start?: boolean;
 }
 
-export type AppAction = 'camera' | 'controls';
+export type AppAction = 'camera' | 'controls' | 'start';
 
 export interface WorkerSources {
     GameEngine: GameEngineSource<AppState, AppAction>;

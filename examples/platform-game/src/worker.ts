@@ -10,6 +10,7 @@ import { makeRender$ } from './app/render';
 import { makeIntroScene } from './app/scenes/intro';
 import { makePlayScene } from './app/scenes/play';
 import { makeSplashScene } from './app/scenes/splash';
+import { makeSceneStart } from './app/scenes/start';
 import { AppAction, AppReflectState, AppState, WorkerSources } from './app/state';
 
 declare var self: DedicatedWorkerGlobalScope;
@@ -35,17 +36,18 @@ function main(sources: WorkerSources) {
                 makeFeature$(concat(
                     of(makeSplashScene(sources)),
                     of(makeIntroScene(sources)),
+                    of(makeSceneStart(sources)),
                     of(makePlayScene(sources))
                 ), state, concatMap)
             ),
-            reflect$: of(makeRuntime<ReflectState>(({ fps, loading }) => ({ fps, loading } as AppReflectState))),
+            reflect$: of(makeRuntime<ReflectState>(({ fps, loading, loaded }) => ({ fps, loading, loaded } as AppReflectState))),
             render$: makeRender$(sources)
         },
         World: sources.GameEngine.update$
     }
 }
 
-let options = makeGameEngineOptions<AppState, AppAction>(self, ['camera', 'controls']);
+let options = makeGameEngineOptions<AppState, AppAction>(self, ['camera', 'controls', 'start']);
 options.dispose = gameRun(main, {
     GameEngine: makeGameEngineDriver(options),
     World: makeGameBox2dDriver(makeGameBox2dOptions({ x: 0, y: -10 }))
