@@ -21,13 +21,17 @@ export function makeFeatureCamera$(sources: WorkerSources) {
                 sources.GameEngine.state$.pipe(
                     filter((s) => !!s.shapes?.player),
                     first(),
-                    switchMap(({ shapes, camera }) => sources.GameEngine.update$.pipe(
-                        tap((delta) => {
-                            camera.x = Math.max(0, shapes.player.x - camera.width / 2);
-                            camera.y = Math.max(0, shapes.player.y - camera.height / 2);
-                        }),
-                        ignoreElements()
-                    ))
+                    switchMap(({ shapes, camera, gmap }) => {
+                        const minY = -gmap.height * gmap.mapScale / 2;
+                        const maxX = gmap.width * gmap.mapScale - camera.width;
+                        return sources.GameEngine.update$.pipe(
+                            tap((delta) => {
+                                camera.x = Math.min(maxX, Math.max(0, shapes.player.x - camera.width / 2));
+                                camera.y = Math.min(-minY, Math.max(minY, shapes.player.y - camera.height / 2));
+                            }),
+                            ignoreElements()
+                        )
+                    })
                 )
             ), camera)
         })

@@ -18,7 +18,7 @@ export function makeBackground(ctx: CanvasRenderingContext2D, rect: Omit<Backgro
 
 export function makeFeatureBackgroundCreate() {
     const background = {
-        colors: chroma.scale(['#fafa6e','#2A4858', '#c94843', '#2d8daf', '#8effff'])
+        colors: chroma.scale(['#fafa6e', '#2A4858', '#c94843', '#2d8daf', '#8effff'])
             .mode('lch').colors(20),
         gradients: []
     } as Background;
@@ -41,7 +41,8 @@ export function makeFeatureBackgroundUpdate(sources: WorkerSources) {
                     const posStart = colorStart * colorWidth;
                     let colors = [];
                     while (colors.length * colorWidth <= ctx.canvas.width + 2 * colorWidth) {
-                        colors.push(background.colors[colorStart + colors.length]);
+                        const index = colorStart + colors.length;
+                        colors.push(background.colors[index >= background.colors.length ? background.colors.length - 1 : index]);
                     }
                     const x1 = posStart - state.camera.x;
                     background.gradients = [makeBackground(ctx, {

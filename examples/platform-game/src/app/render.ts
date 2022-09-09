@@ -86,14 +86,14 @@ export function makeRender$(sources: WorkerSources) {
                         first()
                     )))
                 ),
-                // sources.GameEngine.state$.pipe(
-                //     filter((s) => s.loaded && !s.splash),
-                //     first(),
-                //     map(() => makeRuntime<RenderState>(renderers.start, sources.GameEngine.state$.pipe(
-                //         filter((s) => s.start),
-                //         first()
-                //     )))
-                // ),
+                sources.GameEngine.state$.pipe(
+                    filter((s) => s.loaded && !s.splash),
+                    first(),
+                    map(() => makeRuntime<RenderState>(renderers.start, sources.GameEngine.state$.pipe(
+                        filter((s) => s.start),
+                        first()
+                    )))
+                ),
                 of(makeRuntime<RenderState>(renderers.play)).pipe(
                     delayWhen(() => sources.GameEngine.state$.pipe(
                         filter((s) => s.start),
