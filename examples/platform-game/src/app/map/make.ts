@@ -25,7 +25,7 @@ export function makeFeatureLoadMap$(sources: WorkerSources) {
                             while (y < gmap.height) {
                                 const value = noise(x, y);
                                 if (value > 0) {
-                                    const p = makePlatform(x * 100, y * 100, 100, 10);
+                                    const p = makePlatform(x * gmap.mapScale, y * gmap.mapScale, 100, 10);
                                     gmap.platforms[p.id] = p;
                                 }
                                 ++y;

@@ -5,4 +5,5 @@ export interface MapState {
     width: number;
     height: number;
     scale: number;
+    mapScale: number;
 }

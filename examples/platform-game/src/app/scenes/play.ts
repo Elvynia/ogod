@@ -5,7 +5,7 @@ import { makeFeatureUpdateShapes } from '../shape/make';
 import { AppState, WorkerSources } from '../state';
 
 export function makePlayScene(sources: WorkerSources) {
-    return makeFeatureArray<Pick<AppState, 'controls' | 'shapes'>>([
+    return makeFeatureArray<Pick<AppState, 'controls' | 'shapes' | 'background'>>([
         makeFeatureObservable('controls', sources.GameEngine.actions.controls as Observable<Controls>, {} as Controls),
         makeFeatureUpdateShapes(sources)
     ]);

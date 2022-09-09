@@ -53,8 +53,19 @@ export function makeRender(canvas: any) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             Object.values(state.splash).forEach((obj) => drawHandlers['svg'](obj));
         },
+        start: (delta: number, state: AppState) => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            Object.values(state.background.gradients).forEach((g) => {
+                ctx.fillStyle = g.color;
+                ctx.fillRect(g.x, g.y, g.width, g.height);
+            });
+        },
         play: (delta: number, state: AppState) => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            Object.values(state.background.gradients).forEach((g) => {
+                ctx.fillStyle = g.color;
+                ctx.fillRect(g.x, g.y, g.width, g.height);
+            });
             Object.values(state.gmap.platforms).forEach((obj) => drawHandlers[obj.type](obj, state.camera));
             Object.values(state.shapes).forEach((obj) => drawHandlers[obj.type](obj, state.camera));
         }
@@ -75,9 +86,17 @@ export function makeRender$(sources: WorkerSources) {
                         first()
                     )))
                 ),
+                // sources.GameEngine.state$.pipe(
+                //     filter((s) => s.loaded && !s.splash),
+                //     first(),
+                //     map(() => makeRuntime<RenderState>(renderers.start, sources.GameEngine.state$.pipe(
+                //         filter((s) => s.start),
+                //         first()
+                //     )))
+                // ),
                 of(makeRuntime<RenderState>(renderers.play)).pipe(
                     delayWhen(() => sources.GameEngine.state$.pipe(
-                        filter((state) => state.start),
+                        filter((s) => s.start),
                         first()
                     ))
                 )

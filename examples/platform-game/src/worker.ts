@@ -4,6 +4,7 @@ import { makeFeature$, makeGameEngineDriver, makeGameEngineOptions, makeRuntime 
 import { gameRun } from '@ogod/game-run';
 import gsap from 'gsap';
 import { concat, concatMap, filter, first, merge, of, switchMap } from "rxjs";
+import { makeFeatureBackgroundUpdate } from './app/background/make';
 import { makeFeatureCamera$ } from './app/camera/make';
 import { makeFeatureFps } from './app/fps';
 import { makeRender$ } from './app/render';
@@ -21,9 +22,10 @@ function main(sources: WorkerSources) {
     const state = {
         gmap: {
             platforms: {},
-            width: 20,
+            width: 50,
             height: 5,
-            scale: 10
+            scale: 10,
+            mapScale: 100
         }
     } as AppState;
     return {
@@ -31,7 +33,8 @@ function main(sources: WorkerSources) {
             feature$: merge(
                 makeFeature$(merge(
                     makeFeatureCamera$(sources),
-                    of(makeFeatureFps(sources.GameEngine))
+                    of(makeFeatureFps(sources.GameEngine)),
+                    of(makeFeatureBackgroundUpdate(sources))
                 ), state),
                 makeFeature$(concat(
                     of(makeSplashScene(sources)),

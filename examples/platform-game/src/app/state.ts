@@ -1,6 +1,7 @@
 import { MainDOMSource } from '@cycle/dom';
 import { GameBox2DSource } from '@ogod/game-box2d-driver';
 import { GameEngineSource, GameEngineWorker } from '@ogod/game-core';
+import { Background } from './background/state';
 import { Camera } from './camera/state';
 import { Controls } from './controls/state';
 import { LoadingState } from './loading/state';
@@ -20,6 +21,7 @@ export interface AppSources {
 }
 
 export interface AppState {
+    background: Background;
     splash: {
         [id: string]: Sleet;
     };
