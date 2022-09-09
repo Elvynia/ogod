@@ -23,8 +23,8 @@ export function makeFeatureCamera$(sources: WorkerSources) {
                     first(),
                     switchMap(({ shapes, camera }) => sources.GameEngine.update$.pipe(
                         tap((delta) => {
-                            camera.x = shapes.player.x - camera.width / 2;
-                            camera.y = shapes.player.y - camera.height / 2;
+                            camera.x = Math.max(0, shapes.player.x - camera.width / 2);
+                            camera.y = Math.max(0, shapes.player.y - camera.height / 2);
                         }),
                         ignoreElements()
                     ))

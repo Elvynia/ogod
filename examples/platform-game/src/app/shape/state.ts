@@ -3,6 +3,7 @@ import { Player } from "../player/state";
 
 export interface Shape {
     angle?: number;
+    fixedRotation?: boolean;
     bodyType: b2BodyType;
     body: b2Body;
     density?: number;

@@ -1,11 +1,10 @@
 import { b2BodyType, b2PolygonShape, b2World } from "@box2d/core";
-import { GameEngineSource } from "@ogod/game-core";
 import { makeFeatureObservable } from '@ogod/game-engine-driver';
-import { distinctUntilKeyChanged, filter, first, ignoreElements, map, merge, Observable, of, startWith, switchMap, tap } from "rxjs";
+import { distinctUntilKeyChanged, filter, first, ignoreElements, map, merge, switchMap, tap } from "rxjs";
 import { makePlayer, makePlayerUpdate$ } from "../player/make";
 import { WorkerSources } from "../state";
 import { randNum } from "../util";
-import { Shape, Shapes } from "./state";
+import { Shape } from "./state";
 
 export function makeShape<R extends Shape = Shape, T extends Omit<R, 'body'> = Omit<R, 'body'>>(
     shape: T, world: b2World, scale: number): T & Pick<Shape, 'body'> {
@@ -19,6 +18,7 @@ export function makeShape<R extends Shape = Shape, T extends Omit<R, 'body'> = O
         },
         type: shape.bodyType,
         angle: shape.angle,
+        fixedRotation: shape.fixedRotation || false,
         userData: id
     });
     const fix = body.CreateFixture({

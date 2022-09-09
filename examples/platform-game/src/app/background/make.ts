@@ -1,11 +1,11 @@
 import { makeFeatureConstant, makeFeatureObservable } from '@ogod/game-engine-driver';
 import { filter, first, ignoreElements, switchMap, tap } from 'rxjs';
 import { WorkerSources } from "../state";
-import { BackgroundGradient } from '../util';
-import { Background } from './state';
+import { Background, BackgroundGradient } from './state';
+import chroma from 'chroma-js';
 
 export function makeBackground(ctx: CanvasRenderingContext2D, rect: Omit<BackgroundGradient, 'color'>, colors: string[]) {
-    const color = ctx.createLinearGradient(rect.x, rect.y, rect.x + rect.width, rect.y);
+    const color = ctx.createLinearGradient(rect.x1, rect.y1, rect.x2, rect.y2);
     colors.forEach((c, i) => {
         let pos = i === 0 ? 0 : (i === colors.length - 1 ? 1 : i / colors.length);
         color.addColorStop(pos, c);
@@ -18,9 +18,8 @@ export function makeBackground(ctx: CanvasRenderingContext2D, rect: Omit<Backgro
 
 export function makeFeatureBackgroundCreate() {
     const background = {
-        colors: ['#c94843', '#b8504f', '#a6575b', '#955f67', '#846773', '#726e7f',
-            '#61768b', '#4f7e97', '#3e85a3', '#2d8daf', '#2a97b9', '#35a2c1', '#40aec8',
-            '#4bbad0', '#56c5d8', '#61d1e0', '#6ddce8', '#78e8ef', '#83f3f7', '#8effff'],
+        colors: chroma.scale(['#fafa6e','#2A4858', '#c94843', '#2d8daf', '#8effff'])
+            .mode('lch').colors(20),
         gradients: []
     } as Background;
     return makeFeatureConstant('background', background);
@@ -38,17 +37,21 @@ export function makeFeatureBackgroundUpdate(sources: WorkerSources) {
                 filter(() => state.camera.x !== background.lastPos),
                 tap(() => {
                     background.lastPos = state.camera.x;
-                    const colorStart = state.camera.x > 0 ? Math.floor(state.camera.x / colorWidth) : 0;
+                    const colorStart = Math.floor(state.camera.x / colorWidth);
                     const posStart = colorStart * colorWidth;
                     let colors = [];
-                    while (colors.length * colorWidth <= state.camera.x - posStart + ctx.canvas.width) {
+                    while (colors.length * colorWidth <= ctx.canvas.width + 2 * colorWidth) {
                         colors.push(background.colors[colorStart + colors.length]);
                     }
-                    const x = posStart - state.camera.x;
+                    const x1 = posStart - state.camera.x;
                     background.gradients = [makeBackground(ctx, {
-                        x,
+                        x: 0,
                         y: 0,
-                        width: colors.length * colorWidth,
+                        x1,
+                        y1: 0,
+                        x2: x1 + colors.length * colorWidth,
+                        y2: 0,
+                        width: ctx.canvas.width,
                         height: ctx.canvas.height
                     }, colors)];
                 }),

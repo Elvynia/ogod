@@ -11,14 +11,15 @@ export function makePlayer(world: b2World, scale: number): Player {
         color: '#A1FFA1',
         id: PlayerId,
         type: 'rect',
-        x: 400,
+        x: 800,
         y: 325,
         width,
         height,
         bodyType: b2BodyType.b2_dynamicBody,
         density: 50,
         grounded: 0,
-        jumping: false
+        jumping: false,
+        fixedRotation: true
     }, world, scale);
     const feetShape = new b2PolygonShape().SetAsBox(0.2, 0.2, { x: 0, y: -1.5 });
     player.body.CreateFixture({
