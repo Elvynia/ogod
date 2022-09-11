@@ -1,4 +1,4 @@
-import { Feature, FeatureArray, FeatureFactoryFunction, FeatureMapperFunction, isFeatureArray } from '@ogod/game-core';
+import { AnyFeature, Feature, FeatureArray, FeatureFactoryFunction, FeatureMapperFunction, isFeatureArray } from '@ogod/game-core';
 import { concat, map, merge, mergeMap, Observable, of, shareReplay, startWith, tap } from 'rxjs';
 
 export function makeFeatureConstant<S = any, K extends keyof S = keyof S, T = S[K]>(key: K, value: T): Feature<S, K, T> {
@@ -18,7 +18,7 @@ export function makeFeatureObservable<S = any, K extends keyof S = keyof S, T = 
     }
 }
 
-export function makeFeatureArray<S>(values: Feature<S>[], factory$: FeatureFactoryFunction<Feature<S>[]> = merge): FeatureArray<S> {
+export function makeFeatureArray<S>(values: Array<AnyFeature<S>>, factory$: FeatureFactoryFunction<Feature<S>[]> = merge): FeatureArray<S> {
     return {
         values,
         factory$
@@ -56,22 +56,24 @@ export function makeFeatureBasic$<S>(feature: Feature<S>, state: S): Observable<
     return f$;
 }
 
-export function makeFeatureArray$<S>(feature: FeatureArray<S>, state: S): Observable<S> {
-    return feature.factory$(...feature.values.map((f) => makeFeatureBasic$(f, state)));
+export function registerFeature<S>(feature: AnyFeature, state: S): Observable<S> {
+    let f$: Observable<S>;
+    if (isFeatureArray(feature)) {
+        f$ = makeFeatureArray$(feature, state);
+    } else {
+        f$ = makeFeatureBasic$(feature as Feature<S>, state);
+    }
+    return f$;
 }
 
-export function makeFeature$<S = any, F = Feature<S> | FeatureArray<S>>(feature$: Observable<F>,
-    state: S = {} as S, mapper: FeatureMapperFunction<F> = mergeMap): Observable<S> {
+export function makeFeatureArray$<S>(feature: FeatureArray<S>, state: S): Observable<S> {
+    return feature.factory$(...feature.values.map((f) => registerFeature(f, state)));
+}
+
+export function makeFeature$<S = any>(
+    feature$: Observable<AnyFeature<S>>, state: S = {} as S, mapper: FeatureMapperFunction<AnyFeature<S>> = mergeMap): Observable<S> {
     return feature$.pipe(
-        mapper((feature) => {
-            let f$: Observable<S>;
-            if (isFeatureArray(feature)) {
-                f$ = makeFeatureArray$(feature, state);
-            } else {
-                f$ = makeFeatureBasic$(feature as Feature<S>, state);
-            }
-            return f$;
-        }),
+        mapper((feature) => registerFeature(feature, state)),
         shareReplay(1)
     )
 }

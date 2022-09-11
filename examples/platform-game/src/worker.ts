@@ -3,15 +3,13 @@ import { ReflectState } from '@ogod/game-core';
 import { makeFeature$, makeFeatureObservable, makeGameEngineDriver, makeGameEngineOptions, makeRuntime, makeUpdateRuntime$ } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import gsap from 'gsap';
-import { concat, concatMap, distinctUntilChanged, EMPTY, filter, first, map, merge, of, switchMap, tap } from "rxjs";
+import { concat, concatMap, distinctUntilChanged, EMPTY, filter, first, map, merge, of, switchMap } from "rxjs";
 import { makeFeatureBackgroundColors, makeFeatureBackgroundUpdate } from './app/background/make';
 import { makeFeatureCamera$ } from './app/camera/make';
 import { makeFeatureFps } from './app/fps';
+import { makeLevel$ } from './app/level/make';
 import { makeRender$ } from './app/render';
-import { makeIntroScene } from './app/scenes/intro';
-import { makePlayScene } from './app/scenes/play';
-import { makeSplashScene } from './app/scenes/splash';
-import { makeSceneStart } from './app/scenes/start';
+import { makeSceneSplash } from './app/scenes/splash';
 import { AppAction, AppReflectState, AppState, WorkerSources } from './app/state';
 
 declare var self: DedicatedWorkerGlobalScope;
@@ -26,9 +24,13 @@ function main(sources: WorkerSources) {
             height: 5,
             gravity: -10,
             scale: 10,
-            mapScale: 100
+            mapScale: 100,
+            level: 0
         },
-        fps: 0
+        fps: 0,
+        initialized: false,
+        loaded: false,
+        start: false
     } as AppState;
     return {
         GameEngine: {
@@ -41,14 +43,12 @@ function main(sources: WorkerSources) {
                     of(makeFeatureBackgroundUpdate(sources))
                 ), state),
                 makeFeature$(concat(
-                    of(makeSplashScene(sources)),
-                    of(makeIntroScene(sources)),
-                    of(makeSceneStart(sources)),
-                    of(makePlayScene(sources))
+                    of(makeSceneSplash(sources)),
+                    makeLevel$(sources)
                 ), state, concatMap)
             ),
-            reflect$: of(makeRuntime<ReflectState<AppState, AppReflectState>>(({ fps, loading, loaded, paused, gmap }) =>
-                ({ fps, loading, loaded, paused, gravity: gmap.gravity }))),
+            reflect$: of(makeRuntime<ReflectState<AppState, AppReflectState>>(({ fps, loading, loaded, paused, gmap, initialized }) =>
+                ({ fps, loading, loaded, paused, gravity: gmap.gravity, level: gmap.level, initialized }))),
             render$: makeRender$(sources),
             update$: sources.GameEngine.state$.pipe(
                 map((s) => s.paused),

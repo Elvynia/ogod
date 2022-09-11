@@ -25,13 +25,20 @@ canvas {
     transform: translate(-50%, -50%);
 }
 
-#fps {
+#fps, #level {
     position: absolute;
     top: 0.25rem;
+}
+
+#fps {
     right: 1rem;
 }
 
-#start, #fps {
+#level {
+    right: calc(1rem + 100px);
+}
+
+#start, #fps, #level {
     color: white;
     background: rgba(0, 0, 0, 0.65);
     padding: 0.5rem 1rem;

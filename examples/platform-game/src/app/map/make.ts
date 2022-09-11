@@ -6,7 +6,7 @@ import { makeCreatePlatform } from '../platform/make';
 import { WorkerSources } from '../state';
 import { MapState } from './state';
 
-export function makeFeatureLoadMap$(sources: WorkerSources) {
+export function makeFeatureLoadMap(sources: WorkerSources) {
     const loading = {
         progress: 0,
         message: 'Generating map platforms !'

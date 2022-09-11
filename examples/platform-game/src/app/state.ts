@@ -9,7 +9,8 @@ import { MapState } from './map/state';
 import { Shapes } from './shape/state';
 import { Sleet } from './sleet/state';
 
-export type AppReflectState = Pick<AppState, 'loading' | 'loaded' | 'fps' | 'paused'>
+export type AppReflectState = Pick<AppState, 'loading' | 'initialized' | 'loaded' | 'fps' | 'paused'>
+    & Pick<MapState, 'level'>;
 
 export interface AppSources {
     GameWorker: GameEngineWorker<AppReflectState>;
@@ -18,15 +19,14 @@ export interface AppSources {
 
 export interface AppState {
     background: Background;
-    splash: {
-        [id: string]: Sleet;
-    };
+    splash: Record<string, Sleet>;
     camera: Camera;
     fps: number;
     shapes: Shapes;
     controls: Controls<any>;
     gmap: MapState;
     loading?: LoadingState;
+    initialized: boolean;
     paused: boolean;
     loaded?: boolean;
     start?: boolean;

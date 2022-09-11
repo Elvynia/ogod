@@ -1,12 +1,12 @@
 import { canvas, div, h, h3, makeDOMDriver } from '@cycle/dom';
 import { gameRun } from '@ogod/game-run';
 import { makeEngineAction, makeGameEngineWorker, makeWorkerMessage } from '@ogod/game-worker-driver';
-import { combineLatest, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, map, merge, Observable, of, startWith, Subject, switchMap, throttleTime } from 'rxjs';
+import chroma from 'chroma-js';
+import { combineLatest, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, map, merge, Observable, of, startWith, Subject, switchMap, throttleTime, tap } from 'rxjs';
 import xs from 'xstream';
 import { makeControls$ } from './app/controls/make';
 import { makeElementMenu$, makeListenerMenu$ } from './app/menu/make';
 import { AppReflectState, AppSources } from "./app/state";
-import chroma from 'chroma-js';
 import { randColor } from './app/util';
 
 function main(sources: AppSources) {
@@ -40,20 +40,17 @@ function main(sources: AppSources) {
                 ))
             ),
             from(sources.DOM.select('#start').events('click') as any as Observable<MouseEvent>).pipe(
-                map((e) => {
-                    (e.target as any).remove();
-                    return makeWorkerMessage({
-                        key: 'start',
-                        value: true
-                    });
-                })
+                map(() => makeWorkerMessage({
+                    key: 'start',
+                    value: true
+                }))
             ),
             fromEvent(document, 'keyup').pipe(
                 filter((e: KeyboardEvent) => e.code === 'Escape'),
                 map(() => makeWorkerMessage({ key: 'paused' }))
             ),
             of(makeWorkerMessage({
-                key: 'background', value: chroma.scale([randColor(), randColor(), randColor(), randColor(), randColor(), randColor(), randColor()])
+                key: 'background', value: chroma.scale([randColor(), randColor(), randColor(), randColor(), randColor()])
                     .mode('lch').colors(30)
             })),
             makeListenerMenu$(sources)
@@ -76,8 +73,8 @@ function main(sources: AppSources) {
                     ) : of([]))
                 ),
                 sources.GameWorker.input$.pipe(
-                    filter((s) => s.loaded),
-                    first(),
+                    distinctUntilKeyChanged('initialized'),
+                    filter((s) => s.initialized),
                     map(() => [h('div', {
                         props: {
                             id: 'start'
@@ -95,20 +92,29 @@ function main(sources: AppSources) {
                 map((state: any) => state.fps),
                 startWith(''),
                 map((fps) => h3({ props: { id: 'fps' } }, 'FPS: ' + fps))
+            ),
+            sources.GameWorker.input$.pipe(
+                filter((s) => s.level !== undefined),
+                distinctUntilKeyChanged('level'),
+                map((state: any) => state.level),
+                map((l) => h3({ props: { id: 'level' } }, 'Level: ' + l)),
+                startWith(null)
             )
         ]).pipe(
-            map(([canvas, uis, menu, fps]) => {
-                const children = [canvas, ...uis];
+            map(([canvas, uis, menu, fps, level]) => {
+                const children = [canvas, ...uis, fps];
                 if (menu) {
                     children.push(menu);
+                }
+                if (level) {
+                    children.push(level);
                 }
                 return div([
                     div({
                         attrs: {
                             id: 'wrapper'
                         }
-                    }, children),
-                    fps
+                    }, children)
                 ]);
             })
         )

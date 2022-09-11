@@ -1,6 +1,6 @@
 import { isEngineActionCanvas, RenderState } from '@ogod/game-core';
 import { makeRuntime } from '@ogod/game-engine-driver';
-import { concat, delayWhen, filter, first, map, of, switchMap } from 'rxjs';
+import { concat, distinctUntilChanged, EMPTY, filter, first, map, of, switchMap } from 'rxjs';
 import { Camera } from './camera/state';
 import { Shape } from "./shape/state";
 import { Sleet } from './sleet/state';
@@ -45,23 +45,22 @@ export const makeDrawHandlers = (ctx) => ({
     svg: makeDrawSvg(ctx)
 });
 
-export function makeRender(canvas: any) {
-    const ctx: CanvasRenderingContext2D = canvas.getContext('2d');
+export function makeRender(ctx: CanvasRenderingContext2D) {
     const drawHandlers = makeDrawHandlers(ctx);
     return {
         splash: (delta: number, state: AppState) => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
             Object.values(state.splash).forEach((obj) => drawHandlers['svg'](obj));
         },
-        start: (delta: number, state: AppState) => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            Object.values(state.background.gradients).forEach((g) => {
-                ctx.fillStyle = g.color;
-                ctx.fillRect(g.x, g.y, g.width, g.height);
-            });
-        },
+        // start: (delta: number, state: AppState) => {
+        //     ctx.clearRect(0, 0, canvas.width, canvas.height);
+        //     Object.values(state.background.gradients).forEach((g) => {
+        //         ctx.fillStyle = g.color;
+        //         ctx.fillRect(g.x, g.y, g.width, g.height);
+        //     });
+        // },
         play: (delta: number, state: AppState) => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
             Object.values(state.background.gradients).forEach((g) => {
                 ctx.fillStyle = g.color;
                 ctx.fillRect(g.x, g.y, g.width, g.height);
@@ -76,7 +75,8 @@ export function makeRender$(sources: WorkerSources) {
     return sources.GameEngine.actions.engine.pipe(
         filter(isEngineActionCanvas),
         switchMap(({ payload }) => {
-            const renderers = makeRender(payload);
+            const ctx: CanvasRenderingContext2D = payload.getContext('2d');
+            const renderers = makeRender(ctx);
             return concat(
                 sources.GameEngine.state$.pipe(
                     filter((s) => !!s.splash),
@@ -86,19 +86,30 @@ export function makeRender$(sources: WorkerSources) {
                         first()
                     )))
                 ),
+                // sources.GameEngine.state$.pipe(
+                //     filter((s) => s.loaded && !s.splash),
+                //     first(),
+                //     map(() => makeRuntime<RenderState>(renderers.start, sources.GameEngine.state$.pipe(
+                //         filter((s) => s.start),
+                //         first()
+                //     )))
+                // ),
                 sources.GameEngine.state$.pipe(
-                    filter((s) => s.loaded && !s.splash),
-                    first(),
-                    map(() => makeRuntime<RenderState>(renderers.start, sources.GameEngine.state$.pipe(
-                        filter((s) => s.start),
-                        first()
-                    )))
-                ),
-                of(makeRuntime<RenderState>(renderers.play)).pipe(
-                    delayWhen(() => sources.GameEngine.state$.pipe(
-                        filter((s) => s.start),
-                        first()
-                    ))
+                    map((s) => s.loaded),
+                    distinctUntilChanged(),
+                    switchMap((loaded) => {
+                        if (!loaded) {
+                            ctx.clearRect(0, 0, payload.width, payload.height);
+                            return EMPTY;
+                        }
+                        return of(makeRuntime<RenderState>(
+                            renderers.play,
+                            sources.GameEngine.state$.pipe(
+                                filter((s) => !s.loaded),
+                                first()
+                            )
+                        ));
+                    })
                 )
             );
         }),

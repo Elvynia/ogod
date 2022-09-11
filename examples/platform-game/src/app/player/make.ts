@@ -11,7 +11,7 @@ export function makePlayer(world: b2World, scale: number): Player {
         color: '#A1FFA1',
         id: PlayerId,
         type: 'rect',
-        x: 800,
+        x: 4800,
         y: 325,
         width,
         height,
