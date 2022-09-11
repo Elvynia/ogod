@@ -1,30 +1,28 @@
 import { ActionState, GameEngineDriver, GameEngineOptions, GameEngineSink, GameEngineSource } from '@ogod/game-core';
-import { animationFrames, buffer, concatMap, filter, last, map, pairwise, share, takeUntil, withLatestFrom } from "rxjs";
+import { animationFrames, buffer, filter, last, map, Subject, takeUntil, withLatestFrom } from "rxjs";
 import { makeEngineActionHandlers } from '../action/make';
 import { makeGameEngineOptions } from '../options/make';
 
-export function makeGameEngineDriver<S = any, A extends string = any, AS extends ActionState<A> = ActionState<A>>
-    (options: GameEngineOptions<S, A, AS> = makeGameEngineOptions<S, A, AS>()): GameEngineDriver<S, A, AS> {
+export function makeGameEngineDriver<S = any, A extends string = any, R = any, AS extends ActionState<A> = ActionState<A>>
+    (options: GameEngineOptions<S, A, R, AS> = makeGameEngineOptions<S, A, R, AS>()): GameEngineDriver<S, A, R, AS> {
     const actions = options.actionHandlers;
     const frame$ = animationFrames();
     const state$ = options.state$;
-    const update$ = frame$.pipe(
-        pairwise(),
-        map(([prev, cur]) => cur.elapsed - prev.elapsed),
-        share()
-    );
-    return (sink$: Promise<GameEngineSink<S>>): GameEngineSource<S, A, AS> => {
+    const update$ = new Subject<number>();
+    return (sink$: Promise<GameEngineSink<S, R>>): GameEngineSource<S, A, R, AS> => {
         console.debug('[GameEngine] Created');
         sink$.then((sink) => {
-            console.debug('[GameEngine] Initialized');
             sink.feature$.pipe(
                 takeUntil(state$.pipe(last()))
             ).subscribe(state$);
+            if (sink.update$) {
+                sink.update$.subscribe(update$);
+            }
             if (sink.reflect$) {
                 sink.reflect$.pipe(
                     options.reflectMapper((reflect) => {
                         let source = state$.pipe(
-                            buffer(update$),
+                            buffer(frame$),
                             map((states) => states.pop()),
                             filter((state) => !!state),
                             map((state: any) => reflect.value!(state))
@@ -53,11 +51,13 @@ export function makeGameEngineDriver<S = any, A extends string = any, AS extends
                     })
                 ).subscribe(([delta, state, render]) => render(delta, state));
             }
+            console.debug('[GameEngine] Initialized');
         });
         const sources = {
             actions,
             dispose: () => {
                 state$.complete();
+                update$.complete();
                 Object.keys(actions).forEach((k) => actions[k as keyof AS].complete());
                 console.debug('[GameEngine] Disposed');
             },

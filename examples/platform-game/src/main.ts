@@ -4,7 +4,10 @@ import { makeEngineAction, makeGameEngineWorker, makeWorkerMessage } from '@ogod
 import { combineLatest, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, map, merge, Observable, of, startWith, Subject, switchMap, throttleTime } from 'rxjs';
 import xs from 'xstream';
 import { makeControls$ } from './app/controls/make';
+import { makeElementMenu$, makeListenerMenu$ } from './app/menu/make';
 import { AppReflectState, AppSources } from "./app/state";
+import chroma from 'chroma-js';
+import { randColor } from './app/util';
 
 function main(sources: AppSources) {
     const canvas$ = from(sources.DOM.select('#game').element() as any);
@@ -44,7 +47,16 @@ function main(sources: AppSources) {
                         value: true
                     });
                 })
-            )
+            ),
+            fromEvent(document, 'keyup').pipe(
+                filter((e: KeyboardEvent) => e.code === 'Escape'),
+                map(() => makeWorkerMessage({ key: 'paused' }))
+            ),
+            of(makeWorkerMessage({
+                key: 'background', value: chroma.scale([randColor(), randColor(), randColor(), randColor(), randColor(), randColor(), randColor()])
+                    .mode('lch').colors(30)
+            })),
+            makeListenerMenu$(sources)
         ),
         DOM: combineLatest([
             of(canvas({ attrs: { id: 'game', tabindex: 0 } })),
@@ -74,20 +86,31 @@ function main(sources: AppSources) {
                 )
             ),
             sources.GameWorker.input$.pipe(
+                map((s) => s.paused),
+                distinctUntilChanged(),
+                switchMap((paused) => paused ? makeElementMenu$(sources) : of(null))
+            ),
+            sources.GameWorker.input$.pipe(
                 distinctUntilKeyChanged('fps'),
                 map((state: any) => state.fps),
                 startWith(''),
-                map((fps) => h3('FPS: ' + fps)),
+                map((fps) => h3({ props: { id: 'fps' } }, 'FPS: ' + fps))
             )
         ]).pipe(
-            map(([canvas, uis, fps]) => div([
-                div({
-                    attrs: {
-                        id: 'wrapper'
-                    }
-                }, [canvas, ...uis]),
-                fps
-            ]))
+            map(([canvas, uis, menu, fps]) => {
+                const children = [canvas, ...uis];
+                if (menu) {
+                    children.push(menu);
+                }
+                return div([
+                    div({
+                        attrs: {
+                            id: 'wrapper'
+                        }
+                    }, children),
+                    fps
+                ]);
+            })
         )
     }
 }

@@ -1,9 +1,5 @@
-import { Subject } from 'rxjs';
-import { b2World } from '@box2d/core';
-import { Contact } from '../contact/state';
+import { Driver } from '@ogod/game-core';
+import { GameBox2dSink } from '../sink/state';
+import { GameBox2dSource } from '../source/state';
 
-export interface GameBox2DSource {
-    contact$: Subject<Contact>;
-    dispose: Function;
-    instance: b2World;
-}
+export type GameBox2dDriver = Driver<GameBox2dSource, GameBox2dSink>;

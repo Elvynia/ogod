@@ -1,7 +1,10 @@
 import { Observable } from 'rxjs';
-import { ReflectState } from '../../reflector/state';
-import { RenderState } from '../../renderer/state';
+import { ReflectState } from '../../reflect/state';
+import { RenderState } from '../../render/state';
 
-export type GameEngineSink<S = any, R = any> = Record<'feature$', Observable<S>>
-    & Record<'reflect$', Observable<ReflectState<S, R>>>
-    & Record<'render$', Observable<RenderState<S>>>;
+export interface GameEngineSink<S = any, R = any> {
+    feature$: Observable<S>;
+    reflect$?: Observable<ReflectState<S, R>>;
+    render$?: Observable<RenderState<S>>;
+    update$?: Observable<number>;
+}

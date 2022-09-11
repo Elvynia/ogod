@@ -1,5 +1,5 @@
 import { MainDOMSource } from '@cycle/dom';
-import { GameBox2DSource } from '@ogod/game-box2d-driver';
+import { GameBox2dSource } from '@ogod/game-box2d-driver';
 import { GameEngineSource, GameEngineWorker } from '@ogod/game-core';
 import { Background } from './background/state';
 import { Camera } from './camera/state';
@@ -9,11 +9,7 @@ import { MapState } from './map/state';
 import { Shapes } from './shape/state';
 import { Sleet } from './sleet/state';
 
-export interface AppReflectState {
-    fps: number;
-    loading: LoadingState;
-    loaded: boolean;
-}
+export type AppReflectState = Pick<AppState, 'loading' | 'loaded' | 'fps' | 'paused'>
 
 export interface AppSources {
     GameWorker: GameEngineWorker<AppReflectState>;
@@ -31,13 +27,14 @@ export interface AppState {
     controls: Controls<any>;
     gmap: MapState;
     loading?: LoadingState;
+    paused: boolean;
     loaded?: boolean;
     start?: boolean;
 }
 
-export type AppAction = 'camera' | 'controls' | 'start';
+export type AppAction = 'camera' | 'controls' | 'start' | 'paused' | 'gravity' | 'background';
 
 export interface WorkerSources {
     GameEngine: GameEngineSource<AppState, AppAction>;
-    World: GameBox2DSource;
+    World: GameBox2dSource;
 }

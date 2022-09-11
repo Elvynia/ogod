@@ -1,5 +1,5 @@
 import { makeFeatureObservable } from '@ogod/game-engine-driver';
-import { concat, concatMap, delay, first, map, of, range, switchMap, tap, timer } from 'rxjs';
+import { concat, concatMap, delay, first, map, of, range, switchMap, tap, timer, ignoreElements } from 'rxjs';
 import { createNoise2D } from 'simplex-noise';
 import { Loading, LoadingState } from '../loading/state';
 import { makeCreatePlatform } from '../platform/make';
@@ -38,7 +38,7 @@ export function makeFeatureLoadMap$(sources: WorkerSources) {
             })
         ),
         of({ ...loading, progress: 1 }),
-        timer(16).pipe(map(() => null))
+        // timer(16).pipe(ignoreElements())
     ).pipe(
         map((l) => ({ map: l } as LoadingState))
     ), { map: loading } as LoadingState);

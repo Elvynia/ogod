@@ -1,8 +1,7 @@
 import { makeFeatureConstant, makeFeatureObservable } from '@ogod/game-engine-driver';
-import { filter, first, ignoreElements, switchMap, tap } from 'rxjs';
+import { filter, first, ignoreElements, switchMap, tap, map } from 'rxjs';
 import { WorkerSources } from "../state";
 import { Background, BackgroundGradient } from './state';
-import chroma from 'chroma-js';
 
 export function makeBackground(ctx: CanvasRenderingContext2D, rect: Omit<BackgroundGradient, 'color'>, colors: string[]) {
     const color = ctx.createLinearGradient(rect.x1, rect.y1, rect.x2, rect.y2);
@@ -16,18 +15,29 @@ export function makeBackground(ctx: CanvasRenderingContext2D, rect: Omit<Backgro
     };
 }
 
-export function makeFeatureBackgroundCreate() {
+export function makeFeatureBackgroundColors(sources: WorkerSources) {
     const background = {
-        colors: chroma.scale(['#fafa6e', '#2A4858', '#c94843', '#2d8daf', '#8effff'])
-            .mode('lch').colors(20),
         gradients: []
     } as Background;
-    return makeFeatureConstant('background', background);
+    return makeFeatureObservable('background', sources.GameEngine.actions.background.pipe(
+        map((colors) => {
+            background.colors = colors;
+            return background;
+        })
+    ), background);
+}
+
+export function makeFeatureBackgroundLoad(sources: WorkerSources) {
+    return makeFeatureObservable('background', sources.GameEngine.state$.pipe(
+        filter((s) => !!s.background.colors),
+        first(),
+        ignoreElements()
+    ), undefined, false)
 }
 
 export function makeFeatureBackgroundUpdate(sources: WorkerSources) {
     return makeFeatureObservable('background', sources.GameEngine.state$.pipe(
-        filter((s) => s.background && !!s.camera),
+        filter((s) => s.background?.colors && !!s.camera),
         first(),
         switchMap((state) => {
             const background = state.background;
