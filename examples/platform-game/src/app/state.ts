@@ -30,6 +30,7 @@ export interface AppState {
     paused: boolean;
     loaded?: boolean;
     start?: boolean;
+    ready: boolean;
 }
 
 export type AppAction = 'camera' | 'controls' | 'start' | 'paused' | 'gravity' | 'background';

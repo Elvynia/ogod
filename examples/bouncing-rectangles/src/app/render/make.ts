@@ -1,6 +1,5 @@
 import { isEngineActionCanvas, RenderState } from "@ogod/game-core";
-import { makeRuntime } from "@ogod/game-engine-driver";
-import { delayWhen, filter, first, map, Observable } from "rxjs";
+import { filter, first, map, switchMap } from "rxjs";
 import { Rect } from "../rect";
 import { AppState, WorkerSources } from "../state";
 
@@ -26,13 +25,15 @@ export const makeRender = (canvas: any) => {
     };
 }
 
-export function makeRender$(sources: WorkerSources): Observable<RenderState> {
+export function makeRender$(sources: WorkerSources) {
     return sources.GameEngine.actions.engine.pipe(
         filter(isEngineActionCanvas),
-        delayWhen(() => sources.GameEngine.state$.pipe(
-            filter((state) => state.screen && state.player && !!state.objects),
-            first()
+        switchMap(({ payload }) => sources.GameEngine.state$.pipe(
+            filter((state) => state.camera && state.player && !!state.objects),
+            first(),
+            switchMap(() => sources.GameEngine.render$.pipe(
+                map((args) => [...args, makeRender(payload)] as RenderState)
+            ))
         )),
-        map(({ payload }) => makeRuntime(makeRender(payload)))
     );
 }

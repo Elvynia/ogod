@@ -18,7 +18,9 @@ export function makeGameBox2dDriver(initalGravity: XY = { x: 0, y: 0 }) {
                     positionIterations: 2
                 });
             }));
-            subs.push(sink.gravity$.subscribe((g) => world.SetGravity(g)));
+            if (sink.gravity$) {
+                subs.push(sink.gravity$.subscribe((g) => world.SetGravity(g)));
+            }
             world.SetContactListener(makeBox2dContactListener(contact$));
             console.debug('[GameBox2d] Initialized');
         });

@@ -32,7 +32,7 @@ export default define<AppElement>({
                         debounceTime(16),
                         startWith(null),
                         map(() => makeWorkerMessage({
-                            key: 'screen',
+                            key: 'camera',
                             value: {
                                 width: canvas.clientWidth,
                                 height: canvas.clientHeight
@@ -75,7 +75,7 @@ export default define<AppElement>({
   `.css`
     canvas {
         width: 100%;
-        height: 100vh;
+        height: auto;
     }
     .ui {
         position: absolute;

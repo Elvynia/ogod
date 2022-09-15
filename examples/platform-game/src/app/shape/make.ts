@@ -1,8 +1,8 @@
 import { b2BodyType, b2PolygonShape, b2World } from "@box2d/core";
-import { makeFeatureObservable } from '@ogod/game-engine-driver';
-import { distinctUntilKeyChanged, filter, first, ignoreElements, map, merge, Observable, switchMap, takeUntil, tap } from "rxjs";
+import { makeFeature$ } from '@ogod/game-engine-driver';
+import { distinctUntilKeyChanged, filter, first, ignoreElements, map, merge, switchMap, tap } from "rxjs";
 import { makePlayer, makePlayerUpdate$ } from "../player/make";
-import { WorkerSources } from "../state";
+import { AppState, WorkerSources } from "../state";
 import { randNum } from "../util";
 import { Shape } from "./state";
 
@@ -52,22 +52,28 @@ export function makeShapeUpdate$(sources: WorkerSources) {
     )
 }
 
-export function makeFeaturePrepareShapes(sources: WorkerSources) {
-    return makeFeatureObservable('shapes', sources.GameEngine.state$.pipe(
-        filter((state: any) => !!state.gmap),
-        map((state: any) => state.gmap.scale),
-        first(),
-        map((scale) => ({
-            player: makePlayer(sources.World.instance, scale)
-        }))
-    ), undefined, false);
+export function makeFeaturePrepareShapes(sources: WorkerSources, target: AppState) {
+    return makeFeature$({
+        key: 'shapes',
+        value$: sources.GameEngine.state$.pipe(
+            filter((state: any) => !!state.gmap),
+            map((state: any) => state.gmap.scale),
+            first(),
+            map((scale) => ({
+                player: makePlayer(sources.World.instance, scale)
+            }))
+        ),
+        target
+    });
 }
 
-export function makeFeatureUpdateShapes(sources: WorkerSources, until$: Observable<any>) {
-    return makeFeatureObservable('shapes', merge(
-        makeShapeUpdate$(sources),
-        makePlayerUpdate$(sources)
-    ).pipe(
-        takeUntil(until$)
-    ));
+export function makeFeatureUpdateShapes(sources: WorkerSources, target: AppState) {
+    return makeFeature$({
+        key: 'shapes',
+        value$: merge(
+            makeShapeUpdate$(sources),
+            makePlayerUpdate$(sources)
+        ),
+        target
+    });
 }

@@ -1,12 +1,12 @@
-import { makeFeatureArray, makeFeatureConstant, makeFeatureObservable } from '@ogod/game-engine-driver';
-import { concat, filter, first, mergeMap, range, switchMap } from 'rxjs';
+import { makeFeature$ } from '@ogod/game-engine-driver';
+import { filter, first, mergeMap, range, switchMap } from 'rxjs';
 import { makeSleetBounce$ } from '../sleet/make';
 import { AppState, WorkerSources } from '../state';
 
-export function makeSceneSplash(sources: WorkerSources) {
-    const splash = {};
-    return makeFeatureArray([
-        makeFeatureObservable('splash', sources.GameEngine.state$.pipe(
+export function makeSceneSplash(sources: WorkerSources, target: AppState) {
+    return makeFeature$({
+        key: 'splash',
+        value$: sources.GameEngine.state$.pipe(
             filter((s) => !!s.camera),
             first(),
             switchMap((state: AppState) => {
@@ -17,7 +17,8 @@ export function makeSceneSplash(sources: WorkerSources) {
                     ))
                 )
             })
-        ), splash),
-        makeFeatureConstant('initialized', true)
-    ], concat);
+        ),
+        target,
+        remove: true
+    });
 }

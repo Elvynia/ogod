@@ -1,42 +1,11 @@
+import { makeFeature$ } from "@ogod/game-engine-driver";
 import gsap, { Elastic, Expo, Linear } from 'gsap';
-import { concat, concatWith, defer, EMPTY, finalize, from, ignoreElements, Observable, of, takeUntil, tap } from 'rxjs';
-import { Shape, shapes } from './render';
+import { concat, concatWith, defer, EMPTY, finalize, from, ignoreElements, mergeMap, Observable, of, takeUntil, tap } from "rxjs";
+import { AppState, WorkerSources } from '../state';
+import { randNum, randomColor, randShape, randSize } from '../util';
+import { CanvasObject, ObjectState } from "./state";
 
-export interface Ball {
-    id: string;
-    x: number;
-    y: number;
-    v: number;
-    s: number;
-    c: string;
-    shape: Shape;
-}
-
-export interface BallState {
-    [id: string]: Ball;
-}
-
-function randNum(length: number = 4): number {
-    return Math.floor(Math.random() * Math.pow(10, length));
-}
-
-function colorPart() {
-    return Math.floor(Math.random() * 256).toString(16);
-}
-
-function randomColor() {
-    return `#${colorPart()}${colorPart()}${colorPart()}`;
-}
-
-function randShape(): Shape {
-    return shapes[Math.floor(Math.random() * shapes.length)];
-}
-
-function randSize(max: number) {
-    return Math.max(max, Math.round(Math.random() * max));
-}
-
-function randBall(x: number, y: number): Ball {
+function randBall(x: number, y: number): CanvasObject {
     return {
         id: randNum(8).toString(),
         x,
@@ -49,8 +18,8 @@ function randBall(x: number, y: number): Ball {
 }
 
 const resetDuration = 400;
-export function makeRandomBall$(reset$: Observable<void>, objects: BallState) {
-    return (x: number, y: number): Observable<BallState> => {
+export function makeRandomBall$(reset$: Observable<void>, objects: ObjectState) {
+    return (x: number, y: number): Observable<ObjectState> => {
         const duration = 2000;
         const obj = randBall(x + (150 - Math.random() * 300), y + (150 - Math.random() * 300));
         objects[obj.id] = obj;
@@ -92,6 +61,18 @@ export function makeRandomBall$(reset$: Observable<void>, objects: BallState) {
             of(objects),
             updateBall$,
             of(objects)
-        )
+        );
     }
+}
+
+
+export function makeFeatureObjects(sources: WorkerSources, state: AppState) {
+    const randomBall$ = makeRandomBall$(sources.GameEngine.actions.reset, state.objects);
+    return makeFeature$({
+        key: 'objects',
+        value$: sources.GameEngine.actions.objects.pipe(
+            mergeMap(({ x, y }) => randomBall$(x, y))
+        ),
+        target: state
+    });
 }

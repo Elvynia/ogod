@@ -1,15 +1,17 @@
-import { makeFeatureArray, makeFeatureConstant } from '@ogod/game-engine-driver';
-import { concat } from 'rxjs';
+import { makeFeature$ } from '@ogod/game-engine-driver';
+import { concat, of } from 'rxjs';
 import { makeFeatureBackgroundLoad } from '../background/make';
 import { makeFeatureLoadMap } from '../map/make';
-import { makeFeaturePrepareShapes } from '../shape/make';
-import { WorkerSources } from '../state';
+import { AppState, WorkerSources } from '../state';
 
-export function makeSceneLoad(sources: WorkerSources) {
-    return makeFeatureArray([
-        makeFeatureLoadMap(sources),
-        makeFeaturePrepareShapes(sources),
-        makeFeatureBackgroundLoad(sources),
-        makeFeatureConstant('loaded', true)
-    ], concat);
+export function makeSceneLoad(sources: WorkerSources, target: AppState) {
+    return concat(
+        makeFeatureLoadMap(sources, target),
+        makeFeatureBackgroundLoad(sources, target),
+        makeFeature$({
+            key: 'loaded',
+            value$: of(true),
+            target
+        })
+    );
 }

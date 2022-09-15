@@ -1,38 +1,36 @@
-import { makeFeatureArray, makeFeatureConstant, makeFeatureObservable } from "@ogod/game-engine-driver";
-import { concat, delayWhen, distinctUntilChanged, first, map, startWith } from "rxjs";
+import { makeFeature$ } from '@ogod/game-engine-driver';
+import { concat, delayWhen, distinctUntilChanged, first, map, switchMap } from "rxjs";
 import { makeSceneLoad } from "../scenes/intro";
 import { makeScenePlay } from "../scenes/play";
 import { makeSceneStart } from "../scenes/start";
-import { WorkerSources } from "../state";
+import { AppState, WorkerSources } from "../state";
 
-export function makeLevel(sources: WorkerSources, index: number = 0) {
-    return makeFeatureArray([
-        makeSceneStart(sources),
-        makeSceneLoad(sources),
-        makeScenePlay(sources),
-        makeFeatureArray([
-            makeFeatureConstant('initialized', false),
-            makeFeatureConstant('loaded', false),
-            makeFeatureConstant('start', false),
-            makeFeatureObservable('gmap', sources.GameEngine.state$.pipe(
-                first(),
-                delayWhen(() => sources.GameEngine.update$.pipe(
-                    first()
-                )),
-                map((s) => {
-                    ++s.gmap.level;
-                    return s.gmap;
-                })
-            ), undefined, false)
-        ])
-    ], concat);
-}
-
-export function makeLevel$(sources: WorkerSources) {
+export function makeLevel$(sources: WorkerSources, target: AppState) {
     return sources.GameEngine.state$.pipe(
         map((s) => s.gmap.level),
-        startWith(0),
         distinctUntilChanged(),
-        map((level) => makeLevel(sources, level))
-    )
+        switchMap((level) => concat(
+            makeSceneStart(sources, target),
+            makeSceneLoad(sources, target),
+            makeScenePlay(sources, target),
+            makeFeature$({
+                key: 'gmap',
+                value$: sources.GameEngine.state$.pipe(
+                    first(),
+                    delayWhen(() => sources.GameEngine.update$.pipe(
+                        first()
+                    )),
+                    map((state) => {
+                        state.initialized = false;
+                        state.loaded = false;
+                        state.start = false;
+                        state.gmap.width += 5;
+                        ++state.gmap.level;
+                        return state.gmap;
+                    })
+                ),
+                target
+            })
+        ))
+    );
 }

@@ -1,15 +1,11 @@
 import { GameEngineSink, GameEngineSource, GameEngineWorker, WorkerMessage } from '@ogod/game-core';
 import { Subject } from 'rxjs';
-import { BallState } from './ball';
-
-export interface Screen {
-    width: number;
-    height: number;
-}
+import { Camera } from './camera/state';
+import { ObjectState } from './object/state';
 
 export interface AppState {
-    screen: Screen;
-    objects: BallState;
+    camera: Camera;
+    objects: ObjectState;
 }
 
 export interface AppReflectState {
@@ -21,7 +17,7 @@ export interface AppSources {
     ElementHost: Subject<WorkerMessage>;
 }
 
-export type AppAction = 'screen' | 'objects' | 'reset';
+export type AppAction = 'camera' | 'objects' | 'reset';
 
 export interface WorkerSources {
     GameEngine: GameEngineSource<AppState, AppAction>;

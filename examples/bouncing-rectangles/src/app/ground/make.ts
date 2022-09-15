@@ -1,6 +1,5 @@
-import { makeFeatureConstant } from '@ogod/game-engine-driver';
 import { makeRect } from '../rect';
-import { Screen } from '../screen/state';
+import { Camera } from '../screen/state';
 import { WorkerSources } from '../state';
 
 export function makeGrad(ctx: CanvasRenderingContext2D, length: number, middle: number = 0.5) {
@@ -11,12 +10,12 @@ export function makeGrad(ctx: CanvasRenderingContext2D, length: number, middle: 
     return grad;
 }
 
-export function makeFeatureGrounds(sources: WorkerSources, screen: Screen) {
+export function makeGrounds(sources: WorkerSources, screen: Camera) {
     const ctx = sources.GameEngine.canvas.getContext('2d') as CanvasRenderingContext2D;
     const width = 10;
     const yLength = screen.width - 200;
     const xLength = screen.height - 200;
-    return makeFeatureConstant('grounds', [
+    return [
         makeRect({
             x: screen.width / 2,
             y: width / 2,
@@ -51,5 +50,5 @@ export function makeFeatureGrounds(sources: WorkerSources, screen: Screen) {
             dynamic: false,
             color: makeGrad(ctx, yLength)
         }, sources.World.instance, screen.scale)
-    ])
+    ];
 }

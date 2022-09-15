@@ -1,5 +1,5 @@
 import { ActionState, GameEngineDriver, GameEngineOptions, GameEngineSink, GameEngineSource } from '@ogod/game-core';
-import { animationFrames, buffer, filter, last, map, Subject, takeUntil, withLatestFrom } from "rxjs";
+import { animationFrames, last, Subject, takeUntil, withLatestFrom } from "rxjs";
 import { makeEngineActionHandlers } from '../action/make';
 import { makeGameEngineOptions } from '../options/make';
 
@@ -19,37 +19,10 @@ export function makeGameEngineDriver<S = any, A extends string = any, R = any, A
                 sink.update$.subscribe(update$);
             }
             if (sink.reflect$) {
-                sink.reflect$.pipe(
-                    options.reflectMapper((reflect) => {
-                        let source = state$.pipe(
-                            buffer(frame$),
-                            map((states) => states.pop()),
-                            filter((state) => !!state),
-                            map((state: any) => reflect.value!(state))
-                        );
-                        if (reflect.takeUntil$) {
-                            source = source.pipe(
-                                takeUntil(reflect.takeUntil$)
-                            )
-                        }
-                        return source;
-                    })
-                ).subscribe((state) => options.workerContext!.postMessage(state));
+                sink.reflect$.subscribe((state) => options.workerContext!.postMessage(state));
             }
             if (sink.render$) {
-                sink.render$.pipe(
-                    options.renderMapper((render) => {
-                        let source = sources.render$.pipe(
-                            map((args: any[]) => [...args, render.value])
-                        );
-                        if (render.takeUntil$) {
-                            source = source.pipe(
-                                takeUntil(render.takeUntil$)
-                            );
-                        }
-                        return source;
-                    })
-                ).subscribe(([delta, state, render]) => render(delta, state));
+                sink.render$.subscribe(([delta, state, render]) => render(delta, state));
             }
             console.debug('[GameEngine] Initialized');
         });

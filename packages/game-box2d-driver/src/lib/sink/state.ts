@@ -3,5 +3,6 @@ import { Observable } from 'rxjs';
 
 export interface GameBox2dSink {
     update$: Observable<number>;
-    gravity$: Observable<XY>
+    gravity$?: Observable<XY>;
+    // contact$: Observable<Contact>;
 }

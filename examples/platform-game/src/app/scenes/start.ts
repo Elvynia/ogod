@@ -1,12 +1,24 @@
-import { makeFeatureObservable, makeFeatureArray, makeFeatureConstant } from '@ogod/game-engine-driver';
-import { first } from 'rxjs';
-import { WorkerSources } from '../state';
+import { makeFeature$ } from '@ogod/game-engine-driver';
+import { delayWhen, first, merge, of } from 'rxjs';
+import { AppState, WorkerSources } from '../state';
 
-export function makeSceneStart(sources: WorkerSources) {
-    return makeFeatureArray([
-        makeFeatureConstant('initialized', true),
-        makeFeatureObservable('start', sources.GameEngine.actions.start.pipe(
-            first()
-        ), false)
-    ])
+export function makeSceneStart(sources: WorkerSources, target: AppState) {
+    return merge(
+        makeFeature$({
+            key: 'initialized',
+            value$: of(true).pipe(
+                delayWhen(() => sources.GameEngine.update$.pipe(
+                    first()
+                ))
+            ),
+            target
+        }),
+        makeFeature$({
+            key: 'start',
+            value$: sources.GameEngine.actions.start.pipe(
+                first()
+            ),
+            target
+        })
+    )
 }

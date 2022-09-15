@@ -3,14 +3,17 @@ import { gameRun } from '@ogod/game-run';
 import { makeEngineAction, makeGameEngineWorker, makeWorkerMessage } from '@ogod/game-worker-driver';
 import { combineLatest, concat, debounceTime, distinctUntilKeyChanged, filter, first, from, fromEvent, interval, map, merge, of, startWith, Subject, switchMap, take, takeUntil } from 'rxjs';
 import xs from 'xstream';
-import { ReflectState } from './app/reflect/state';
-import { makeScreen } from './app/screen/make';
-import { AppSources } from './app/state';
+import { Camera } from './app/screen/state';
+import { AppReflectState, AppSources } from './app/state';
 
 function main(sources: AppSources) {
     let paused = false;
     const playerColor = '#ff33ff';
-    const screen = makeScreen(800, 600);
+    const camera: Camera = {
+        width: 800,
+        height: 600,
+        scale: 10
+    }
     const canvas$ = sources.DOM.select('#game');
     const offscreen$ = from(canvas$.element() as any).pipe(
         take(1),
@@ -20,11 +23,11 @@ function main(sources: AppSources) {
                 of(makeEngineAction('OGOD_ENGINE_CANVAS', offscreen, [offscreen])),
                 fromEvent(window, 'resize').pipe(
                     debounceTime(16),
-                    startWith(screen),
+                    startWith(camera),
                     map(() => makeWorkerMessage({
-                        key: 'screen',
+                        key: 'camera',
                         value: {
-                            ...screen,
+                            ...camera,
                             width: canvas.clientWidth,
                             height: canvas.clientHeight
                         }
@@ -71,7 +74,7 @@ function main(sources: AppSources) {
             playerColor$
         ),
         DOM: combineLatest([
-            of(canvas({ attrs: { id: 'game', width: screen.width, height: screen.height, tabindex: 0 } })),
+            of(canvas({ attrs: { id: 'game', width: camera.width, height: camera.height, tabindex: 0 } })),
             sources.GameWorker.input$.pipe(
                 map((state) => state.objects.map(({ id, x, y, angle, width, height, health }) => div({
                     attrs: {
@@ -83,7 +86,7 @@ function main(sources: AppSources) {
                     style: {
                         width: `${width}px`,
                         height: `${height}px`,
-                        transform: `translate(calc(${x}px - 50%), calc(${screen.height - y}px - 50%))rotate(${angle}rad)`
+                        transform: `translate(calc(${x}px - 50%), calc(${camera.height - y}px - 50%))rotate(${angle}rad)`
                     }
                 }, [health.toString()]))),
                 startWith([])
@@ -121,7 +124,7 @@ function main(sources: AppSources) {
 }
 
 const dispose = gameRun(main, {
-    GameWorker: makeGameEngineWorker<ReflectState>(new Worker(new URL('worker.ts', import.meta.url))),
+    GameWorker: makeGameEngineWorker<AppReflectState>(new Worker(new URL('worker.ts', import.meta.url))),
     DOM: (promise) => {
         const dom = makeDOMDriver('#app');
         const wrapper = new Subject();

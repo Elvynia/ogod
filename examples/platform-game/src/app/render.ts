@@ -1,6 +1,5 @@
 import { isEngineActionCanvas, RenderState } from '@ogod/game-core';
-import { makeRuntime } from '@ogod/game-engine-driver';
-import { concat, distinctUntilChanged, EMPTY, filter, first, map, of, switchMap } from 'rxjs';
+import { concat, distinctUntilChanged, EMPTY, filter, first, map, switchMap, takeUntil } from 'rxjs';
 import { Camera } from './camera/state';
 import { Shape } from "./shape/state";
 import { Sleet } from './sleet/state';
@@ -81,19 +80,14 @@ export function makeRender$(sources: WorkerSources) {
                 sources.GameEngine.state$.pipe(
                     filter((s) => !!s.splash),
                     first(),
-                    map(() => makeRuntime<RenderState>(renderers.splash, sources.GameEngine.state$.pipe(
-                        filter((state) => !state.splash),
-                        first()
-                    )))
+                    switchMap(() => sources.GameEngine.render$.pipe(
+                        map((args) => [...args, renderers.splash] as RenderState),
+                        takeUntil(sources.GameEngine.state$.pipe(
+                            filter((state) => !state.splash),
+                            first()
+                        ))
+                    ))
                 ),
-                // sources.GameEngine.state$.pipe(
-                //     filter((s) => s.loaded && !s.splash),
-                //     first(),
-                //     map(() => makeRuntime<RenderState>(renderers.start, sources.GameEngine.state$.pipe(
-                //         filter((s) => s.start),
-                //         first()
-                //     )))
-                // ),
                 sources.GameEngine.state$.pipe(
                     map((s) => s.loaded),
                     distinctUntilChanged(),
@@ -102,13 +96,9 @@ export function makeRender$(sources: WorkerSources) {
                             ctx.clearRect(0, 0, payload.width, payload.height);
                             return EMPTY;
                         }
-                        return of(makeRuntime<RenderState>(
-                            renderers.play,
-                            sources.GameEngine.state$.pipe(
-                                filter((s) => !s.loaded),
-                                first()
-                            )
-                        ));
+                        return sources.GameEngine.render$.pipe(
+                            map((args) => [...args, renderers.play] as RenderState)
+                        );
                     })
                 )
             );
