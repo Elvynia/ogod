@@ -1,18 +1,23 @@
 import { makeFeature$ } from '@ogod/game-engine-driver';
-import { concat, delayWhen, distinctUntilChanged, first, map, switchMap } from "rxjs";
-import { makeSceneLoad } from "../scenes/intro";
-import { makeScenePlay } from "../scenes/play";
-import { makeSceneStart } from "../scenes/start";
+import { concat, delayWhen, distinctUntilChanged, filter, first, ignoreElements, map, switchMap, tap } from "rxjs";
+import { makeFeatureSceneLoad } from "../scenes/load";
+import { makeFeatureScenePlay } from "../scenes/play";
 import { AppState, WorkerSources } from "../state";
+import { PHASE } from './../phase/state';
 
-export function makeLevel$(sources: WorkerSources, target: AppState) {
+export function makeFeatureSceneLevel(sources: WorkerSources, target: AppState) {
     return sources.GameEngine.state$.pipe(
         map((s) => s.gmap.level),
         distinctUntilChanged(),
         switchMap((level) => concat(
-            makeSceneStart(sources, target),
-            makeSceneLoad(sources, target),
-            makeScenePlay(sources, target),
+            sources.GameEngine.state$.pipe(
+                map((s) => s.phase),
+                filter((p) => p === PHASE.LOAD),
+                first(),
+                ignoreElements()
+            ),
+            makeFeatureSceneLoad(sources, target),
+            makeFeatureScenePlay(sources, target),
             makeFeature$({
                 key: 'gmap',
                 value$: sources.GameEngine.state$.pipe(
@@ -21,11 +26,13 @@ export function makeLevel$(sources: WorkerSources, target: AppState) {
                         first()
                     )),
                     map((state) => {
-                        state.initialized = false;
-                        state.loaded = false;
-                        state.start = false;
+                        // FIXME: Refactor into map next level action.
+                        Object.values(state.gmap.platforms).forEach((p) => sources.World.instance.DestroyBody(p.body))
+                        sources.World.instance.DestroyBody(state.shapes.player.body);
+                        state.gmap.platforms = {};
                         state.gmap.width += 5;
                         ++state.gmap.level;
+                        sources.GameEngine.actions.phase.next(PHASE.START);
                         return state.gmap;
                     })
                 ),

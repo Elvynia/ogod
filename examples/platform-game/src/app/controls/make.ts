@@ -1,5 +1,7 @@
+import { makeFeature$ } from '@ogod/game-engine-driver';
 import { makeWorkerMessage } from "@ogod/game-worker-driver";
 import { distinctUntilChanged, filter, fromEvent, map, merge, startWith, tap } from "rxjs";
+import { AppState, WorkerSources } from '../state';
 import { Controls, KeyState } from "./state";
 
 export function makeControl$(controls: Controls<any>, key: string, code: string) {
@@ -23,4 +25,15 @@ export function makeControls$<S extends KeyState>(keyState: S, controls: Control
         startWith(undefined),
         map(() => makeWorkerMessage({ key: 'controls', value: controls }))
     );
+}
+
+export function makeFeatureControls(sources: WorkerSources, target: AppState) {
+    return makeFeature$({
+        key: 'controls',
+        value$: sources.GameEngine.actions.controls.pipe(
+            startWith({})
+        ),
+        target,
+        remove: true
+    });
 }

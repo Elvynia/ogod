@@ -11,7 +11,8 @@ export interface BackgroundGradient {
 }
 
 export interface Background {
-    colors: string[];
+    baseColor: string;
+    colors?: string[];
     lastPos?: number;
     gradients: Array<BackgroundGradient>;
 }

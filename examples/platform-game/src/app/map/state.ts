@@ -6,6 +6,5 @@ export interface MapState {
     height: number;
     gravity: number;
     scale: number;
-    mapScale: number;
     level: number;
 }

@@ -1,18 +1,19 @@
-import { b2BodyType, b2PolygonShape, b2World } from "@box2d/core";
+import { b2BodyType, b2PolygonShape } from "@box2d/core";
+import { GameBox2dSource } from '@ogod/game-box2d-driver';
 import { concat, distinctUntilChanged, filter, first, ignoreElements, map, merge, of, switchMap, takeUntil, tap, timer, withLatestFrom } from "rxjs";
 import { makeShape } from "../shape/make";
-import { WorkerSources } from "../state";
+import { AppState, WorkerSources } from "../state";
 import { Player, PlayerFeet, PlayerId } from "./state";
 
-export function makePlayer(world: b2World, scale: number): Player {
+export function makePlayer(world: GameBox2dSource): Player {
     const width = 16;
     const height = 30;
     const player = makeShape<Player>({
         color: '#A1FFA1',
         id: PlayerId,
         type: 'rect',
-        x: 0,
-        y: 0,
+        x: 25,
+        y: 525,
         width,
         height,
         bodyType: b2BodyType.b2_dynamicBody,
@@ -20,8 +21,9 @@ export function makePlayer(world: b2World, scale: number): Player {
         grounded: 0,
         jumping: false,
         fixedRotation: true
-    }, world, scale);
-    const feetShape = new b2PolygonShape().SetAsBox(0.2, 0.2, { x: 0, y: -1.5 });
+    }, world);
+    const feetSize = width / (2 * world.scale) - 0.1;
+    const feetShape = new b2PolygonShape().SetAsBox(feetSize, feetSize, { x: 0, y: -height / (2 * world.scale) });
     player.body.CreateFixture({
         shape: feetShape,
         isSensor: true,
@@ -62,8 +64,8 @@ export function makePlayerUpdate$(sources: WorkerSources) {
                         const velocity = player.body.GetLinearVelocity();
                         if (state.controls.left || state.controls.right) {
                             const dir = state.controls.left ? -1 : 1;
-                            if (Math.abs(velocity.x) < 10) {
-                                player.body.SetLinearVelocity({ x: velocity.x + dir * delta / 100, y: velocity.y });
+                            if (Math.abs(velocity.x) < 8) {
+                                player.body.SetLinearVelocity({ x: velocity.x + dir * delta / 30, y: velocity.y });
                             }
                         } else {
                             player.body.SetLinearVelocity({ x: 0, y: velocity.y });
@@ -73,7 +75,7 @@ export function makePlayerUpdate$(sources: WorkerSources) {
                 ),
                 sources.GameEngine.state$.pipe(
                     filter((state: any) => !player.jumping && state.controls.jump && player.grounded > 0),
-                    switchMap((state: any) => {
+                    switchMap((state: AppState) => {
                         player.jumping = true;
                         return concat(
                             sources.GameEngine.update$.pipe(
@@ -88,7 +90,7 @@ export function makePlayerUpdate$(sources: WorkerSources) {
                                 tap({
                                     next: (delta: number) => {
                                         const velocity = player.body.GetLinearVelocity();
-                                        player.body.SetLinearVelocity({ x: velocity.x, y: Math.min(velocity.y + delta / 5, 15) })
+                                        player.body.SetLinearVelocity({ x: velocity.x, y: Math.min(velocity.y + delta / 20, 15) })
                                     },
                                     complete: () => player.jumping = false
                                 }),

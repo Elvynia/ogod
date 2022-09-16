@@ -1,6 +1,7 @@
 import { isEngineActionCanvas, RenderState } from '@ogod/game-core';
-import { concat, distinctUntilChanged, EMPTY, filter, first, map, switchMap, takeUntil } from 'rxjs';
+import { distinctUntilChanged, distinctUntilKeyChanged, EMPTY, filter, first, map, switchMap, takeUntil, tap } from 'rxjs';
 import { Camera } from './camera/state';
+import { PHASE } from './phase/state';
 import { Shape } from "./shape/state";
 import { Sleet } from './sleet/state';
 import { AppState, WorkerSources } from './state';
@@ -27,9 +28,10 @@ export function makeDrawCircle(ctx: CanvasRenderingContext2D) {
     }
 }
 
-export function makeDrawSvg(ctx: CanvasRenderingContext2D) {
-    ctx.lineCap = 'round';
+export function makeDrawSleet(ctx: CanvasRenderingContext2D) {
     return (sleet: Sleet) => {
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
         ctx.beginPath();
         ctx.lineWidth = sleet.width;
         ctx.strokeStyle = sleet.color;
@@ -41,7 +43,7 @@ export function makeDrawSvg(ctx: CanvasRenderingContext2D) {
 export const makeDrawHandlers = (ctx) => ({
     circle: makeDrawCircle(ctx),
     rect: makeDrawRect(ctx),
-    svg: makeDrawSvg(ctx)
+    splash: makeDrawSleet(ctx)
 });
 
 export function makeRender(ctx: CanvasRenderingContext2D) {
@@ -49,15 +51,15 @@ export function makeRender(ctx: CanvasRenderingContext2D) {
     return {
         splash: (delta: number, state: AppState) => {
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-            Object.values(state.splash).forEach((obj) => drawHandlers['svg'](obj));
+            Object.values(state.splash).forEach((obj) => drawHandlers.splash(obj));
         },
-        // start: (delta: number, state: AppState) => {
-        //     ctx.clearRect(0, 0, canvas.width, canvas.height);
-        //     Object.values(state.background.gradients).forEach((g) => {
-        //         ctx.fillStyle = g.color;
-        //         ctx.fillRect(g.x, g.y, g.width, g.height);
-        //     });
-        // },
+        start: (delta: number, state: AppState) => {
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            Object.values(state.background.gradients).forEach((g) => {
+                ctx.fillStyle = g.color;
+                ctx.fillRect(g.x, g.y, g.width, g.height);
+            });
+        },
         play: (delta: number, state: AppState) => {
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
             Object.values(state.background.gradients).forEach((g) => {
@@ -76,31 +78,33 @@ export function makeRender$(sources: WorkerSources) {
         switchMap(({ payload }) => {
             const ctx: CanvasRenderingContext2D = payload.getContext('2d');
             const renderers = makeRender(ctx);
-            return concat(
-                sources.GameEngine.state$.pipe(
-                    filter((s) => !!s.splash),
-                    first(),
-                    switchMap(() => sources.GameEngine.render$.pipe(
-                        map((args) => [...args, renderers.splash] as RenderState),
-                        takeUntil(sources.GameEngine.state$.pipe(
-                            filter((state) => !state.splash),
-                            first()
-                        ))
-                    ))
-                ),
-                sources.GameEngine.state$.pipe(
-                    map((s) => s.loaded),
-                    distinctUntilChanged(),
-                    switchMap((loaded) => {
-                        if (!loaded) {
+            return sources.GameEngine.state$.pipe(
+                map((s) => s.phase),
+                distinctUntilChanged(),
+                switchMap((phase) => {
+                    switch (phase) {
+                        case PHASE.SPLASH:
+                            return sources.GameEngine.render$.pipe(
+                                map((args) => [...args, renderers.splash] as RenderState),
+                                takeUntil(sources.GameEngine.state$.pipe(
+                                    filter((state) => !state.splash),
+                                    first()
+                                ))
+                            );
+                        case PHASE.START:
+                            return sources.GameEngine.render$.pipe(
+                                map((args) => [...args, renderers.start] as RenderState)
+                            );
+                        case PHASE.PLAY:
+                            return sources.GameEngine.render$.pipe(
+                                map((args) => [...args, renderers.play] as RenderState)
+                            );
+                        case PHASE.END:
                             ctx.clearRect(0, 0, payload.width, payload.height);
+                        default:
                             return EMPTY;
-                        }
-                        return sources.GameEngine.render$.pipe(
-                            map((args) => [...args, renderers.play] as RenderState)
-                        );
-                    })
-                )
+                    }
+                })
             );
         }),
 

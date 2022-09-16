@@ -1,7 +1,9 @@
 import { makeFeature$ } from '@ogod/game-engine-driver';
-import { filter, first, ignoreElements, map, switchMap, tap } from 'rxjs';
+import chroma from 'chroma-js';
+import { distinctUntilChanged, filter, first, ignoreElements, map, startWith, switchMap, tap, withLatestFrom } from 'rxjs';
 import { AppState, WorkerSources } from "../state";
-import { BackgroundGradient } from './state';
+import { randColor } from '../util';
+import { Background, BackgroundGradient } from './state';
 
 export function makeBackground(ctx: CanvasRenderingContext2D, rect: Omit<BackgroundGradient, 'color'>, colors: string[]) {
     const color = ctx.createLinearGradient(rect.x1, rect.y1, rect.x2, rect.y2);
@@ -19,60 +21,57 @@ export function makeFeatureBackgroundColors(sources: WorkerSources, target: AppS
     return makeFeature$({
         key: 'background',
         value$: sources.GameEngine.actions.background.pipe(
-            map((colors) => {
-                target.background.colors = colors;
-                return target.background;
+            startWith(randColor()),
+            map((color: string) => {
+                return {
+                    ...target.background,
+                    baseColor: color,
+                    colors: chroma.scale([randColor(), randColor(), randColor(), randColor(), randColor()])
+                        .mode('lch').colors(50)
+                };
             })
         ),
         target
     });
 }
 
-export function makeFeatureBackgroundLoad(sources: WorkerSources, target: AppState) {
-    return makeFeature$({
-        key: 'background',
-        value$: sources.GameEngine.state$.pipe(
-            filter((s) => !!s.background.colors),
-            first(),
-            ignoreElements()
-        ),
-        target
-    })
+function updateBackground(state: AppState, ctx: CanvasRenderingContext2D, colorWidth: number) {
+    state.background.lastPos = state.camera.x;
+    const colorStart = Math.floor(state.camera.x / colorWidth);
+    const posStart = colorStart * colorWidth;
+    let colors = [];
+    while (colors.length * colorWidth <= ctx.canvas.width + 2 * colorWidth) {
+        const index = colorStart + colors.length;
+        colors.push(state.background.colors[index >= state.background.colors.length ? state.background.colors.length - 1 : index]);
+    }
+    const x1 = posStart - state.camera.x;
+    state.background.gradients = [makeBackground(ctx, {
+        x: 0,
+        y: 0,
+        x1,
+        y1: 0,
+        x2: x1 + colors.length * colorWidth,
+        y2: 0,
+        width: ctx.canvas.width,
+        height: ctx.canvas.height
+    }, colors)];
 }
 
 export function makeFeatureBackgroundUpdate(sources: WorkerSources, target: AppState) {
     return makeFeature$({
         key: 'background',
         value$: sources.GameEngine.state$.pipe(
-            filter((s) => s.background?.colors && !!s.camera),
-            first(),
-            switchMap((state) => {
-                const background = state.background;
+            filter((s) => s.background?.colors && s.phase > 0),
+            map((s) => s.background),
+            distinctUntilChanged(),
+            withLatestFrom(sources.GameEngine.state$),
+            switchMap(([b, state]) => {
                 const ctx = sources.GameEngine.canvas.getContext('2d');
-                const colorWidth = Math.round(state.gmap.width * state.gmap.mapScale / background.colors.length);
+                const colorWidth = Math.round(state.gmap.width * state.gmap.scale / state.background.colors.length);
+                updateBackground(state, ctx, colorWidth);
                 return sources.GameEngine.update$.pipe(
-                    filter(() => state.camera.x !== background.lastPos),
-                    tap(() => {
-                        background.lastPos = state.camera.x;
-                        const colorStart = Math.floor(state.camera.x / colorWidth);
-                        const posStart = colorStart * colorWidth;
-                        let colors = [];
-                        while (colors.length * colorWidth <= ctx.canvas.width + 2 * colorWidth) {
-                            const index = colorStart + colors.length;
-                            colors.push(background.colors[index >= background.colors.length ? background.colors.length - 1 : index]);
-                        }
-                        const x1 = posStart - state.camera.x;
-                        background.gradients = [makeBackground(ctx, {
-                            x: 0,
-                            y: 0,
-                            x1,
-                            y1: 0,
-                            x2: x1 + colors.length * colorWidth,
-                            y2: 0,
-                            width: ctx.canvas.width,
-                            height: ctx.canvas.height
-                        }, colors)];
-                    }),
+                    filter(() => state.camera.x !== state.background.lastPos),
+                    tap(() => updateBackground(state, ctx, colorWidth)),
                     ignoreElements()
                 )
             })

@@ -6,7 +6,7 @@ import { makeCreatePlatform } from '../platform/make';
 import { AppState, WorkerSources } from '../state';
 import { MapState } from './state';
 
-export function makeFeatureLoadMap(sources: WorkerSources, target: AppState) {
+export function makeFeatureMapLoad(sources: WorkerSources, target: AppState) {
     const loading = {
         progress: 0,
         message: 'Generating map platforms !'
@@ -19,11 +19,7 @@ export function makeFeatureLoadMap(sources: WorkerSources, target: AppState) {
                 first(),
                 map((state) => state.gmap),
                 switchMap((gmap: MapState) => {
-                    if(Object.keys(gmap.platforms).length) {
-                        Object.values(gmap.platforms).forEach((p) => sources.World.instance.DestroyBody(p.body))
-                        gmap.platforms = {};
-                    }
-                    const makePlatform = makeCreatePlatform(sources.World.instance, gmap.scale)
+                    const makePlatform = makeCreatePlatform(sources.World)
                     return range(0, gmap.width).pipe(
                         concatMap((i) => of(i).pipe(
                             tap((x) => {
@@ -31,7 +27,7 @@ export function makeFeatureLoadMap(sources: WorkerSources, target: AppState) {
                                 while (y < gmap.height) {
                                     const value = noise(x, y);
                                     if (value > 0) {
-                                        const p = makePlatform(x * gmap.mapScale, y * gmap.mapScale, 50, 10);
+                                        const p = makePlatform(x * gmap.scale, y * gmap.scale, 80, 10);
                                         gmap.platforms[p.id] = p;
                                     }
                                     ++y;

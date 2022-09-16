@@ -1,11 +1,11 @@
 import { canvas, div, h, h3, makeDOMDriver } from '@cycle/dom';
 import { gameRun } from '@ogod/game-run';
 import { makeEngineAction, makeGameEngineWorker, makeWorkerMessage } from '@ogod/game-worker-driver';
-import chroma from 'chroma-js';
-import { combineLatest, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, map, merge, Observable, of, startWith, Subject, switchMap, throttleTime, tap } from 'rxjs';
+import { combineLatest, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, map, merge, Observable, of, startWith, Subject, switchMap, throttleTime } from 'rxjs';
 import xs from 'xstream';
 import { makeControls$ } from './app/controls/make';
 import { makeElementMenu$, makeListenerMenu$ } from './app/menu/make';
+import { PHASE } from './app/phase/state';
 import { AppReflectState, AppSources } from "./app/state";
 import { randColor } from './app/util';
 
@@ -41,18 +41,14 @@ function main(sources: AppSources) {
             ),
             from(sources.DOM.select('#start').events('click') as any as Observable<MouseEvent>).pipe(
                 map(() => makeWorkerMessage({
-                    key: 'start',
-                    value: true
+                    key: 'phase',
+                    value: PHASE.LOAD
                 }))
             ),
             fromEvent(document, 'keyup').pipe(
                 filter((e: KeyboardEvent) => e.code === 'Escape'),
                 map(() => makeWorkerMessage({ key: 'paused' }))
             ),
-            of(makeWorkerMessage({
-                key: 'background', value: chroma.scale([randColor(), randColor(), randColor(), randColor(), randColor()])
-                    .mode('lch').colors(30)
-            })),
             makeListenerMenu$(sources)
         ),
         DOM: combineLatest([
@@ -73,8 +69,8 @@ function main(sources: AppSources) {
                     ) : of([]))
                 ),
                 sources.GameWorker.input$.pipe(
-                    distinctUntilKeyChanged('initialized'),
-                    filter((s) => s.initialized),
+                    distinctUntilKeyChanged('phase'),
+                    filter((s) => s.phase === PHASE.START),
                     map(() => [h('div', {
                         props: {
                             id: 'start'

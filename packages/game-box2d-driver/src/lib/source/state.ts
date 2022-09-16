@@ -6,4 +6,5 @@ export interface GameBox2dSource {
     contact$: Subject<Contact>;
     dispose: Function;
     instance: b2World;
+    scale: number;
 }

@@ -5,7 +5,7 @@ import { GameBox2dSink } from '../sink/state';
 import { GameBox2dSource } from '../source/state';
 import { Contact } from './../contact/state';
 
-export function makeGameBox2dDriver(initalGravity: XY = { x: 0, y: 0 }) {
+export function makeGameBox2dDriver(initalGravity: XY = { x: 0, y: 0 }, scale: number = 20) {
     let world = b2World.Create(initalGravity);
     const contact$ = new Subject<Contact>();
     const subs: Subscription[] = [];
@@ -36,7 +36,8 @@ export function makeGameBox2dDriver(initalGravity: XY = { x: 0, y: 0 }) {
                 subs.forEach((s) => s.unsubscribe());
                 console.debug('[GameBox2d] Disposed');
             },
-            instance: world
+            instance: world,
+            scale
         }
     }
 }

@@ -1,6 +1,6 @@
 import { MainDOMSource } from '@cycle/dom';
-import { GameBox2dSource } from '@ogod/game-box2d-driver';
-import { GameEngineSource, GameEngineWorker } from '@ogod/game-core';
+import { GameBox2dSink, GameBox2dSource } from '@ogod/game-box2d-driver';
+import { GameEngineSink, GameEngineSource, GameEngineWorker } from '@ogod/game-core';
 import { Background } from './background/state';
 import { Camera } from './camera/state';
 import { Controls } from './controls/state';
@@ -9,8 +9,9 @@ import { MapState } from './map/state';
 import { Shapes } from './shape/state';
 import { Sleet } from './sleet/state';
 
-export type AppReflectState = Pick<AppState, 'loading' | 'initialized' | 'loaded' | 'fps' | 'paused'>
-    & Pick<MapState, 'level'>;
+export type AppReflectState = Pick<AppState, 'phase' | 'loading' | 'fps' | 'paused'>
+    & Pick<MapState, 'level'>
+    & Pick<Background, 'baseColor'>;
 
 export interface AppSources {
     GameWorker: GameEngineWorker<AppReflectState>;
@@ -19,23 +20,25 @@ export interface AppSources {
 
 export interface AppState {
     background: Background;
-    splash: Record<string, Sleet>;
     camera: Camera;
+    controls?: Controls<any>;
     fps: number;
-    shapes: Shapes;
-    controls: Controls<any>;
     gmap: MapState;
     loading?: LoadingState;
-    initialized: boolean;
     paused: boolean;
-    loaded?: boolean;
-    start?: boolean;
-    ready: boolean;
+    phase: number;
+    shapes: Shapes;
+    splash?: Record<string, Sleet>;
 }
 
-export type AppAction = 'camera' | 'controls' | 'start' | 'paused' | 'gravity' | 'background';
+export type AppAction = 'camera' | 'controls' | 'phase' | 'paused' | 'gravity' | 'background';
 
 export interface WorkerSources {
-    GameEngine: GameEngineSource<AppState, AppAction>;
+    GameEngine: GameEngineSource<AppState, AppAction, AppReflectState>;
     World: GameBox2dSource;
+}
+
+export interface WorkerSinks {
+    GameEngine: GameEngineSink<AppState, AppReflectState>;
+    World: GameBox2dSink;
 }

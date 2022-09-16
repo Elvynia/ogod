@@ -24,7 +24,7 @@ export function makeElementMenuOptions() {
     return div({ props: { id: 'menu' } }, [
         h1('MENU - OPTIONS'),
         div({ class: { content: true } }, [
-            makeElementOption('Background: ', [input({ props: { id: 'background' } })]),
+            makeElementOption('Background: ', [input({ props: { id: 'baseColor' } })]),
             makeElementOption('Gravity: ', [input({ props: { id: 'gravity' }, attrs: { type: 'number' } })]),
             button({ props: { id: 'back' } }, 'Back to menu')
         ])
@@ -59,6 +59,11 @@ export function makeListenerMenu$(sources: AppSources) {
             filter((g: string) => !!g.match(/^-?\d+\.?\d*$/)),
             map((g) => parseFloat(g)),
             map((value) => makeWorkerMessage({ key: 'gravity', value }))
+        ),
+        from(sources.DOM.select('#baseColor').events('input') as any).pipe(
+            map((e: any) => e.target.value),
+            filter((v: string) => !!v.match(/^#[0-9a-fA-F]{6}$/)),
+            map((value) => makeWorkerMessage({ key: 'background', value }))
         )
     );
 }
