@@ -79,11 +79,6 @@ function main(sources: AppSources) {
                 )
             ),
             sources.GameWorker.input$.pipe(
-                map((s) => s.paused),
-                distinctUntilChanged(),
-                switchMap((paused) => paused ? makeElementMenu$(sources) : of(null))
-            ),
-            sources.GameWorker.input$.pipe(
                 distinctUntilKeyChanged('fps'),
                 map((state: any) => state.fps),
                 startWith(''),
@@ -95,15 +90,20 @@ function main(sources: AppSources) {
                 map((state: any) => state.level),
                 map((l) => h3({ props: { id: 'level' } }, 'Level: ' + l)),
                 startWith(null)
+            ),
+            sources.GameWorker.input$.pipe(
+                map((s) => s.paused),
+                distinctUntilChanged(),
+                switchMap((paused) => paused ? makeElementMenu$(sources) : of(null))
             )
         ]).pipe(
-            map(([canvas, uis, menu, fps, level]) => {
+            map(([canvas, uis, fps, level, menu]) => {
                 const children = [canvas, ...uis, fps];
-                if (menu) {
-                    children.push(menu);
-                }
                 if (level) {
                     children.push(level);
+                }
+                if (menu) {
+                    children.push(menu);
                 }
                 return div([
                     div({

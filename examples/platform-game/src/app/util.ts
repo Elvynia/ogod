@@ -7,5 +7,5 @@ export function randColor() {
     while (c.length < 6) {
       c += '0';
     }
-    return c;
+    return '#' + c;
 }

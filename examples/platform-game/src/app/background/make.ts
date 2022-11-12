@@ -1,5 +1,5 @@
 import { makeFeature$ } from '@ogod/game-engine-driver';
-import chroma from 'chroma-js';
+import * as chroma from 'chroma-js';
 import { distinctUntilChanged, filter, first, ignoreElements, map, startWith, switchMap, tap, withLatestFrom } from 'rxjs';
 import { AppState, WorkerSources } from "../state";
 import { randColor } from '../util';
@@ -23,10 +23,16 @@ export function makeFeatureBackgroundColors(sources: WorkerSources, target: AppS
         value$: sources.GameEngine.actions.background.pipe(
             startWith(randColor()),
             map((color: string) => {
+                const ch = chroma(color).lch();
+                const colors = [color];
+                for (let i = 0; i < 4; ++i) {
+                    ch[2] += 50;
+                    colors.push(chroma.lch(...ch).hex())
+                }
                 return {
                     ...target.background,
                     baseColor: color,
-                    colors: chroma.scale([randColor(), randColor(), randColor(), randColor(), randColor()])
+                    colors: chroma.scale(colors)
                         .mode('lch').colors(50)
                 };
             })

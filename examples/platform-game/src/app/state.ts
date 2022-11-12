@@ -10,7 +10,7 @@ import { Shapes } from './shape/state';
 import { Sleet } from './sleet/state';
 
 export type AppReflectState = Pick<AppState, 'phase' | 'loading' | 'fps' | 'paused'>
-    & Pick<MapState, 'level'>
+    & Pick<MapState, 'level' | 'gravity'>
     & Pick<Background, 'baseColor'>;
 
 export interface AppSources {
