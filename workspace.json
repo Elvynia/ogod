@@ -9,6 +9,7 @@
     "game-engine-driver": "packages/game-engine-driver",
     "game-run": "packages/game-run",
     "game-worker-driver": "packages/game-worker-driver",
+    "noise-viewer": "examples/noise-viewer",
     "platform-game": "examples/platform-game"
   }
 }

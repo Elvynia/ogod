@@ -1,0 +1,64 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "examples/noise-viewer/src",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nrwl/web:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/examples/noise-viewer",
+        "compiler": "babel",
+        "index": "examples/noise-viewer/src/index.html",
+        "baseHref": "/",
+        "main": "examples/noise-viewer/src/main.ts",
+        "polyfills": "examples/noise-viewer/src/polyfills.ts",
+        "tsConfig": "examples/noise-viewer/tsconfig.app.json",
+        "assets": [
+          "examples/noise-viewer/src/favicon.ico",
+          "examples/noise-viewer/src/assets"
+        ],
+        "styles": ["examples/noise-viewer/src/styles.css"],
+        "scripts": [],
+        "webpackConfig": "examples/noise-viewer/webpack.config.js"
+      },
+      "configurations": {
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "examples/noise-viewer/src/environments/environment.ts",
+              "with": "examples/noise-viewer/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/web:dev-server",
+      "options": {
+        "buildTarget": "noise-viewer:build",
+        "port": 4203
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "noise-viewer:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["examples/noise-viewer/**/*.ts"]
+      }
+    }
+  }
+}
