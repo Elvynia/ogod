@@ -1,14 +1,11 @@
-import { GameEngineSink, GameEngineSource, GameEngineWorker } from '@ogod/game-core';
-import { NoiseSource, NoiseView } from './noises/state';
-
-export interface XY {
-    x: number;
-    y: number;
-}
+import { GameEngineSink, GameEngineSource, GameEngineWorker, WorkerMessage } from '@ogod/game-core';
+import { Subject } from 'rxjs';
 
 export interface AppState {
-    noises: NoiseView[];
-    sources: NoiseSource[];
+    generator: () => (x: number, y: number) => number;
+    scale: number;
+    offset: () => number;
+    data: ImageData;
 }
 
 export interface AppReflectState {
@@ -16,10 +13,10 @@ export interface AppReflectState {
 
 export interface AppSources {
     GameWorker: GameEngineWorker<AppReflectState>;
-    // ElementHost: Subject<WorkerMessage>;
+    ElementHost: Subject<WorkerMessage>;
 }
 
-export type AppAction = 'camera';
+export type AppAction = 'camera' | 'generator' | 'scale' | 'offset';
 
 export interface WorkerSources {
     GameEngine: GameEngineSource<AppState, AppAction>;

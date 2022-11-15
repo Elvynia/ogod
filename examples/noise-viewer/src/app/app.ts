@@ -1,17 +1,11 @@
 import { gameRun } from '@ogod/game-run';
 import { makeEngineAction, makeGameEngineWorker } from '@ogod/game-worker-driver';
-import { from, fromEvent, map, merge, mergeMap, Observable, switchMap } from 'rxjs';
-import { AppReflectState, AppSources } from './state';
+import { from, Observable, switchMap } from "rxjs";
+import { AppReflectState, AppSources } from "./state";
 
 function main(sources: AppSources) {
-    const objects$ = merge(
-        fromEvent(document, 'mousemove') as Observable<MouseEvent>,
-        fromEvent(document, 'touchmove').pipe(mergeMap((e: TouchEvent) => e.touches))
-    ).pipe(
-        map(({ clientX, clientY }) => [{ key: 'objects', value: { x: clientX, y: clientY } }])
-    );
     return {
-        GameWorker: merge(objects$, sources.ElementHost),
+        GameWorker: sources.ElementHost,
         ElementHost: sources.GameWorker.input$
     };
 }

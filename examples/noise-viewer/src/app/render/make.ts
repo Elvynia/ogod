@@ -1,12 +1,9 @@
-import { createNoise2D } from 'simplex-noise';
 import { isEngineActionCanvas, RenderState } from "@ogod/game-core";
-import { filter, map, switchMap } from "rxjs";
+import { filter, first, map, switchMap } from "rxjs";
 import { AppState, WorkerSources } from "../state";
 
 export function makeRender(ctx: CanvasRenderingContext2D) {
-    return (_, state: AppState) => {
-        state.noises.forEach((n) => ctx.putImageData(n.data, n.x, n.y));
-    }
+    return (_, state: AppState) => ctx.putImageData(state.data, 0, 0);
 }
 
 export function makeRender$(sources: WorkerSources) {
@@ -15,8 +12,12 @@ export function makeRender$(sources: WorkerSources) {
         switchMap(({ payload }) => {
             const ctx: CanvasRenderingContext2D = payload.getContext('2d');
             const render = makeRender(ctx);
-            return sources.GameEngine.render$.pipe(
-                map((args) => [...args, render] as RenderState)
+            return sources.GameEngine.state$.pipe(
+                filter((s) => !!s.data),
+                first(),
+                switchMap(() => sources.GameEngine.render$.pipe(
+                    map((args) => [...args, render] as RenderState)
+                ))
             )
         })
     );
