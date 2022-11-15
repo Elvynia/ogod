@@ -43,7 +43,13 @@ export function makeGameEngineDriver<S = any, A extends string = any, R = any, A
             update$
         };
         if (options.workerContext) {
-            options.workerContext.onmessage = (event: any) => actions[event.data.key as keyof AS].next(event.data.value);
+            options.workerContext.onmessage = (event: any) => {
+                try {
+                    actions[event.data.key as keyof AS].next(event.data.value)
+                } catch (e) {
+                    console.error('cannot send action for event data: ', event.data, e)
+                }
+            };
             makeEngineActionHandlers(sources);
         }
         return sources;
