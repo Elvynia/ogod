@@ -1,5 +1,5 @@
 import { gameRun } from '@ogod/game-run';
-import { makeEngineAction, makeGameEngineWorker } from '@ogod/game-worker-driver';
+import { makeDriverGameWorker, makeEngineAction } from '@ogod/game-worker-driver';
 import { from, fromEvent, map, merge, mergeMap, Observable, switchMap } from 'rxjs';
 import { AppReflectState, AppSources } from './state';
 
@@ -29,12 +29,14 @@ function makeGameElementDriver(host: any) {
 export const runApp = (worker, host) => {
     console.log('START app');
     const disposeApp = gameRun(main, {
-        GameWorker: makeGameEngineWorker(worker),
+        GameWorker: makeDriverGameWorker(worker),
         ElementHost: makeGameElementDriver(host)
     });
-    return () => {
+    const stopApp = () => {
         console.log('STOP app');
         worker.postMessage(...makeEngineAction('OGOD_ENGINE_CLOSE'));
         disposeApp();
-    }
+    };
+    (window as any).stopApp = stopApp;
+    return stopApp;
 };

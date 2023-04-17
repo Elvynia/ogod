@@ -1,57 +1,73 @@
-import { ActionState, GameEngineDriver, GameEngineOptions, GameEngineSink, GameEngineSource } from '@ogod/game-core';
-import { animationFrames, last, Subject, takeUntil, withLatestFrom } from "rxjs";
-import { makeEngineActionHandlers } from '../action/make';
-import { makeGameEngineOptions } from '../options/make';
+import { EngineAction } from '@ogod/game-core';
+import { ReplaySubject, Subject } from "rxjs";
+import { makeActionListenerEngine } from '../action/make';
+import { makeGame$ } from '../game/make';
+import { GameEngineOptions } from '../option/state';
+import { RendererSubject } from '../render/state';
+import { makeUpdate$ } from '../update/make';
+import { GameEngineDriver, GameEngineSink, GameEngineSource } from './state';
 
-export function makeGameEngineDriver<S = any, A extends string = any, R = any, AS extends ActionState<A> = ActionState<A>>
-    (options: GameEngineOptions<S, A, R, AS> = makeGameEngineOptions<S, A, R, AS>()): GameEngineDriver<S, A, R, AS> {
-    const actions = options.actionHandlers;
-    const frame$ = animationFrames();
-    const state$ = options.state$;
-    const update$ = new Subject<number>();
-    return (sink$: Promise<GameEngineSink<S, R>>): GameEngineSource<S, A, R, AS> => {
+/**
+ *
+ * @param options GameEngineOptions<S, A> parameters to control driver properties at creation.
+ * @returns GameEngineDriver<S, A, R> a driver that can be used with game-run package.
+ */
+export function makeDriverGameEngine<
+    S extends Record<string, any> = any,
+    A extends string = any,
+    R = any,
+    C = OffscreenCanvas>
+    (options: GameEngineOptions<S, A> = { actionKeys: [] }): GameEngineDriver<S, A[number], R, C> {
+    const state$ = options.state$ || new ReplaySubject<S>(1);
+    const game$ = new RendererSubject<S>();
+    const target$ = new ReplaySubject<C>(1);
+    return (sink$: Promise<GameEngineSink<S, R>>): GameEngineSource<S, A[number], C> => {
         console.debug('[GameEngine] Created');
         sink$.then((sink) => {
-            sink.feature$.pipe(
-                takeUntil(state$.pipe(last()))
-            ).subscribe(state$);
-            if (sink.update$) {
-                sink.update$.subscribe(update$);
+            if (sink.game$) {
+                sink.game$.subscribe(game$);
+            } else {
+                makeGame$({ state$, update$: sink.update$ || makeUpdate$() }).subscribe(game$);
+            }
+            if (sink.renderer$) {
+                sink.renderer$.subscribe(game$.renderers$);
             }
             if (sink.reflect$) {
-                sink.reflect$.subscribe((state) => options.workerContext!.postMessage(state));
+                if (options.workerContext) {
+                    sink.reflect$.subscribe((state) => options.workerContext!.postMessage(state));
+                } else {
+                    throw new Error('[GameEngine] Worker context is required when using reflect mode');
+                }
             }
-            if (sink.render$) {
-                sink.render$.subscribe(([delta, state, render]) => render(delta, state));
-            }
+            sink.state$.subscribe(state$);
             console.debug('[GameEngine] Initialized');
         });
-        const sources = {
-            actions,
+        const actionHandler = {
+            engine: new Subject<EngineAction>()
+        } as Record<A[number] | 'engine', Subject<any>>;
+        options.actionKeys.forEach((ak: A[number]) => actionHandler[ak] = new Subject());
+        const source = {
+            actionHandler,
             dispose: () => {
+                game$.complete();
                 state$.complete();
-                update$.complete();
-                Object.keys(actions).forEach((k) => actions[k as keyof AS].complete());
+                Object.keys(source.actionHandler).forEach((k) => source.actionHandler[k as A[number]].complete());
                 console.debug('[GameEngine] Disposed');
             },
-            frame$,
-            options,
-            render$: update$.pipe(
-                withLatestFrom(state$)
-            ),
+            game$,
             state$,
-            update$
-        };
+            target$
+        } as const satisfies GameEngineSource<S, A[number], C>;
         if (options.workerContext) {
-            options.workerContext.onmessage = (event: any) => {
+            options.workerContext.onmessage = (event: MessageEvent<{ key: A[number], value: any }>) => {
                 try {
-                    actions[event.data.key as keyof AS].next(event.data.value)
+                    source.actionHandler[event.data.key].next(event.data.value);
                 } catch (e) {
-                    console.error('cannot send action for event data: ', event.data, e)
+                    console.error('cannot send action for event data: ', event.data, e);
                 }
             };
-            makeEngineActionHandlers(sources);
         }
-        return sources;
+        makeActionListenerEngine({ source, workerContext: options.workerContext });
+        return source;
     };
 }

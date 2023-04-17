@@ -1,6 +1,6 @@
 import { gameRun } from '@ogod/game-run';
-import { makeEngineAction, makeGameEngineWorker } from '@ogod/game-worker-driver';
-import { from, Observable, switchMap } from "rxjs";
+import { makeDriverGameWorker, makeEngineAction } from '@ogod/game-worker-driver';
+import { Observable, from, switchMap } from "rxjs";
 import { AppReflectState, AppSources } from "./state";
 
 function main(sources: AppSources) {
@@ -10,7 +10,7 @@ function main(sources: AppSources) {
     };
 }
 
-function makeGameElementDriver(host: any) {
+function makeDriverGameElement(host: any) {
     return (sink$: Promise<Observable<AppReflectState>>) => {
         host.app.input$ = from(sink$).pipe(
             switchMap((input$) => input$)
@@ -23,12 +23,14 @@ function makeGameElementDriver(host: any) {
 export const runApp = (worker, host) => {
     console.log('START app');
     const disposeApp = gameRun(main, {
-        GameWorker: makeGameEngineWorker(worker),
-        ElementHost: makeGameElementDriver(host)
+        GameWorker: makeDriverGameWorker(worker),
+        ElementHost: makeDriverGameElement(host)
     });
-    return () => {
+    const stopApp = () => {
         console.log('STOP app');
         worker.postMessage(...makeEngineAction('OGOD_ENGINE_CLOSE'));
         disposeApp();
-    }
+    };
+    (window as any).stopApp = stopApp;
+    return stopApp;
 };

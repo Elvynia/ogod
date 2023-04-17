@@ -1,35 +1,34 @@
-import { GameEngineSource, isEngineActionCanvas, isEngineActionHandlerAdd, isEngineActionHandlerAddKey, isEngineActionHandlerComplete } from '@ogod/game-core';
-import { filter, Subject } from 'rxjs';
+import { isEngineActionCanvas, isEngineActionHandlerAdd, isEngineActionHandlerAddKey, isEngineActionHandlerComplete } from '@ogod/game-core';
+import { Subject, filter } from 'rxjs';
+import { GameEngineSource } from '../driver/state';
 
-export function makeEngineActionHandlers(sources: GameEngineSource) {
+export function makeActionListenerEngine<C = OffscreenCanvas>(params: {
+    source: GameEngineSource<any, any, C>,
+    workerContext?: DedicatedWorkerGlobalScope
+}) {
     // Handler Add
-    sources.actions.engine.pipe(
+    params.source.actionHandler['engine'].pipe(
         filter(isEngineActionHandlerAdd)
-    ).subscribe(({ payload }) => Object.assign(sources.options.actionHandlers, payload));
+    ).subscribe(({ payload }) => Object.assign(params.source.actionHandler, payload));
     // Handler add by key
-    sources.actions.engine.pipe(
+    params.source.actionHandler['engine'].pipe(
         filter(isEngineActionHandlerAddKey)
-    ).subscribe(({ payload }) => Object.assign(sources.options.actionHandlers, { [payload]: new Subject<any>() }));
+    ).subscribe(({ payload }) => Object.assign(params.source.actionHandler, { [payload]: new Subject<any>() }));
     // Handler complete and remove
-    sources.actions.engine.pipe(
+    params.source.actionHandler['engine'].pipe(
         filter(isEngineActionHandlerComplete)
     ).subscribe(({ payload }) => {
-        sources.options.actionHandlers[payload].complete();
-        delete sources.options.actionHandlers[payload];
+        params.source.actionHandler[payload].complete();
+        delete params.source.actionHandler[payload];
     });
-    // Set canvas
-    sources.actions.engine.pipe(
-        filter(isEngineActionCanvas)
+    params.source.actionHandler['engine'].pipe(
+        filter(isEngineActionCanvas<C>)
     ).subscribe(({ payload }) => {
-        sources.canvas = payload;
+        params.source.target$.next(payload);
     });
-    // Close
-    const actualClose = sources.options.workerContext!.close;
-    sources.options.workerContext!.close = () => {
-        sources.options.dispose && sources.options.dispose();
-        actualClose();
-    };
-    sources.actions.engine.pipe(
-        filter((action) => action.type === 'OGOD_ENGINE_CLOSE')
-    ).subscribe(() => sources.options.workerContext!.close());
+    if (params.workerContext) {
+        params.source.actionHandler['engine'].pipe(
+            filter((action) => action.type === 'OGOD_ENGINE_CLOSE')
+        ).subscribe(() => params.workerContext!.close());
+    }
 }

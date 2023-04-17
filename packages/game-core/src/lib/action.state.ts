@@ -1,10 +1,10 @@
-import { Subject } from "rxjs";
+import { SubjectLike } from "rxjs";
 
 export type EngineActionType = 'OGOD_ENGINE_CLOSE'
     | 'OGOD_ENGINE_HANDLER_ADD'
     | 'OGOD_ENGINE_HANDLER_ADD_KEY'
     | 'OGOD_ENGINE_HANDLER_COMPLETE'
-    | 'OGOD_ENGINE_CANVAS';
+    | 'OGOD_ENGINE_TARGET';
 
 export interface EngineAction {
     type: EngineActionType;
@@ -13,7 +13,7 @@ export interface EngineAction {
 
 export interface EngineActionHandlerAdd extends EngineAction {
     type: 'OGOD_ENGINE_HANDLER_ADD';
-    payload: ActionState<any>;
+    payload: Record<string, SubjectLike<any>>;
 }
 
 export interface EngineActionHandlerAddKey extends EngineAction {
@@ -26,9 +26,9 @@ export interface EngineActionHandlerComplete extends EngineAction {
     payload: string;
 }
 
-export interface EngineActionCanvas extends EngineAction {
-    type: 'OGOD_ENGINE_CANVAS';
-    payload: any;
+export interface EngineActionCanvas<C = OffscreenCanvas> extends EngineAction {
+    type: 'OGOD_ENGINE_TARGET';
+    payload: C;
 }
 
 export function isEngineActionHandlerAdd(action: EngineAction): action is EngineActionHandlerAdd {
@@ -43,12 +43,11 @@ export function isEngineActionHandlerComplete(action: EngineAction): action is E
     return action.type === 'OGOD_ENGINE_HANDLER_COMPLETE';
 }
 
-export function isEngineActionCanvas(action: EngineAction): action is EngineActionCanvas {
-    return action.type === 'OGOD_ENGINE_CANVAS';
+export function isEngineActionCanvas<C = OffscreenCanvas>(action: EngineAction): action is EngineActionCanvas<C> {
+    return action.type === 'OGOD_ENGINE_TARGET';
 }
 
-export type EngineActionState = {
-    engine: Subject<EngineAction>;
+export interface WorkerAction<K extends string = string, V extends any = any> {
+    key: K;
+    value?: V;
 }
-
-export type ActionState<A extends string> = Record<A, Subject<any>> & EngineActionState;

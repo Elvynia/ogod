@@ -1,21 +1,21 @@
 import { isEngineActionCanvas } from '@ogod/game-core';
-import { makeGameEngineDriver, makeGameEngineOptions, makeUpdate$ } from '@ogod/game-engine-driver';
+import { makeDriverGameEngine, makeUpdate$ } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import { filter, first, merge, startWith, switchMap, tap } from 'rxjs';
 import { makeFeatureData } from './app/data/make';
 import { makeFeatureGenerator } from './app/generator/make';
 import { makeFeatureOffset } from './app/offset/make';
-import { makeRender$ } from './app/render/make';
+import { makeRenderer$ } from './app/render/make';
 import { makeFeatureScale } from './app/scale/make';
-import { AppAction, AppReflectState, AppState, WorkerSinks, WorkerSources } from './app/state';
+import { ActionKeys, WorkerSinks, WorkerSources } from './app/state';
 
 declare var self: DedicatedWorkerGlobalScope;
 
 function main(sources: WorkerSources): WorkerSinks {
-    sources.GameEngine.actions.engine.pipe(
+    sources.GameEngine.actionHandler.engine.pipe(
         filter(isEngineActionCanvas),
         first(),
-        switchMap(({ payload }) => sources.GameEngine.actions.camera.pipe(
+        switchMap(({ payload }) => sources.GameEngine.actionHandler.camera.pipe(
             tap((app) => {
                 payload.width = app.width;
                 payload.height = app.height;
@@ -30,7 +30,7 @@ function main(sources: WorkerSources): WorkerSinks {
     };
     return {
         GameEngine: {
-            feature$: merge(
+            state$: merge(
                 makeFeatureData(sources, state),
                 makeFeatureGenerator(sources, state),
                 makeFeatureScale(sources, state),
@@ -38,14 +38,15 @@ function main(sources: WorkerSources): WorkerSinks {
             ).pipe(
                 startWith(state)
             ),
-            // reflect$: ,
-            render$: makeRender$(sources),
-            update$: makeUpdate$(sources.GameEngine)
+            renderer$: makeRenderer$(sources),
+            update$: makeUpdate$()
         }
     };
 }
 
-let options = makeGameEngineOptions<AppState, AppAction, AppReflectState>(self, ['camera', 'generator', 'scale', 'offset']);
-options.dispose = gameRun(main, {
-    GameEngine: makeGameEngineDriver(options)
+self.close = gameRun(main, {
+    GameEngine: makeDriverGameEngine({
+        actionKeys: ActionKeys,
+        workerContext: self
+    })
 });

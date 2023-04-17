@@ -27,7 +27,7 @@ export default define<AppElement>({
             return {
                 input$: undefined,
                 output$: merge(
-                    of(makeEngineAction('OGOD_ENGINE_CANVAS', offscreen, [offscreen])),
+                    of(makeEngineAction('OGOD_ENGINE_TARGET', offscreen, [offscreen])),
                     fromEvent(window, 'resize').pipe(
                         debounceTime(16),
                         startWith(null),
@@ -75,7 +75,7 @@ export default define<AppElement>({
   `.css`
     canvas {
         width: 100%;
-        height: auto;
+        height: 100%;
     }
     .ui {
         position: absolute;

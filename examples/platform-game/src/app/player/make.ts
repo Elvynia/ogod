@@ -1,6 +1,6 @@
 import { b2BodyType, b2PolygonShape } from "@box2d/core";
 import { GameBox2dSource } from '@ogod/game-box2d-driver';
-import { concat, distinctUntilChanged, filter, first, ignoreElements, map, merge, of, switchMap, takeUntil, tap, timer, withLatestFrom } from "rxjs";
+import { concat, distinctUntilChanged, filter, first, ignoreElements, map, merge, of, switchMap, takeUntil, tap, timer } from "rxjs";
 import { makeShape } from "../shape/make";
 import { AppState, WorkerSources } from "../state";
 import { Player, PlayerFeet, PlayerId } from "./state";
@@ -44,7 +44,7 @@ export function makePlayerUpdate$(sources: WorkerSources) {
                     tap(({ touching }) => { player.grounded += touching }),
                     map(() => state.shapes)
                 ),
-                sources.GameEngine.update$.pipe(
+                sources.GameEngine.game$.pipe(
                     map(() => player.grounded),
                     distinctUntilChanged(),
                     tap((grounded) => {
@@ -57,10 +57,9 @@ export function makePlayerUpdate$(sources: WorkerSources) {
                     ignoreElements()
                 ),
                 // FIXME: pipe state$ first then switchmap on update$
-                sources.GameEngine.update$.pipe(
-                    withLatestFrom(sources.GameEngine.state$),
+                sources.GameEngine.game$.pipe(
                     filter(([_, state]) => state.controls.left || state.controls.right || Math.abs(player.body.GetLinearVelocity().x) > 0),
-                    tap(([delta, state]) => {
+                    tap(([{ delta }, state]) => {
                         const velocity = player.body.GetLinearVelocity();
                         if (state.controls.left || state.controls.right) {
                             const dir = state.controls.left ? -1 : 1;
@@ -78,7 +77,7 @@ export function makePlayerUpdate$(sources: WorkerSources) {
                     switchMap((state: AppState) => {
                         player.jumping = true;
                         return concat(
-                            sources.GameEngine.update$.pipe(
+                            sources.GameEngine.game$.pipe(
                                 takeUntil(merge(
                                     sources.GameEngine.state$.pipe(
                                         map((state: any) => state.controls.jump),
@@ -88,7 +87,7 @@ export function makePlayerUpdate$(sources: WorkerSources) {
                                     timer(400)
                                 )),
                                 tap({
-                                    next: (delta: number) => {
+                                    next: ([{ delta }]) => {
                                         const velocity = player.body.GetLinearVelocity();
                                         player.body.SetLinearVelocity({ x: velocity.x, y: Math.min(velocity.y + delta / 20, 15) })
                                     },

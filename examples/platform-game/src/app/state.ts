@@ -1,6 +1,7 @@
 import { MainDOMSource } from '@cycle/dom';
 import { GameBox2dSink, GameBox2dSource } from '@ogod/game-box2d-driver';
-import { GameEngineSink, GameEngineSource, GameEngineWorker } from '@ogod/game-core';
+import { GameEngineSink, GameEngineSource } from '@ogod/game-engine-driver';
+import { GameWorkerSource } from '@ogod/game-worker-driver';
 import { Background } from './background/state';
 import { Camera } from './camera/state';
 import { Controls } from './controls/state';
@@ -14,7 +15,7 @@ export type AppReflectState = Pick<AppState, 'phase' | 'loading' | 'fps' | 'paus
     & Pick<Background, 'baseColor'>;
 
 export interface AppSources {
-    GameWorker: GameEngineWorker<AppReflectState>;
+    GameWorker: GameWorkerSource<AppReflectState>;
     DOM: MainDOMSource;
 }
 
@@ -31,10 +32,11 @@ export interface AppState {
     splash?: Record<string, Sleet>;
 }
 
-export type AppAction = 'camera' | 'controls' | 'phase' | 'paused' | 'gravity' | 'background';
+export const ActionKeys = ['camera', 'controls', 'phase', 'paused', 'gravity', 'background'];
+export type AppAction = typeof ActionKeys[number];
 
 export interface WorkerSources {
-    GameEngine: GameEngineSource<AppState, AppAction, AppReflectState>;
+    GameEngine: GameEngineSource<AppState, AppAction>;
     World: GameBox2dSource;
 }
 

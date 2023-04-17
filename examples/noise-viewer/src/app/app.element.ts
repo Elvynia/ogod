@@ -39,7 +39,7 @@ export default define<AppElement>({
             const offscreen = canvas.transferControlToOffscreen();
             setTimeout(() => {
                 merge(
-                    of(makeEngineAction('OGOD_ENGINE_CANVAS', offscreen, [offscreen])),
+                    of(makeEngineAction('OGOD_ENGINE_TARGET', offscreen, [offscreen])),
                     fromEvent(window, 'resize').pipe(
                         debounceTime(16),
                         startWith(null),

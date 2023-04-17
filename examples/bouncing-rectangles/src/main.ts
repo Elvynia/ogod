@@ -1,7 +1,7 @@
 import { canvas, div, h3, input, makeDOMDriver } from '@cycle/dom';
 import { gameRun } from '@ogod/game-run';
-import { makeEngineAction, makeGameEngineWorker, makeWorkerMessage } from '@ogod/game-worker-driver';
-import { combineLatest, concat, debounceTime, distinctUntilKeyChanged, filter, first, from, fromEvent, interval, map, merge, of, startWith, Subject, switchMap, take, takeUntil } from 'rxjs';
+import { makeDriverGameWorker, makeEngineAction, makeWorkerMessage } from '@ogod/game-worker-driver';
+import { Subject, combineLatest, concat, debounceTime, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, interval, map, merge, of, startWith, switchMap, take, takeUntil } from 'rxjs';
 import xs from 'xstream';
 import { Camera } from './app/screen/state';
 import { AppReflectState, AppSources } from './app/state';
@@ -20,7 +20,7 @@ function main(sources: AppSources) {
         switchMap((canvas: any) => {
             const offscreen = canvas.transferControlToOffscreen();
             return concat(
-                of(makeEngineAction('OGOD_ENGINE_CANVAS', offscreen, [offscreen])),
+                of(makeEngineAction('OGOD_ENGINE_TARGET', offscreen, [offscreen])),
                 fromEvent(window, 'resize').pipe(
                     debounceTime(16),
                     startWith(camera),
@@ -37,8 +37,8 @@ function main(sources: AppSources) {
         })
     );
     const addRect$ = from(canvas$.events('mousedown') as any).pipe(
-        switchMap((e) => interval(200).pipe(
-            map(() => e),
+        switchMap((e) => interval(100).pipe(
+            map(() => e as MouseEvent),
             takeUntil(fromEvent(document, 'mouseup').pipe(
                 first()
             )),
@@ -76,7 +76,7 @@ function main(sources: AppSources) {
         DOM: combineLatest([
             of(canvas({ attrs: { id: 'game', width: camera.width, height: camera.height, tabindex: 0 } })),
             sources.GameWorker.input$.pipe(
-                map((state) => state.objects.map(({ id, x, y, angle, width, height, health }) => div({
+                map((state) => state.objects.map(({ id, x, y, angle, width, height, health, colorLight }) => div({
                     attrs: {
                         id
                     },
@@ -84,6 +84,7 @@ function main(sources: AppSources) {
                         rect: true
                     },
                     style: {
+                        color: colorLight ? 'black' : 'white',
                         width: `${width}px`,
                         height: `${height}px`,
                         transform: `translate(calc(${x}px - 50%), calc(${camera.height - y}px - 50%))rotate(${angle}rad)`
@@ -101,8 +102,8 @@ function main(sources: AppSources) {
                 map((fps) => h3('FPS: ' + fps)),
             ),
             sources.GameWorker.input$.pipe(
-                distinctUntilKeyChanged('objectCount'),
-                map((state: any) => state.objectCount),
+                map((state: any) => Object.keys(state.objects).length),
+                distinctUntilChanged(),
                 startWith('0'),
                 map((objects) => h3('Object count: ' + objects)),
             )
@@ -123,8 +124,8 @@ function main(sources: AppSources) {
     };
 }
 
-const dispose = gameRun(main, {
-    GameWorker: makeGameEngineWorker<AppReflectState>(new Worker(new URL('worker.ts', import.meta.url))),
+(window as any).stopApp = gameRun(main, {
+    GameWorker: makeDriverGameWorker<AppReflectState>(new Worker(new URL('worker.ts', import.meta.url))),
     DOM: (promise) => {
         const dom = makeDOMDriver('#app');
         const wrapper = new Subject();
@@ -132,4 +133,3 @@ const dispose = gameRun(main, {
         return dom(xs.from(wrapper));
     }
 });
-window.onunload = (e) => dispose();

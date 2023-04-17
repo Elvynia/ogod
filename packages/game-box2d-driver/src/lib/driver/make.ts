@@ -1,9 +1,8 @@
 import { b2World, XY } from '@box2d/core';
 import { Subject, Subscription } from 'rxjs';
 import { makeBox2dContactListener } from '../contact/make';
-import { GameBox2dSink } from '../sink/state';
-import { GameBox2dSource } from '../source/state';
 import { Contact } from './../contact/state';
+import { GameBox2dSink, GameBox2dSource } from './state';
 
 export function makeGameBox2dDriver(initalGravity: XY = { x: 0, y: 0 }, scale: number = 20) {
     let world = b2World.Create(initalGravity);

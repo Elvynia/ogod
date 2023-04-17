@@ -1,13 +1,12 @@
 import { canvas, div, h, h3, makeDOMDriver } from '@cycle/dom';
 import { gameRun } from '@ogod/game-run';
-import { makeEngineAction, makeGameEngineWorker, makeWorkerMessage } from '@ogod/game-worker-driver';
-import { combineLatest, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, map, merge, Observable, of, startWith, Subject, switchMap, throttleTime } from 'rxjs';
+import { makeDriverGameWorker, makeEngineAction, makeWorkerMessage } from '@ogod/game-worker-driver';
+import { Observable, Subject, combineLatest, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, map, merge, of, startWith, switchMap, throttleTime } from 'rxjs';
 import xs from 'xstream';
 import { makeControls$ } from './app/controls/make';
 import { makeElementMenu$, makeListenerMenu$ } from './app/menu/make';
 import { PHASE } from './app/phase/state';
 import { AppReflectState, AppSources } from "./app/state";
-import { randColor } from './app/util';
 
 function main(sources: AppSources) {
     const canvas$ = from(sources.DOM.select('#game').element() as any);
@@ -19,7 +18,7 @@ function main(sources: AppSources) {
             return offscreen;
         }),
         first(),
-        map((offscreen) => makeEngineAction('OGOD_ENGINE_CANVAS', offscreen, [offscreen]))
+        map((offscreen) => makeEngineAction('OGOD_ENGINE_TARGET', offscreen, [offscreen]))
     );
     return {
         GameWorker: merge(
@@ -118,7 +117,7 @@ function main(sources: AppSources) {
 }
 
 const dispose = gameRun(main, {
-    GameWorker: makeGameEngineWorker<AppReflectState>(new Worker(new URL('worker.ts', import.meta.url))),
+    GameWorker: makeDriverGameWorker<AppReflectState>(new Worker(new URL('worker.ts', import.meta.url))),
     DOM: (promise) => {
         const dom = makeDOMDriver('#app');
         const wrapper = new Subject();

@@ -40,13 +40,11 @@ export function makeShapeUpdate$(sources: WorkerSources) {
         switchMap((state) => {
             const shapes = Object.values(state.shapes)
                 .filter((s: any) => s.bodyType === b2BodyType.b2_dynamicBody);
-            return sources.GameEngine.update$.pipe(
-                tap(() => {
-                    shapes.forEach((shape: any) => {
-                        shape.x = Math.round(shape.body.GetPosition().x * sources.World.scale);
-                        shape.y = Math.round(shape.body.GetPosition().y * sources.World.scale);
-                    });
-                }),
+            return sources.GameEngine.game$.pipe(
+                tap(() => shapes.forEach((shape: any) => {
+                    shape.x = Math.round(shape.body.GetPosition().x * sources.World.scale);
+                    shape.y = Math.round(shape.body.GetPosition().y * sources.World.scale);
+                })),
                 ignoreElements()
             )
         })

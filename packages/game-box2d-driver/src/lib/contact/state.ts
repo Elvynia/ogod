@@ -3,8 +3,5 @@ export interface Contact {
     idB: string;
     sensorA?: string;
     sensorB?: string;
-    /**
-     * 1 or -1
-     */
     touching: number;
 }

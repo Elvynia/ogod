@@ -1,4 +1,4 @@
-import { Shape, SHAPES } from "./render/state";
+import { Shape, SHAPES } from "./renderer/draw";
 
 export function randNum(length: number = 4): number {
     return Math.floor(Math.random() * Math.pow(10, length));

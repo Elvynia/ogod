@@ -1,5 +1,5 @@
-import { Feature } from '@ogod/game-core';
 import { concat, map, Observable, of, tap } from 'rxjs';
+import { Feature } from './state';
 
 export function makeFeature$<S = any>(feature: Feature<S>): Observable<S> {
     const state = feature.target || {} as S;

@@ -1,6 +1,7 @@
 import { DisposeFunction, Drivers } from '@ogod/game-core';
 
-export function gameRun<D extends Drivers<SO, SI>, SO, SI extends Record<keyof SO, any>>(main: (sources: SO) => SI, drivers: D): DisposeFunction {
+export function gameRun<D extends Drivers<SO, SI>, SO, SI extends Record<keyof SO, any>>
+    (main: (sources: SO) => SI, drivers: D): DisposeFunction {
     if (typeof drivers !== `object` || drivers === null) {
         throw new Error(
             `Argument given to setupReusable must be an object ` +

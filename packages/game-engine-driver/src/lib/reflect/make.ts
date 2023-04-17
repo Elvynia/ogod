@@ -1,11 +1,17 @@
-import { ActionState, GameEngineSource } from "@ogod/game-core";
-import { buffer, filter, map } from "rxjs";
+import { buffer, filter, map, Observable } from "rxjs";
 
-export function makeReflect$<S = any, A extends string = any, R = any,
-    AS extends ActionState<A> = ActionState<A>>(engine: GameEngineSource<S, A, R, AS>) {
-    return engine.state$.pipe(
-        buffer(engine.frame$),
+export function makeReflect$<
+    S = any,
+    R = any>
+    (params: {
+        state$: Observable<S>,
+        buffer$: Observable<any>,
+        transform: (state: S) => R
+    }): Observable<R> {
+    return params.state$.pipe(
+        buffer(params.buffer$),
         map((states) => states.pop()),
-        filter((state) => !!state)
+        filter((state): state is S => !!state),
+        map((state) => params.transform(state))
     );
 }

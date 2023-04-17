@@ -1,4 +1,4 @@
-import { isEngineActionCanvas, RenderState } from "@ogod/game-core";
+import { isEngineActionCanvas } from "@ogod/game-core";
 import { filter, first, map, switchMap } from "rxjs";
 import { Rect } from "../rect";
 import { AppState, WorkerSources } from "../state";
@@ -14,7 +14,7 @@ function makeDrawRect(canvas, ctx: CanvasRenderingContext2D) {
     }
 }
 
-export const makeRender = (canvas: any) => {
+export const makeRenderer = (canvas: any) => {
     const ctx: CanvasRenderingContext2D = canvas.getContext('2d');
     const drawRect = makeDrawRect(canvas, ctx);
     return (_, state: AppState) => {
@@ -25,15 +25,13 @@ export const makeRender = (canvas: any) => {
     };
 }
 
-export function makeRender$(sources: WorkerSources) {
-    return sources.GameEngine.actions.engine.pipe(
+export function makeRenderer$(sources: WorkerSources) {
+    return sources.GameEngine.actionHandler.engine.pipe(
         filter(isEngineActionCanvas),
         switchMap(({ payload }) => sources.GameEngine.state$.pipe(
             filter((state) => state.camera && state.player && !!state.objects),
             first(),
-            switchMap(() => sources.GameEngine.render$.pipe(
-                map((args) => [...args, makeRender(payload)] as RenderState)
-            ))
+            map(() => [makeRenderer(payload)])
         )),
     );
 }

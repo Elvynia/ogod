@@ -1,5 +1,5 @@
 import { makeFeature$ } from '@ogod/game-engine-driver';
-import { concat, delayWhen, distinctUntilChanged, filter, first, ignoreElements, map, switchMap, tap } from "rxjs";
+import { concat, delayWhen, distinctUntilChanged, filter, first, ignoreElements, map, switchMap } from "rxjs";
 import { makeFeatureSceneLoad } from "../scenes/load";
 import { makeFeatureScenePlay } from "../scenes/play";
 import { AppState, WorkerSources } from "../state";
@@ -22,7 +22,7 @@ export function makeFeatureSceneLevel(sources: WorkerSources, target: AppState) 
                 key: 'gmap',
                 value$: sources.GameEngine.state$.pipe(
                     first(),
-                    delayWhen(() => sources.GameEngine.update$.pipe(
+                    delayWhen(() => sources.GameEngine.game$.pipe(
                         first()
                     )),
                     map((state) => {
@@ -32,7 +32,7 @@ export function makeFeatureSceneLevel(sources: WorkerSources, target: AppState) 
                         state.gmap.platforms = {};
                         state.gmap.width += 5;
                         ++state.gmap.level;
-                        sources.GameEngine.actions.phase.next(PHASE.START);
+                        sources.GameEngine.actionHandler.phase.next(PHASE.START);
                         return state.gmap;
                     })
                 ),

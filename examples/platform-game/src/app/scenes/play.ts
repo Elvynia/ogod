@@ -16,10 +16,10 @@ export function makeFeatureScenePlay(sources: WorkerSources, target: AppState) {
         takeUntil(sources.GameEngine.state$.pipe(
             first(),
             // delay(1000),
-            switchMap((state) => sources.GameEngine.update$.pipe(
+            switchMap((state) => sources.GameEngine.game$.pipe(
                 filter(() => state.shapes.player.x > state.gmap.width * state.gmap.scale - 75),
                 first(),
-                tap(() => sources.GameEngine.actions.phase.next(PHASE.END))
+                tap(() => sources.GameEngine.actionHandler.phase.next(PHASE.END))
             ))
         ))
     );

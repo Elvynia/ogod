@@ -1,4 +1,4 @@
-import { Shape } from "../render/state";
+import { Shape } from "../renderer/draw";
 
 export interface CanvasObject {
     id: string;

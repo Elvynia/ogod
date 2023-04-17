@@ -10,7 +10,7 @@ export function makeFeatureSceneLoad(sources: WorkerSources, target: AppState) {
         makeFeatureMapLoad(sources, target)
     ).pipe(
         tap({
-            complete: () => sources.GameEngine.actions.phase.next(PHASE.PLAY)
+            complete: () => sources.GameEngine.actionHandler.phase.next(PHASE.PLAY)
         })
     )
 }

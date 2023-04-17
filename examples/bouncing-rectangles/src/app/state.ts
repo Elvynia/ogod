@@ -1,6 +1,7 @@
 import { MainDOMSource } from '@cycle/dom';
-import { GameBox2dSource } from '@ogod/game-box2d-driver';
-import { GameEngineSource, GameEngineWorker } from '@ogod/game-core';
+import { GameBox2dSink, GameBox2dSource } from '@ogod/game-box2d-driver';
+import { GameEngineSink, GameEngineSource } from '@ogod/game-engine-driver';
+import { GameWorkerSource } from '@ogod/game-worker-driver';
 import { ObjectState } from './object/state';
 import { Rect } from './rect';
 import { Camera } from './screen/state';
@@ -15,18 +16,23 @@ export interface AppState {
 }
 
 export type AppReflectState = Pick<AppState, 'fps'> & {
-    objectCount: number;
     objects: Array<Omit<Rect, 'dynamic' | 'color' | 'body'>>;
 };
 
-export type AppAction = 'camera' | 'objects' | 'paused' | 'playerColor';
+export const ActionKeys = ['camera', 'objects', 'paused', 'playerColor'];
+export type AppAction = typeof ActionKeys[number];
 
 export interface AppSources {
-    GameWorker: GameEngineWorker<AppReflectState>;
+    GameWorker: GameWorkerSource<AppReflectState>;
     DOM: MainDOMSource;
 }
 
 export interface WorkerSources {
     GameEngine: GameEngineSource<AppState, AppAction>;
     World: GameBox2dSource;
+}
+
+export interface WorkerSinks {
+    GameEngine: GameEngineSink<AppState, AppReflectState>;
+    World: GameBox2dSink
 }

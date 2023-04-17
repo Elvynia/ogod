@@ -1,4 +1,6 @@
-import { GameEngineSink, GameEngineSource, GameEngineWorker, WorkerMessage } from '@ogod/game-core';
+import { WorkerMessage } from '@ogod/game-core';
+import { GameEngineSink, GameEngineSource } from '@ogod/game-engine-driver';
+import { GameWorkerSource } from '@ogod/game-worker-driver';
 import { Subject } from 'rxjs';
 import { Camera } from './camera/state';
 import { ObjectState } from './object/state';
@@ -13,11 +15,12 @@ export interface AppReflectState {
 }
 
 export interface AppSources {
-    GameWorker: GameEngineWorker<AppReflectState>;
+    GameWorker: GameWorkerSource<AppReflectState>;
     ElementHost: Subject<WorkerMessage>;
 }
 
-export type AppAction = 'camera' | 'objects' | 'reset';
+export const ActionKeys = ['camera', 'objects', 'reset'];
+export type AppAction = typeof ActionKeys[number];
 
 export interface WorkerSources {
     GameEngine: GameEngineSource<AppState, AppAction>;

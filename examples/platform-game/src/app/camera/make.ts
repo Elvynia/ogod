@@ -5,14 +5,14 @@ import { AppState, WorkerSources } from "../state";
 export function makeFeatureCameraResize(sources: WorkerSources, target: AppState) {
     return makeFeature$({
         key: 'camera',
-        value$: sources.GameEngine.actions.camera.pipe(
+        value$: sources.GameEngine.actionHandler.camera.pipe(
             first(),
-            withLatestFrom(sources.GameEngine.state$),
-            map(([{ width, height }, state]) => {
-                sources.GameEngine.canvas.width = width;
-                sources.GameEngine.canvas.height = height;
+            withLatestFrom(sources.GameEngine.target$),
+            map(([{ width, height }, canvas]) => {
+                canvas.width = width;
+                canvas.height = height;
                 return {
-                    ...state.camera,
+                    ...target.camera,
                     width,
                     height
                 };
@@ -31,8 +31,9 @@ export function makeFeatureCameraUpdate(sources: WorkerSources, target: AppState
             switchMap(({ shapes, camera, gmap }) => {
                 const minY = -gmap.height * gmap.scale / 2;
                 const maxX = gmap.width * gmap.scale - camera.width;
-                return sources.GameEngine.update$.pipe(
-                    tap((delta) => {
+                return sources.GameEngine.game$.pipe(
+                    tap(() => {
+                        // FIXME: Smmoth scrolling by tweening with delta.
                         camera.x = Math.min(maxX, Math.max(0, shapes.player.x - camera.width / 2));
                         camera.y = Math.min(-minY, Math.max(minY, shapes.player.y - camera.height / 2));
                     }),

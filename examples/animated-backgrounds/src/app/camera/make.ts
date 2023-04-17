@@ -6,10 +6,10 @@ import { AppState, WorkerSources } from "../state";
 export function makeFeatureCamera(sources: WorkerSources, state: AppState) {
     return makeFeature$({
         key: 'camera',
-        value$: sources.GameEngine.actions.engine.pipe(
+        value$: sources.GameEngine.actionHandler.engine.pipe(
             filter(isEngineActionCanvas),
             first(),
-            switchMap(({ payload }) => sources.GameEngine.actions.camera.pipe(
+            switchMap(({ payload }) => sources.GameEngine.actionHandler.camera.pipe(
                 tap((app) => {
                     payload.width = app.width;
                     payload.height = app.height;

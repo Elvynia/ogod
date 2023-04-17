@@ -1,6 +1,6 @@
 import { makeFeature$ } from '@ogod/game-engine-driver';
 import { concat, filter, map, mergeMap, of, takeWhile, tap } from 'rxjs';
-import { makeRect, Rect } from '../rect';
+import { Rect, makeRect } from '../rect';
 import { Camera } from '../screen/state';
 import { AppState, WorkerSources } from '../state';
 
@@ -42,7 +42,7 @@ export function makeFeatureObjects(sources: WorkerSources, target: AppState) {
     ).subscribe((ids: string[]) => ids.forEach((id) => --target.objects[id].health));
     return makeFeature$({
         key: 'objects',
-        value$: sources.GameEngine.actions.objects.pipe(
+        value$: sources.GameEngine.actionHandler.objects.pipe(
             mergeMap(({ x, y }) => {
                 const rect = makeRect({
                     x,
@@ -52,8 +52,8 @@ export function makeFeatureObjects(sources: WorkerSources, target: AppState) {
                 target.objects[rect.id] = rect;
                 return concat(
                     of(target.objects),
-                    sources.GameEngine.update$.pipe(
-                        takeWhile((delta) => rect.health > 0),
+                    sources.GameEngine.game$.pipe(
+                        takeWhile(() => rect.health > 0),
                         tap({
                             next: (delta) => updateMovement(delta, rect, target.camera),
                             complete: () => {

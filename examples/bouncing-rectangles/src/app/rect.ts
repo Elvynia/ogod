@@ -11,6 +11,7 @@ export interface Rect {
     color: string | CanvasGradient;
     body: b2Body;
     health: number;
+    colorLight: boolean;
 }
 
 function randNum(length: number = 4): number {
@@ -18,7 +19,8 @@ function randNum(length: number = 4): number {
 }
 
 function colorPart() {
-    return Math.floor(Math.random() * 256).toString(16);
+    const c = Math.floor(Math.random() * 256).toString(16);
+    return c.length < 2 ? '0' + c : c;
 }
 
 function randomColor() {
@@ -31,6 +33,15 @@ function randSize(min: number, max: number) {
 
 function randSpeed(max: number = 10) {
     return Math.round(max - Math.random() * max * 2)
+}
+
+function isColorLight(color: string) {
+    const hex = color.replace('#', '');
+    const c_r = parseInt(hex.substring(0, 0 + 2), 16);
+    const c_g = parseInt(hex.substring(2, 2 + 2), 16);
+    const c_b = parseInt(hex.substring(4, 4 + 2), 16);
+    const brightness = ((c_r * 299) + (c_g * 587) + (c_b * 114)) / 1000;
+    return brightness > 125;
 }
 
 export function makeRect(rect: Partial<Rect>, world: b2World, scale: number): Rect {
@@ -56,14 +67,16 @@ export function makeRect(rect: Partial<Rect>, world: b2World, scale: number): Re
         shape: new b2PolygonShape().SetAsBox(b2Width, b2Height),
         density: 10,
         restitution: 1.2
-    })
+    });
+    const color = rect.color || randomColor();
     return {
         ...rect,
         body,
         id,
         width,
         height,
-        color: rect.color || randomColor(),
-        health: Math.round(width * height / 100)
+        color,
+        colorLight: typeof color === 'string' ? isColorLight(color) : false,
+        health: Math.round(width * height / 50)
     } as Rect;
 }

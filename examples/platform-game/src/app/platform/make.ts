@@ -1,4 +1,4 @@
-import { b2BodyType, b2World } from "@box2d/core";
+import { b2BodyType } from "@box2d/core";
 import { GameBox2dSource } from '@ogod/game-box2d-driver';
 import { makeShape } from "../shape/make";
 
