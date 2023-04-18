@@ -1,4 +1,5 @@
 {
+  "name": "game-engine-driver",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/game-engine-driver/src",
   "projectType": "library",
@@ -14,7 +15,7 @@
       }
     },
     "publish": {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": {
         "command": "node tools/scripts/publish.mjs game-engine-driver {args.ver} {args.tag}"
       },
@@ -34,7 +35,7 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/packages/game-engine-driver"],
+      "outputs": ["{workspaceRoot}/coverage/packages/game-engine-driver"],
       "options": {
         "jestConfig": "packages/game-engine-driver/jest.config.ts",
         "passWithNoTests": true
