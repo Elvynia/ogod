@@ -19,7 +19,7 @@ export type AppReflectState = Pick<AppState, 'fps'> & {
     objects: Array<Omit<Rect, 'dynamic' | 'color' | 'body'>>;
 };
 
-export const ActionKeys = ['camera', 'objects', 'paused', 'playerColor'];
+export const ActionKeys = ['camera', 'objects', 'paused', 'playerColor'] as const;
 export type AppAction = typeof ActionKeys[number];
 
 export interface AppSources {

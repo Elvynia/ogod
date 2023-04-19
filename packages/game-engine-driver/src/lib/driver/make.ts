@@ -17,11 +17,11 @@ export function makeDriverGameEngine<
     A extends string = any,
     R = any,
     C = OffscreenCanvas>
-    (options: GameEngineOptions<S, A> = { actionKeys: [] }): GameEngineDriver<S, A[number], R, C> {
+    (options: GameEngineOptions<S, A> = { actionKeys: [] }): GameEngineDriver<S, A, R, C> {
     const state$ = options.state$ || new ReplaySubject<S>(1);
     const game$ = new RendererSubject<S>();
     const target$ = new ReplaySubject<C>(1);
-    return (sink$: Promise<GameEngineSink<S, R>>): GameEngineSource<S, A[number], C> => {
+    return (sink$: Promise<GameEngineSink<S, R>>): GameEngineSource<S, A, C> => {
         console.debug('[GameEngine] Created');
         sink$.then((sink) => {
             if (sink.game$) {
@@ -44,24 +44,24 @@ export function makeDriverGameEngine<
         });
         const actionHandler = {
             engine: new Subject<EngineAction>()
-        } as Record<A[number] | 'engine', Subject<any>>;
-        options.actionKeys.forEach((ak: A[number]) => actionHandler[ak] = new Subject());
+        } as Record<A | 'engine', Subject<any>>;
+        options.actionKeys.forEach((ak) => actionHandler[ak] = new Subject());
         const source = {
             actionHandler,
             dispose: () => {
                 game$.complete();
                 state$.complete();
-                Object.keys(source.actionHandler).forEach((k) => source.actionHandler[k as A[number]].complete());
+                Object.keys(source.actionHandler).forEach((k) => source.actionHandler[k as A].complete());
                 console.debug('[GameEngine] Disposed');
             },
             game$,
             state$,
             target$
-        } as const satisfies GameEngineSource<S, A[number], C>;
+        } as const satisfies GameEngineSource<S, A, C>;
         if (options.workerContext) {
-            options.workerContext.onmessage = (event: MessageEvent<{ key: A[number], value: any }>) => {
+            options.workerContext.onmessage = (event) => {
                 try {
-                    source.actionHandler[event.data.key].next(event.data.value);
+                    source.actionHandler[event.data.key as A].next(event.data.value);
                 } catch (e) {
                     console.error('cannot send action for event data: ', event.data, e);
                 }

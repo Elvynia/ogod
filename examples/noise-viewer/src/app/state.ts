@@ -17,7 +17,7 @@ export interface AppSources {
     GameWorker: GameWorkerSource<AppReflectState>;
     ElementHost: Subject<WorkerMessage>;
 }
-export const ActionKeys = ['camera', 'generator', 'scale', 'offset'];
+export const ActionKeys = ['camera', 'generator', 'scale', 'offset'] as const;
 export type AppAction = typeof ActionKeys[number];
 
 export interface WorkerSources {

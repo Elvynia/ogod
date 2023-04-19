@@ -32,7 +32,7 @@ export interface AppState {
     splash?: Record<string, Sleet>;
 }
 
-export const ActionKeys = ['camera', 'controls', 'phase', 'paused', 'gravity', 'background'];
+export const ActionKeys = ['camera', 'controls', 'phase', 'paused', 'gravity', 'background'] as const;
 export type AppAction = typeof ActionKeys[number];
 
 export interface WorkerSources {

@@ -19,7 +19,7 @@ export interface AppSources {
     ElementHost: Subject<WorkerMessage>;
 }
 
-export const ActionKeys = ['camera', 'objects', 'reset'];
+export const ActionKeys = ['camera', 'objects', 'reset'] as const;
 export type AppAction = typeof ActionKeys[number];
 
 export interface WorkerSources {
