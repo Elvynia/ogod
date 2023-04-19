@@ -1,7 +1,7 @@
 export type Shape = 'circle' | 'rect';
 export const SHAPES: Shape[] = ['circle', 'rect'];
 
-export function drawRect(ctx: CanvasRenderingContext2D) {
+export function drawRect(ctx: OffscreenCanvasRenderingContext2D) {
     return (obj) => {
         ctx.globalAlpha = obj.v;
         ctx.fillStyle = obj.c;
@@ -9,7 +9,7 @@ export function drawRect(ctx: CanvasRenderingContext2D) {
     };
 }
 
-export function drawCircle(ctx: CanvasRenderingContext2D) {
+export function drawCircle(ctx: OffscreenCanvasRenderingContext2D) {
     return (obj) => {
         ctx.globalAlpha = obj.v;
         ctx.fillStyle = obj.c;

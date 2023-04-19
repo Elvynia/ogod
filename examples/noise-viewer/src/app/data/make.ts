@@ -24,7 +24,7 @@ export function makeFeatureData(sources: WorkerSources, target: AppState) {
     const throttle = 50;
     return makeFeature$({
         key: 'data',
-        value$: sources.GameEngine.actionHandler.engine.pipe(
+        value$: sources.GameEngine.actionHandlers.engine.pipe(
             filter(isEngineActionCanvas),
             switchMap(({ payload }) => {
                 const makeNoiseView = makeNoiseViewCreator(payload.getContext('2d'));

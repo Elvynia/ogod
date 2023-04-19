@@ -6,7 +6,7 @@ export interface GameEngineSource<
     S extends Record<string, any> = Record<string, any>,
     A extends string = string,
     C = OffscreenCanvas> {
-    actionHandler: Record<A | 'engine', Subject<any>>;
+    actionHandlers: Record<A | 'engine', Subject<any>>;
     dispose: Function;
     game$: RendererSubject<S>;
     state$: Subject<S>;

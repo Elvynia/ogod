@@ -5,7 +5,7 @@ import { AppState, WorkerSources } from "../state";
 export function makeFeatureCameraResize(sources: WorkerSources, target: AppState) {
     return makeFeature$({
         key: 'camera',
-        value$: sources.GameEngine.actionHandler.camera.pipe(
+        value$: sources.GameEngine.actionHandlers.camera.pipe(
             first(),
             withLatestFrom(sources.GameEngine.target$),
             map(([{ width, height }, canvas]) => {

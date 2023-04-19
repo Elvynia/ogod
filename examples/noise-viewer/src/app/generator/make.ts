@@ -17,7 +17,7 @@ export function makeFeatureGenerator(sources: WorkerSources, target: AppState) {
     const generators = makeGenerators();
     return makeFeature$({
         key: 'generator',
-        value$: sources.GameEngine.actionHandler.generator.pipe(
+        value$: sources.GameEngine.actionHandlers.generator.pipe(
             map((genType) => generators[genType])
         ),
         target

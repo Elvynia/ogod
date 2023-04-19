@@ -45,7 +45,7 @@ function main(sources: WorkerSources): WorkerSinks {
         map((s) => s.paused),
         distinctUntilChanged(),
         switchMap((paused) => paused ?
-            sources.GameEngine.actionHandler.background.pipe(
+            sources.GameEngine.actionHandlers.background.pipe(
                 switchMap(() => update$.pipe(
                     first()
                 ))

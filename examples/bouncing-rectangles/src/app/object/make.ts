@@ -42,7 +42,7 @@ export function makeFeatureObjects(sources: WorkerSources, target: AppState) {
     ).subscribe((ids: string[]) => ids.forEach((id) => --target.objects[id].health));
     return makeFeature$({
         key: 'objects',
-        value$: sources.GameEngine.actionHandler.objects.pipe(
+        value$: sources.GameEngine.actionHandlers.objects.pipe(
             mergeMap(({ x, y }) => {
                 const rect = makeRect({
                     x,

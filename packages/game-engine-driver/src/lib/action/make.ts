@@ -7,27 +7,27 @@ export function makeActionListenerEngine<C = OffscreenCanvas>(params: {
     workerContext?: DedicatedWorkerGlobalScope
 }) {
     // Handler Add
-    params.source.actionHandler['engine'].pipe(
+    params.source.actionHandlers['engine'].pipe(
         filter(isEngineActionHandlerAdd)
-    ).subscribe(({ payload }) => Object.assign(params.source.actionHandler, payload));
+    ).subscribe(({ payload }) => Object.assign(params.source.actionHandlers, payload));
     // Handler add by key
-    params.source.actionHandler['engine'].pipe(
+    params.source.actionHandlers['engine'].pipe(
         filter(isEngineActionHandlerAddKey)
-    ).subscribe(({ payload }) => Object.assign(params.source.actionHandler, { [payload]: new Subject<any>() }));
+    ).subscribe(({ payload }) => Object.assign(params.source.actionHandlers, { [payload]: new Subject<any>() }));
     // Handler complete and remove
-    params.source.actionHandler['engine'].pipe(
+    params.source.actionHandlers['engine'].pipe(
         filter(isEngineActionHandlerComplete)
     ).subscribe(({ payload }) => {
-        params.source.actionHandler[payload].complete();
-        delete params.source.actionHandler[payload];
+        params.source.actionHandlers[payload].complete();
+        delete params.source.actionHandlers[payload];
     });
-    params.source.actionHandler['engine'].pipe(
+    params.source.actionHandlers['engine'].pipe(
         filter(isEngineActionCanvas<C>)
     ).subscribe(({ payload }) => {
         params.source.target$.next(payload);
     });
     if (params.workerContext) {
-        params.source.actionHandler['engine'].pipe(
+        params.source.actionHandlers['engine'].pipe(
             filter((action) => action.type === 'OGOD_ENGINE_CLOSE')
         ).subscribe(() => params.workerContext!.close());
     }

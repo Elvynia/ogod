@@ -54,7 +54,7 @@ function main(sources: WorkerSources): WorkerSinks {
                 makeFeatureFps(sources.GameEngine, target),
                 makeFeature$({
                     key: 'paused',
-                    value$: sources.GameEngine.actionHandler.paused,
+                    value$: sources.GameEngine.actionHandlers.paused,
                     target
                 }),
                 makeFeatureCamera(sources, target),

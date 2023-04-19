@@ -32,7 +32,7 @@ export function makeFeatureSceneLevel(sources: WorkerSources, target: AppState) 
                         state.gmap.platforms = {};
                         state.gmap.width += 5;
                         ++state.gmap.level;
-                        sources.GameEngine.actionHandler.phase.next(PHASE.START);
+                        sources.GameEngine.actionHandlers.phase.next(PHASE.START);
                         return state.gmap;
                     })
                 ),

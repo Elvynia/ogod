@@ -4,8 +4,8 @@ import { filter, map, Observable } from 'rxjs';
 import { AppState, WorkerSources } from '../state';
 import { drawCircle, drawRect } from './draw';
 
-export function makeRenderer(canvas: any) {
-    const ctx: CanvasRenderingContext2D = canvas.getContext('2d');
+export function makeRenderer(canvas: OffscreenCanvas) {
+    const ctx = canvas.getContext('2d');
     const drawHandlers = {
         circle: drawCircle(ctx),
         rect: drawRect(ctx)
@@ -17,7 +17,7 @@ export function makeRenderer(canvas: any) {
 }
 
 export function makeRenderer$(sources: WorkerSources): Observable<Renderer<AppState>[]> {
-    return sources.GameEngine.actionHandler.engine.pipe(
+    return sources.GameEngine.actionHandlers.engine.pipe(
         filter(isEngineActionCanvas),
         map(({ payload }) => [makeRenderer(payload)])
     );

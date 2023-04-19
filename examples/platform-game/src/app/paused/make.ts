@@ -5,7 +5,7 @@ import { AppState, WorkerSources } from '../state';
 export function makeFeaturePaused(sources: WorkerSources, target: AppState) {
     return makeFeature$({
         key: 'paused',
-        value$: sources.GameEngine.actionHandler.paused.pipe(
+        value$: sources.GameEngine.actionHandlers.paused.pipe(
             withLatestFrom(sources.GameEngine.state$.pipe(
                 map((s) => s.paused)
             )),

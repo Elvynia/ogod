@@ -12,10 +12,10 @@ import { ActionKeys, WorkerSinks, WorkerSources } from './app/state';
 declare var self: DedicatedWorkerGlobalScope;
 
 function main(sources: WorkerSources): WorkerSinks {
-    sources.GameEngine.actionHandler.engine.pipe(
+    sources.GameEngine.actionHandlers.engine.pipe(
         filter(isEngineActionCanvas),
         first(),
-        switchMap(({ payload }) => sources.GameEngine.actionHandler.camera.pipe(
+        switchMap(({ payload }) => sources.GameEngine.actionHandlers.camera.pipe(
             tap((app) => {
                 payload.width = app.width;
                 payload.height = app.height;

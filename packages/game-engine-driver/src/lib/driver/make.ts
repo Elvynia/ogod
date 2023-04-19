@@ -42,26 +42,26 @@ export function makeDriverGameEngine<
             sink.state$.subscribe(state$);
             console.debug('[GameEngine] Initialized');
         });
-        const actionHandler = {
+        const actionHandlers = {
             engine: new Subject<EngineAction>()
         } as Record<A | 'engine', Subject<any>>;
-        options.actionKeys.forEach((ak) => actionHandler[ak] = new Subject());
+        options.actionKeys.forEach((ak) => actionHandlers[ak] = new Subject());
         const source = {
-            actionHandler,
+            actionHandlers,
             dispose: () => {
                 game$.complete();
                 state$.complete();
-                Object.keys(source.actionHandler).forEach((k) => source.actionHandler[k as A].complete());
+                Object.keys(source.actionHandlers).forEach((k) => source.actionHandlers[k as A].complete());
                 console.debug('[GameEngine] Disposed');
             },
             game$,
             state$,
             target$
-        } as const satisfies GameEngineSource<S, A, C>;
+        };
         if (options.workerContext) {
             options.workerContext.onmessage = (event) => {
                 try {
-                    source.actionHandler[event.data.key as A].next(event.data.value);
+                    source.actionHandlers[event.data.key as A].next(event.data.value);
                 } catch (e) {
                     console.error('cannot send action for event data: ', event.data, e);
                 }
