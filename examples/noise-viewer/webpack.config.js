@@ -8,7 +8,8 @@ module.exports = (config, context) => {
         },
         output: {
             path: path.resolve(__dirname, 'dist'),
-            filename: '[name].js'
+            filename: '[name].js',
+            scriptType: 'text/javascript'
         },
         devtool: 'source-map',
         resolve: {
