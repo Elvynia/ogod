@@ -7,7 +7,7 @@ export function makeFeatureCameraResize(sources: WorkerSources, target: AppState
         key: 'camera',
         value$: sources.GameEngine.actionHandlers.camera.pipe(
             first(),
-            withLatestFrom(sources.GameEngine.target$),
+            withLatestFrom(sources.GameEngine.renderTarget$),
             map(([{ width, height }, canvas]) => {
                 canvas.width = width;
                 canvas.height = height;

@@ -1,11 +1,16 @@
-import { BehaviorSubject, Subject } from "rxjs";
+import { BehaviorSubject, Observable, Subject, SubjectLike } from "rxjs";
 import { UpdateState } from "../update/state";
 
 export type RenderState<T = any> = [UpdateState, T];
 
 export type Renderer<T = any> = (update: UpdateState, state: T) => void;
 
-export class RendererSubject<T = any> extends Subject<RenderState<T>> {
+export interface RendererSubject<T> extends SubjectLike<RenderState<T>> {
+    asObservable(): Observable<RenderState<T>>;
+    get renderers$(): BehaviorSubject<Renderer<T>[]>;
+}
+
+export class RendererSubjectDefault<T = any> extends Subject<RenderState<T>> implements RendererSubject<T> {
     protected renderers: BehaviorSubject<Renderer<T>[]>;
 
     get renderers$(): BehaviorSubject<Renderer<T>[]> {

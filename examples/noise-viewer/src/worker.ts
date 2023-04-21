@@ -1,5 +1,5 @@
 import { isEngineActionCanvas } from '@ogod/game-core';
-import { makeDriverGameEngine, makeUpdate$ } from '@ogod/game-engine-driver';
+import { makeDriverGameEngine, makeGameEngineOptionsDefaults } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import { filter, first, merge, startWith, switchMap, tap } from 'rxjs';
 import { makeFeatureData } from './app/data/make';
@@ -38,14 +38,14 @@ function main(sources: WorkerSources): WorkerSinks {
             ).pipe(
                 startWith(state)
             ),
-            renderer$: makeRenderer$(sources),
-            update$: makeUpdate$()
+            renderer$: makeRenderer$(sources)
         }
     };
 }
 
 self.close = gameRun(main, {
     GameEngine: makeDriverGameEngine({
+        ...makeGameEngineOptionsDefaults(),
         actionKeys: ActionKeys,
         workerContext: self
     })

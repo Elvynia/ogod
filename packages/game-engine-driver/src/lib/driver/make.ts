@@ -1,9 +1,9 @@
 import { EngineAction } from '@ogod/game-core';
-import { ReplaySubject, Subject } from "rxjs";
+import { Subject } from "rxjs";
 import { makeActionListenerEngine } from '../action/make';
 import { makeGame$ } from '../game/make';
+import { makeGameEngineOptionsDefaults } from '../option/make';
 import { GameEngineOptions } from '../option/state';
-import { RendererSubject } from '../render/state';
 import { makeUpdate$ } from '../update/make';
 import { GameEngineDriver, GameEngineSink, GameEngineSource } from './state';
 
@@ -13,24 +13,24 @@ import { GameEngineDriver, GameEngineSink, GameEngineSource } from './state';
  * @returns GameEngineDriver<S, A, R> a driver that can be used with game-run package.
  */
 export function makeDriverGameEngine<
-    S extends Record<string, any> = any,
+    S = any,
     A extends string = any,
     R = any,
     C = OffscreenCanvas>
-    (options: GameEngineOptions<S, A> = { actionKeys: [] }): GameEngineDriver<S, A, R, C> {
-    const state$ = options.state$ || new ReplaySubject<S>(1);
-    const game$ = new RendererSubject<S>();
-    const target$ = new ReplaySubject<C>(1);
+    (options: GameEngineOptions<S, A, C> = makeGameEngineOptionsDefaults()): GameEngineDriver<S, A, R, C> {
     return (sink$: Promise<GameEngineSink<S, R>>): GameEngineSource<S, A, C> => {
         console.debug('[GameEngine] Created');
         sink$.then((sink) => {
             if (sink.game$) {
-                sink.game$.subscribe(game$);
+                sink.game$.subscribe(options.game$);
             } else {
-                makeGame$({ state$, update$: sink.update$ || makeUpdate$() }).subscribe(game$);
+                makeGame$({
+                    state$: options.state$,
+                    update$: makeUpdate$()
+                }).subscribe(options.game$);
             }
             if (sink.renderer$) {
-                sink.renderer$.subscribe(game$.renderers$);
+                sink.renderer$.subscribe(options.game$.renderers$);
             }
             if (sink.reflect$) {
                 if (options.workerContext) {
@@ -39,24 +39,28 @@ export function makeDriverGameEngine<
                     throw new Error('[GameEngine] Worker context is required when using reflect mode');
                 }
             }
-            sink.state$.subscribe(state$);
+            sink.state$.subscribe(options.state$);
             console.debug('[GameEngine] Initialized');
         });
         const actionHandlers = {
             engine: new Subject<EngineAction>()
         } as Record<A | 'engine', Subject<any>>;
-        options.actionKeys.forEach((ak) => actionHandlers[ak] = new Subject());
+        if (options.actionHandlerDefaults) {
+            Object.assign(actionHandlers, options.actionHandlerDefaults);
+        }
+        options.actionKeys.filter((ak) => !actionHandlers[ak])
+            .forEach((ak) => actionHandlers[ak] = new Subject());
         const source = {
             actionHandlers,
             dispose: () => {
-                game$.complete();
-                state$.complete();
+                options.game$.complete();
+                options.state$.complete();
                 Object.keys(source.actionHandlers).forEach((k) => source.actionHandlers[k as A].complete());
                 console.debug('[GameEngine] Disposed');
             },
-            game$,
-            state$,
-            target$
+            game$: options.game$.asObservable(),
+            renderTarget$: options.renderTarget$,
+            state$: options.state$.asObservable()
         };
         if (options.workerContext) {
             options.workerContext.onmessage = (event) => {

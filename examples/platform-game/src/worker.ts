@@ -1,5 +1,5 @@
 import { makeGameBox2dDriver } from '@ogod/game-box2d-driver';
-import { Renderer, makeDriverGameEngine, makeReflect$, makeUpdate$ } from '@ogod/game-engine-driver';
+import { Renderer, makeDriverGameEngine, makeGame$, makeGameEngineOptionsDefaults, makeReflect$, makeUpdate$ } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import gsap from 'gsap';
 import { EMPTY, Observable, concat, distinctUntilChanged, first, map, merge, switchMap } from "rxjs";
@@ -53,6 +53,10 @@ function main(sources: WorkerSources): WorkerSinks {
     );
     return {
         GameEngine: {
+            game$: makeGame$({
+                state$: sources.GameEngine.state$,
+                update$: pausableUpdate$
+            }),
             reflect$: makeReflect$({
                 state$: sources.GameEngine.state$,
                 buffer$: update$,
@@ -71,8 +75,7 @@ function main(sources: WorkerSources): WorkerSinks {
                     makeFeatureSceneSplash(sources, state),
                     makeFeatureSceneLevel(sources, state)
                 )
-            ),
-            update$: pausableUpdate$
+            )
         },
         World: {
             update$: sources.GameEngine.state$.pipe(
@@ -91,6 +94,7 @@ function main(sources: WorkerSources): WorkerSinks {
 
 self.close = gameRun(main, {
     GameEngine: makeDriverGameEngine({
+        ...makeGameEngineOptionsDefaults(),
         actionKeys: ActionKeys,
         workerContext: self
     }),

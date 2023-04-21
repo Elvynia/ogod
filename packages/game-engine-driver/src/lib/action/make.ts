@@ -24,7 +24,7 @@ export function makeActionListenerEngine<C = OffscreenCanvas>(params: {
     params.source.actionHandlers['engine'].pipe(
         filter(isEngineActionCanvas<C>)
     ).subscribe(({ payload }) => {
-        params.source.target$.next(payload);
+        params.source.renderTarget$.next(payload);
     });
     if (params.workerContext) {
         params.source.actionHandlers['engine'].pipe(

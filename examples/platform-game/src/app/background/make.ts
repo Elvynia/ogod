@@ -71,7 +71,7 @@ export function makeFeatureBackgroundUpdate(sources: WorkerSources, target: AppS
             map((s) => s.background),
             distinctUntilChanged(),
             withLatestFrom(sources.GameEngine.state$),
-            withLatestFrom(sources.GameEngine.target$),
+            withLatestFrom(sources.GameEngine.renderTarget$),
             switchMap(([[b, state], canvas]) => {
                 const ctx = canvas.getContext('2d');
                 const colorWidth = Math.round(state.gmap.width * state.gmap.scale / state.background.colors.length);

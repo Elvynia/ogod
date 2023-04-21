@@ -1,4 +1,4 @@
-import { makeDriverGameEngine, makeReflect$ } from '@ogod/game-engine-driver';
+import { makeDriverGameEngine, makeGameEngineOptionsDefaults, makeReflect$ } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import { gsap } from 'gsap';
 import { merge } from 'rxjs';
@@ -35,6 +35,7 @@ function main(sources: WorkerSources): WorkerSinks {
 
 self.close = gameRun(main, {
     GameEngine: makeDriverGameEngine({
+        ...makeGameEngineOptionsDefaults(),
         actionKeys: ActionKeys,
         workerContext: self
     })

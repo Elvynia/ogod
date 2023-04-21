@@ -1,7 +1,7 @@
 import { makeGameBox2dDriver } from '@ogod/game-box2d-driver';
-import { makeDriverGameEngine, makeFeature$, makeReflect$, makeUpdate$ } from '@ogod/game-engine-driver';
+import { makeDriverGameEngine, makeFeature$, makeGame$, makeGameEngineOptionsDefaults, makeReflect$, makeUpdate$ } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
-import { EMPTY, distinctUntilChanged, filter, first, map, merge, share, switchMap, withLatestFrom } from 'rxjs';
+import { EMPTY, ReplaySubject, distinctUntilChanged, filter, first, map, merge, share, switchMap, withLatestFrom } from 'rxjs';
 import { makeFeatureFps } from './app/fps';
 import { makeGrounds } from './app/ground/make';
 import { makeFeatureObjects } from './app/object/make';
@@ -28,10 +28,14 @@ function main(sources: WorkerSources): WorkerSinks {
     );
     return {
         GameEngine: {
+            game$: makeGame$({
+                state$: sources.GameEngine.state$,
+                update$
+            }),
             reflect$: sources.GameEngine.state$.pipe(
                 filter((state) => state.camera && state.player && !!state.objects),
                 first(),
-                switchMap((state) => makeReflect$({
+                switchMap(() => makeReflect$({
                     state$: sources.GameEngine.state$,
                     buffer$: update$,
                     transform: (state) => ({
@@ -61,7 +65,7 @@ function main(sources: WorkerSources): WorkerSinks {
                 sources.GameEngine.state$.pipe(
                     filter((state) => !!state.camera),
                     first(),
-                    withLatestFrom(sources.GameEngine.target$),
+                    withLatestFrom(sources.GameEngine.renderTarget$),
                     switchMap(([state, canvas]) => {
                         state.grounds = makeGrounds(sources, state.camera, canvas.getContext('2d'));
                         return merge(
@@ -70,8 +74,7 @@ function main(sources: WorkerSources): WorkerSinks {
                         );
                     })
                 )
-            ),
-            update$
+            )
         },
         World: {
             update$
@@ -81,7 +84,11 @@ function main(sources: WorkerSources): WorkerSinks {
 
 self.close = gameRun(main, {
     GameEngine: makeDriverGameEngine({
+        ...makeGameEngineOptionsDefaults(),
         actionKeys: ActionKeys,
+        actionHandlerDefaults: {
+            playerColor: new ReplaySubject(1)
+        },
         workerContext: self
     }),
     World: makeGameBox2dDriver()
