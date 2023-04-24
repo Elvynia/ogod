@@ -41,7 +41,6 @@ function main(sources: WorkerSources): WorkerSinks {
         splash: {}
     } as AppState;
     const update$ = makeUpdate$().pipe(
-        // FIXME: share update ?
         share()
     );
     const pausableUpdate$ = sources.GameEngine.state$.pipe(

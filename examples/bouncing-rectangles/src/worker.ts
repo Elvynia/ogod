@@ -23,7 +23,6 @@ function main(sources: WorkerSources): WorkerSinks {
         map((state) => state.paused),
         distinctUntilChanged(),
         switchMap((paused) => paused ? EMPTY : makeUpdate$(0).pipe(
-            // FIXME: check perfs vs not using share.
             share()
         ))
     );
