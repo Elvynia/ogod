@@ -4,7 +4,7 @@ import { UpdateState } from "../update/state";
 
 export function makeGame$<U = UpdateState, S = any>(params: {
     state$: Observable<S>;
-    update$: Observable<U>
+    update$: Observable<U>;
 }): Observable<RenderState<U, S>> {
     return params.update$.pipe(
         withLatestFrom(params.state$)
