@@ -13,10 +13,6 @@ interface AppElement extends HTMLElement {
     render: Function;
 }
 
-export function increaseCount(host: AppElement) {
-    host.count += 1;
-}
-
 export default define<AppElement>({
     tag: 'app-root',
     app: {

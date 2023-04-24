@@ -1,5 +1,4 @@
-import { isEngineActionCanvas } from '@ogod/game-core';
-import { distinctUntilChanged, filter, map, switchMap } from 'rxjs';
+import { distinctUntilChanged, map, switchMap } from 'rxjs';
 import { Camera } from './camera/state';
 import { PHASE } from './phase/state';
 import { Shape } from "./shape/state";
@@ -73,10 +72,9 @@ export function makeRenderer(ctx: OffscreenCanvasRenderingContext2D) {
 }
 
 export function makeRenderer$(sources: WorkerSources) {
-    return sources.GameEngine.actionHandlers.engine.pipe(
-        filter(isEngineActionCanvas),
-        switchMap(({ payload }) => {
-            const ctx = payload.getContext('2d');
+    return sources.GameEngine.renderTarget$.pipe(
+        switchMap((canvas) => {
+            const ctx = canvas.getContext('2d');
             const renderers = makeRenderer(ctx);
             return sources.GameEngine.state$.pipe(
                 map((s) => s.phase),
@@ -90,7 +88,7 @@ export function makeRenderer$(sources: WorkerSources) {
                         case PHASE.PLAY:
                             return [renderers.play];
                         case PHASE.END:
-                            ctx.clearRect(0, 0, payload.width, payload.height);
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
                         default:
                             return [];
                     }

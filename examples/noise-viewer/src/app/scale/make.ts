@@ -4,7 +4,7 @@ import { AppState, WorkerSources } from "../state";
 export function makeFeatureScale(sources: WorkerSources, target: AppState) {
     return makeFeature$({
         key: 'scale',
-        value$: sources.GameEngine.actionHandlers.scale.asObservable(),
+        value$: sources.GameEngine.action$.handlers.scale.asObservable(),
         target
     })
 }

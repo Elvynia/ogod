@@ -7,7 +7,7 @@ export function makeRenderer(ctx: OffscreenCanvasRenderingContext2D) {
 }
 
 export function makeRenderer$(sources: WorkerSources) {
-    return sources.GameEngine.actionHandlers.engine.pipe(
+    return sources.GameEngine.action$.handlers.engine.pipe(
         filter(isEngineActionCanvas),
         switchMap(({ payload }) => {
             return sources.GameEngine.state$.pipe(

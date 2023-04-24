@@ -5,7 +5,7 @@ import { AppState, WorkerSources } from "../state";
 export function makeFeatureOffset(sources: WorkerSources, target: AppState) {
     return makeFeature$({
         key: 'offset',
-        value$: sources.GameEngine.actionHandlers.offset.pipe(
+        value$: sources.GameEngine.action$.handlers.offset.pipe(
             map((offset) => {
                 let incr = 0;
                 return offset !== 0 ? () => incr += offset : () => 0;

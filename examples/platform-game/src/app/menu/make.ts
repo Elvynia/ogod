@@ -1,9 +1,8 @@
-import { first } from 'rxjs';
-import { AppReflectState } from './../state';
 import { button, div, h1, h2, input, VNode } from '@cycle/dom';
 import { makeWorkerMessage } from '@ogod/game-worker-driver';
-import { concat, filter, from, fromEvent, map, merge, of, switchMap, tap } from 'rxjs';
+import { concat, filter, first, from, fromEvent, map, merge, of, switchMap } from 'rxjs';
 import { AppSources } from "../state";
+import { AppReflectState } from './../state';
 
 export function makeElementMenuMain() {
     return div({ props: { id: 'menu' } }, [

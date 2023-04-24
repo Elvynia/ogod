@@ -1,6 +1,7 @@
 import { isEngineActionCanvas } from '@ogod/game-core';
-import { makeDriverGameEngine, makeGameEngineOptionsDefaults } from '@ogod/game-engine-driver';
+import { makeActionSubjectParams, makeDriverGameEngine, makeGameEngineOptionsDefaults } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
+import { ActionSubjectDefault } from 'packages/game-engine-driver/src/lib/action/state';
 import { filter, first, merge, startWith, switchMap, tap } from 'rxjs';
 import { makeFeatureData } from './app/data/make';
 import { makeFeatureGenerator } from './app/generator/make';
@@ -12,10 +13,10 @@ import { ActionKeys, WorkerSinks, WorkerSources } from './app/state';
 declare var self: DedicatedWorkerGlobalScope;
 
 function main(sources: WorkerSources): WorkerSinks {
-    sources.GameEngine.actionHandlers.engine.pipe(
+    sources.GameEngine.action$.handlers.engine.pipe(
         filter(isEngineActionCanvas),
         first(),
-        switchMap(({ payload }) => sources.GameEngine.actionHandlers.camera.pipe(
+        switchMap(({ payload }) => sources.GameEngine.action$.handlers.camera.pipe(
             tap((app) => {
                 payload.width = app.width;
                 payload.height = app.height;
@@ -46,7 +47,7 @@ function main(sources: WorkerSources): WorkerSinks {
 self.close = gameRun(main, {
     GameEngine: makeDriverGameEngine({
         ...makeGameEngineOptionsDefaults(),
-        actionKeys: ActionKeys,
+        action$: new ActionSubjectDefault(makeActionSubjectParams(ActionKeys)),
         workerContext: self
     })
 });

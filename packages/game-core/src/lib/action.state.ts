@@ -1,29 +1,9 @@
-import { SubjectLike } from "rxjs";
+export type EngineActionType = 'OGOD_ENGINE_CLOSE' | 'OGOD_ENGINE_TARGET';
+export const WorkerActionInit = 'OGOD_ENGINE_INIT';
 
-export type EngineActionType = 'OGOD_ENGINE_CLOSE'
-    | 'OGOD_ENGINE_HANDLER_ADD'
-    | 'OGOD_ENGINE_HANDLER_ADD_KEY'
-    | 'OGOD_ENGINE_HANDLER_COMPLETE'
-    | 'OGOD_ENGINE_TARGET';
-
-export interface EngineAction {
-    type: EngineActionType;
+export interface EngineAction<T = EngineActionType> {
+    type: T;
     payload?: any;
-}
-
-export interface EngineActionHandlerAdd extends EngineAction {
-    type: 'OGOD_ENGINE_HANDLER_ADD';
-    payload: Record<string, SubjectLike<any>>;
-}
-
-export interface EngineActionHandlerAddKey extends EngineAction {
-    type: 'OGOD_ENGINE_HANDLER_ADD_KEY';
-    payload: string;
-}
-
-export interface EngineActionHandlerComplete extends EngineAction {
-    type: 'OGOD_ENGINE_HANDLER_COMPLETE';
-    payload: string;
 }
 
 export interface EngineActionCanvas<C = OffscreenCanvas> extends EngineAction {
@@ -31,16 +11,12 @@ export interface EngineActionCanvas<C = OffscreenCanvas> extends EngineAction {
     payload: C;
 }
 
-export function isEngineActionHandlerAdd(action: EngineAction): action is EngineActionHandlerAdd {
-    return action.type === 'OGOD_ENGINE_HANDLER_ADD';
+export function isEngineActionInit(action: MessageEvent): action is MessageEvent<typeof WorkerActionInit> {
+    return action.data === WorkerActionInit;
 }
 
-export function isEngineActionHandlerAddKey(action: EngineAction): action is EngineActionHandlerAddKey {
-    return action.type === 'OGOD_ENGINE_HANDLER_ADD_KEY';
-}
-
-export function isEngineActionHandlerComplete(action: EngineAction): action is EngineActionHandlerComplete {
-    return action.type === 'OGOD_ENGINE_HANDLER_COMPLETE';
+export function isEngineActionClose(action: EngineAction): action is EngineAction<'OGOD_ENGINE_CLOSE'> {
+    return action.type === 'OGOD_ENGINE_CLOSE';
 }
 
 export function isEngineActionCanvas<C = OffscreenCanvas>(action: EngineAction): action is EngineActionCanvas<C> {

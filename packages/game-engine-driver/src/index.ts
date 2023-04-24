@@ -1,4 +1,5 @@
 export * from './lib/action/make';
+export * from './lib/action/state';
 export * from './lib/driver/make';
 export * from './lib/driver/state';
 export * from './lib/feature/make';

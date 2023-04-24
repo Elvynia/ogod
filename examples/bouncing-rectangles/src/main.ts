@@ -1,7 +1,7 @@
 import { canvas, div, h3, input, makeDOMDriver } from '@cycle/dom';
 import { gameRun } from '@ogod/game-run';
 import { makeDriverGameWorker, makeEngineAction, makeWorkerMessage } from '@ogod/game-worker-driver';
-import { Subject, combineLatest, concat, debounceTime, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, interval, map, merge, of, startWith, switchMap, take, takeUntil } from 'rxjs';
+import { Subject, combineLatest, concat, debounceTime, delay, delayWhen, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, interval, map, merge, of, skipUntil, startWith, switchMap, take, takeUntil, tap } from 'rxjs';
 import xs from 'xstream';
 import { Camera } from './app/screen/state';
 import { AppReflectState, AppSources } from './app/state';
@@ -64,6 +64,7 @@ function main(sources: AppSources) {
         map((e: Event) => (e.target as any).value),
         filter((value) => value && value.length === 7),
         startWith(playerColor),
+        delayWhen(() => sources.GameWorker.initialized$),
         map((value) => makeWorkerMessage({ key: 'playerColor', value }))
     );
     return {

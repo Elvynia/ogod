@@ -4,8 +4,7 @@ body {
     height: 100vh;
 }
 
-ogod-root {
+app-root {
     display: flex;
-    flex-direction: column;
-    position: relative;
+    height: 100%;
 }

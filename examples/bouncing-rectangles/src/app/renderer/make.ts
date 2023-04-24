@@ -26,7 +26,7 @@ export const makeRenderer = (canvas: any) => {
 }
 
 export function makeRenderer$(sources: WorkerSources) {
-    return sources.GameEngine.actionHandlers.engine.pipe(
+    return sources.GameEngine.action$.handlers.engine.pipe(
         filter(isEngineActionCanvas),
         switchMap(({ payload }) => sources.GameEngine.state$.pipe(
             filter((state) => state.camera && state.player && !!state.objects),

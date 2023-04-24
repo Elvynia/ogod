@@ -1,28 +1,28 @@
 import { BehaviorSubject, Observable, Subject, SubjectLike } from "rxjs";
 import { UpdateState } from "../update/state";
 
-export type RenderState<T = any> = [UpdateState, T];
+export type RenderState<U = UpdateState, T = any> = [U, T];
 
-export type Renderer<T = any> = (update: UpdateState, state: T) => void;
+export type Renderer<U = UpdateState, T = any> = (update: U, state: T) => void;
 
-export interface RendererSubject<T> extends SubjectLike<RenderState<T>> {
-    asObservable(): Observable<RenderState<T>>;
-    get renderers$(): BehaviorSubject<Renderer<T>[]>;
+export interface RendererSubject<U = UpdateState, T = any> extends SubjectLike<RenderState<U, T>> {
+    asObservable(): Observable<RenderState<U, T>>;
+    get renderers$(): BehaviorSubject<Renderer<U, T>[]>;
 }
 
-export class RendererSubjectDefault<T = any> extends Subject<RenderState<T>> implements RendererSubject<T> {
-    protected renderers: BehaviorSubject<Renderer<T>[]>;
+export class RendererSubjectDefault<U = UpdateState, T = any> extends Subject<RenderState<U, T>> implements RendererSubject<U, T> {
+    protected renderers: BehaviorSubject<Renderer<U, T>[]>;
 
-    get renderers$(): BehaviorSubject<Renderer<T>[]> {
+    get renderers$(): BehaviorSubject<Renderer<U, T>[]> {
         return this.renderers;
     }
 
-    constructor(renderers: Renderer<T>[] = []) {
+    constructor(renderers: Renderer<U, T>[] = []) {
         super();
         this.renderers = new BehaviorSubject(renderers);
     }
 
-    override next(value: RenderState<T>): void {
+    override next(value: RenderState<U, T>): void {
         super.next(value);
         for (const renderer of this.renderers.value) {
             renderer(...value);

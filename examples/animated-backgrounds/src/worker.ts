@@ -1,6 +1,7 @@
-import { makeDriverGameEngine, makeGameEngineOptionsDefaults, makeReflect$ } from '@ogod/game-engine-driver';
+import { makeActionSubjectParams, makeDriverGameEngine, makeGameEngineOptionsDefaults, makeReflect$ } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import { gsap } from 'gsap';
+import { ActionSubjectDefault } from 'packages/game-engine-driver/src/lib/action/state';
 import { merge } from 'rxjs';
 import { makeFeatureCamera } from './app/camera/make';
 import { makeFeatureObjects } from './app/object/make';
@@ -36,7 +37,7 @@ function main(sources: WorkerSources): WorkerSinks {
 self.close = gameRun(main, {
     GameEngine: makeDriverGameEngine({
         ...makeGameEngineOptionsDefaults(),
-        actionKeys: ActionKeys,
+        action$: new ActionSubjectDefault(makeActionSubjectParams(ActionKeys)),
         workerContext: self
     })
 });

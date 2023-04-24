@@ -1,8 +1,8 @@
 import { makeFeature$ } from "@ogod/game-engine-driver";
 import gsap, { Elastic, Expo, Linear } from 'gsap';
-import { concat, concatWith, defer, EMPTY, finalize, from, ignoreElements, mergeMap, Observable, of, takeUntil, tap } from "rxjs";
+import { EMPTY, Observable, concat, concatWith, defer, finalize, from, ignoreElements, mergeMap, of, takeUntil, tap } from "rxjs";
 import { AppState, WorkerSources } from '../state';
-import { randNum, randomColor, randShape, randSize } from '../util';
+import { randNum, randShape, randSize, randomColor } from '../util';
 import { CanvasObject, ObjectState } from "./state";
 
 function randBall(x: number, y: number): CanvasObject {
@@ -67,10 +67,10 @@ export function makeRandomBall$(reset$: Observable<void>, objects: ObjectState) 
 
 
 export function makeFeatureObjects(sources: WorkerSources, state: AppState) {
-    const randomBall$ = makeRandomBall$(sources.GameEngine.actionHandlers.reset, state.objects);
+    const randomBall$ = makeRandomBall$(sources.GameEngine.action$.handlers.reset, state.objects);
     return makeFeature$({
         key: 'objects',
-        value$: sources.GameEngine.actionHandlers.objects.pipe(
+        value$: sources.GameEngine.action$.handlers.objects.pipe(
             mergeMap(({ x, y }) => randomBall$(x, y))
         ),
         target: state

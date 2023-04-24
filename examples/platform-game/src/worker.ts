@@ -1,8 +1,9 @@
 import { makeGameBox2dDriver } from '@ogod/game-box2d-driver';
-import { Renderer, makeDriverGameEngine, makeGame$, makeGameEngineOptionsDefaults, makeReflect$, makeUpdate$ } from '@ogod/game-engine-driver';
+import { Renderer, makeActionSubjectParams, makeDriverGameEngine, makeGame$, makeGameEngineOptionsDefaults, makeReflect$, makeUpdate$ } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import gsap from 'gsap';
-import { EMPTY, Observable, concat, distinctUntilChanged, first, map, merge, switchMap } from "rxjs";
+import { ActionSubjectDefault } from 'packages/game-engine-driver/src/lib/action/state';
+import { EMPTY, Observable, concat, distinctUntilChanged, first, map, merge, share, switchMap } from "rxjs";
 import { makeFeatureBackgroundColors, makeFeatureBackgroundUpdate } from './app/background/make';
 import { makeFeatureCameraResize } from './app/camera/make';
 import { makeFeatureFps } from './app/fps';
@@ -39,13 +40,15 @@ function main(sources: WorkerSources): WorkerSinks {
         phase: -1,
         splash: {}
     } as AppState;
-    const update$ = makeUpdate$();
-    // FIXME: share update ?
+    const update$ = makeUpdate$().pipe(
+        // FIXME: share update ?
+        share()
+    );
     const pausableUpdate$ = sources.GameEngine.state$.pipe(
         map((s) => s.paused),
         distinctUntilChanged(),
         switchMap((paused) => paused ?
-            sources.GameEngine.actionHandlers.background.pipe(
+            sources.GameEngine.action$.handlers.background.pipe(
                 switchMap(() => update$.pipe(
                     first()
                 ))
@@ -95,7 +98,7 @@ function main(sources: WorkerSources): WorkerSinks {
 self.close = gameRun(main, {
     GameEngine: makeDriverGameEngine({
         ...makeGameEngineOptionsDefaults(),
-        actionKeys: ActionKeys,
+        action$: new ActionSubjectDefault(makeActionSubjectParams(ActionKeys)),
         workerContext: self
     }),
     World: makeGameBox2dDriver({ x: 0, y: -10 })

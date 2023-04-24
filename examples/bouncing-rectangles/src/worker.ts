@@ -1,6 +1,7 @@
 import { makeGameBox2dDriver } from '@ogod/game-box2d-driver';
-import { makeDriverGameEngine, makeFeature$, makeGame$, makeGameEngineOptionsDefaults, makeReflect$, makeUpdate$ } from '@ogod/game-engine-driver';
+import { makeActionSubjectParams, makeDriverGameEngine, makeFeature$, makeGame$, makeGameEngineOptionsDefaults, makeReflect$, makeUpdate$ } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
+import { ActionSubjectDefault } from 'packages/game-engine-driver/src/lib/action/state';
 import { EMPTY, ReplaySubject, distinctUntilChanged, filter, first, map, merge, share, switchMap, withLatestFrom } from 'rxjs';
 import { makeFeatureFps } from './app/fps';
 import { makeGrounds } from './app/ground/make';
@@ -58,7 +59,7 @@ function main(sources: WorkerSources): WorkerSinks {
                 makeFeatureFps(sources.GameEngine, target),
                 makeFeature$({
                     key: 'paused',
-                    value$: sources.GameEngine.actionHandlers.paused,
+                    value$: sources.GameEngine.action$.handlers.paused,
                     target
                 }),
                 makeFeatureCamera(sources, target),
@@ -85,10 +86,9 @@ function main(sources: WorkerSources): WorkerSinks {
 self.close = gameRun(main, {
     GameEngine: makeDriverGameEngine({
         ...makeGameEngineOptionsDefaults(),
-        actionKeys: ActionKeys,
-        actionHandlerDefaults: {
+        action$: new ActionSubjectDefault(makeActionSubjectParams(ActionKeys, {
             playerColor: new ReplaySubject(1)
-        },
+        })),
         workerContext: self
     }),
     World: makeGameBox2dDriver()

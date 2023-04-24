@@ -28,11 +28,11 @@ export interface AppSources {
 }
 
 export interface WorkerSources {
-    GameEngine: GameEngineSource<AppState, AppAction>;
+    GameEngine: GameEngineSource<AppState, AppAction, number>;
     World: GameBox2dSource;
 }
 
 export interface WorkerSinks {
-    GameEngine: GameEngineSink<AppState, AppReflectState>;
+    GameEngine: GameEngineSink<AppState, AppReflectState, number>;
     World: GameBox2dSink
 }

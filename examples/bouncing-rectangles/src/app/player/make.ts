@@ -15,7 +15,7 @@ export function makeFeaturePlayer(sources: WorkerSources, target: AppState) {
     return makeFeature$({
         key: 'player',
         value$: merge(
-            sources.GameEngine.actionHandlers.playerColor.pipe(
+            sources.GameEngine.action$.handlers.playerColor.pipe(
                 map((color: string) => {
                     player.color = color;
                     return player;
