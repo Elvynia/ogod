@@ -4,7 +4,6 @@ import { makeGame$ } from '../game/make';
 import { makeGameEngineOptionsDefaults } from '../option/make';
 import { GameEngineOptions } from '../option/state';
 import { makeUpdate$ } from '../update/make';
-import { UpdateState } from '../update/state';
 import { GameEngineDriver, GameEngineSink, GameEngineSource } from './state';
 
 /**
@@ -12,12 +11,7 @@ import { GameEngineDriver, GameEngineSink, GameEngineSource } from './state';
  * @param options GameEngineOptions<S, A> parameters to control driver properties at creation.
  * @returns GameEngineDriver<S, A, R> a driver that can be used with game-run package.
  */
-export function makeDriverGameEngine<
-    S = any,
-    A extends string = string,
-    R = any,
-    U = UpdateState,
-    C = OffscreenCanvas>
+export function makeDriverGameEngine<S, A extends string, R, U, C>
     (options: GameEngineOptions<U, S, A, C> = makeGameEngineOptionsDefaults<U, S, A, C>()): GameEngineDriver<S, A, R, U, C> {
     return (sink$: Promise<GameEngineSink<S, R, U, A>>): GameEngineSource<S, A, U, C> => {
         console.debug('[GameEngine] Created');
