@@ -9,11 +9,13 @@ export interface ActionSubjectChanges<A extends string = string> {
 }
 
 export type ActionHandlers<A extends string = string, W extends WorkerAction<A> = WorkerAction<A>>
-    = { [k in A | 'engine']: Subject<W['value']> };
+    = { [k in W['value']]: Subject<W['value']> };
 
 export interface ActionSubject<A extends string = string>
     extends SubjectLike<ActionSubjectChanges<A>> {
     handlers: ActionHandlers<A>;
+    getHandler<S extends Subject<any>>(key: A): S;
+    getHandler<T>(key: A): Subject<T>;
 }
 
 export interface ActionSubjectParams<A extends string = string> {
@@ -41,14 +43,19 @@ export class ActionSubjectDefault<A extends string = string, W extends WorkerAct
         }
     }
 
+    getHandler<S extends Subject<any>>(key: A): S;
+    getHandler<T>(key: A): Subject<T>;
+    getHandler<S extends Subject<T>, T = any>(key: A): S | Subject<T> {
+        return this._handlers[key];
+    }
+
     protected addHandler(key: W["key"], subject: Subject<W["value"]> = new Subject()): void {
         this._handlers[key] = subject;
     }
 
     protected removeHandler(key: W["key"]): void {
         this.handlers[key].unsubscribe();
-        // FIXME: delete on readonly getter not raising error.
-        delete this.handlers[key];
+        delete this._handlers[key];
     }
 
     override next(changes: ActionSubjectChanges<A>): void {

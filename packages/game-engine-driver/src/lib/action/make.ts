@@ -9,11 +9,11 @@ export function makeActionEngineHandler() {
 }
 
 export function makeActionEngineListener(engine: GameEngineSource<any, 'engine'>): void {
-    engine.action$.handlers.engine.pipe(
+    engine.action$.getHandler('engine').pipe(
         filter(isEngineActionCanvas)
     ).subscribe(({ payload }) => engine.renderTarget$.next(payload));
     if (engine.workerContext) {
-        engine.action$.handlers.engine.pipe(
+        engine.action$.getHandler('engine').pipe(
             filter(isEngineActionClose)
         ).subscribe(() => engine.workerContext!.close());
     }
