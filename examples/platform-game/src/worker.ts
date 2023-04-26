@@ -1,5 +1,5 @@
 import { makeGameBox2dDriver } from '@ogod/game-box2d-driver';
-import { Renderer, makeActionSubjectParams, makeDriverGameEngine, makeGame$, makeGameEngineOptionsDefaults, makeReflect$, makeUpdate$ } from '@ogod/game-engine-driver';
+import { Renderer, makeDriverGameEngine, makeGame$, makeReflect$, makeUpdate$ } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import gsap from 'gsap';
 import { ActionSubjectDefault } from 'packages/game-engine-driver/src/lib/action/state';
@@ -96,8 +96,7 @@ function main(sources: WorkerSources): WorkerSinks {
 
 self.close = gameRun(main, {
     GameEngine: makeDriverGameEngine({
-        ...makeGameEngineOptionsDefaults(),
-        action$: new ActionSubjectDefault(makeActionSubjectParams(ActionKeys)),
+        action$: new ActionSubjectDefault({ keys: ActionKeys }),
         workerContext: self
     }),
     World: makeGameBox2dDriver({ x: 0, y: -10 })

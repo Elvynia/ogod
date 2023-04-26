@@ -1,16 +1,10 @@
 import { EngineAction, isEngineActionCanvas, isEngineActionClose } from '@ogod/game-core';
 import { Subject, filter } from 'rxjs';
 import { GameEngineSource } from '../driver/state';
-import { ActionHandlers, ActionSubjectParams } from './state';
 
-export function makeActionSubjectParams<A extends string = string>(
-    keys: ReadonlyArray<A> = [], handlers: Partial<ActionHandlers<A>> = {}): ActionSubjectParams<A> {
+export function makeActionEngineHandler() {
     return {
-        handlers: {
-            engine: new Subject<EngineAction>(),
-            ...handlers
-        } as ActionHandlers<A>,
-        keys
+        engine: new Subject<EngineAction>()
     }
 }
 

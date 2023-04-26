@@ -1,4 +1,4 @@
-import { makeActionSubjectParams, makeDriverGameEngine, makeGameEngineOptionsDefaults } from '@ogod/game-engine-driver';
+import { makeDriverGameEngine } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import { ActionSubjectDefault } from 'packages/game-engine-driver/src/lib/action/state';
 import { merge, startWith, withLatestFrom } from 'rxjs';
@@ -41,8 +41,7 @@ function main(sources: WorkerSources): WorkerSinks {
 
 self.close = gameRun(main, {
     GameEngine: makeDriverGameEngine({
-        ...makeGameEngineOptionsDefaults(),
-        action$: new ActionSubjectDefault(makeActionSubjectParams(ActionKeys)),
+        action$: new ActionSubjectDefault({ keys: ActionKeys }),
         workerContext: self
     })
 });

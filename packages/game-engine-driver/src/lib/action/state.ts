@@ -1,6 +1,6 @@
 import { WorkerAction } from "@ogod/game-core";
 import { Subject, SubjectLike } from "rxjs";
-import { makeActionSubjectParams } from "./make";
+import { makeActionEngineHandler } from "./make";
 
 export interface ActionSubjectChanges<A extends string = string> {
     key: A;
@@ -17,8 +17,8 @@ export interface ActionSubject<A extends string = string>
 }
 
 export interface ActionSubjectParams<A extends string = string> {
-    handlers: Partial<ActionHandlers<A>>;
-    keys: ReadonlyArray<A>;
+    handlers?: Partial<ActionHandlers<A>>;
+    keys?: ReadonlyArray<A>;
 };
 
 export class ActionSubjectDefault<A extends string = string, W extends WorkerAction<A> = WorkerAction<A>>
@@ -29,13 +29,16 @@ export class ActionSubjectDefault<A extends string = string, W extends WorkerAct
         return this._handlers;
     }
 
-    constructor(params: ActionSubjectParams<A> = makeActionSubjectParams<A>()) {
+    constructor(params?: ActionSubjectParams<A>) {
         super();
-        this._handlers = {
-            ...params.handlers,
-            ...params.keys.map((key) => ({ [key]: new Subject<any>() }))
-                .reduce((handlers, handler) => Object.assign(handlers, handler), {})
-        };
+        this._handlers = makeActionEngineHandler() as ActionHandlers<A>;
+        if (params?.handlers) {
+            Object.assign(this._handlers, params.handlers);
+        }
+        if (params?.keys) {
+            params.keys.map((key) => ({ [key]: new Subject<any>() }))
+                .reduce((handlers, handler) => Object.assign(handlers, handler), this._handlers);
+        }
     }
 
     protected addHandler(key: W["key"], subject: Subject<W["value"]> = new Subject()): void {

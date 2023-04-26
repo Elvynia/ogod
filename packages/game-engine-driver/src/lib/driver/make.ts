@@ -12,7 +12,11 @@ import { GameEngineDriver, GameEngineSink, GameEngineSource } from './state';
  * @returns GameEngineDriver<S, A, R> a driver that can be used with game-run package.
  */
 export function makeDriverGameEngine<S, A extends string, R, U, C>
-    (options: GameEngineOptions<U, S, A, C> = makeGameEngineOptionsDefaults<U, S, A, C>()): GameEngineDriver<S, A, R, U, C> {
+    (params: Partial<GameEngineOptions<U, S, A, C>>): GameEngineDriver<S, A, R, U, C> {
+    const options = {
+        ...makeGameEngineOptionsDefaults<U, S, A, C>(),
+        ...params
+    };
     return (sink$: Promise<GameEngineSink<S, R, U, A>>): GameEngineSource<S, A, U, C> => {
         console.debug('[GameEngine] Created');
         sink$.then((sink) => {

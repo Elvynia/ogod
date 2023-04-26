@@ -1,5 +1,5 @@
 import { makeGameBox2dDriver } from '@ogod/game-box2d-driver';
-import { makeActionSubjectParams, makeDriverGameEngine, makeFeature$, makeGame$, makeGameEngineOptionsDefaults, makeReflect$, makeUpdate$ } from '@ogod/game-engine-driver';
+import { makeDriverGameEngine, makeFeature$, makeGame$, makeReflect$, makeUpdate$ } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import { ActionSubjectDefault } from 'packages/game-engine-driver/src/lib/action/state';
 import { EMPTY, ReplaySubject, distinctUntilChanged, filter, first, map, merge, share, switchMap, withLatestFrom } from 'rxjs';
@@ -84,10 +84,12 @@ function main(sources: WorkerSources): WorkerSinks {
 
 self.close = gameRun(main, {
     GameEngine: makeDriverGameEngine({
-        ...makeGameEngineOptionsDefaults(),
-        action$: new ActionSubjectDefault(makeActionSubjectParams(ActionKeys, {
-            playerColor: new ReplaySubject(1)
-        })),
+        action$: new ActionSubjectDefault({
+            keys: ActionKeys,
+            handlers: {
+                playerColor: new ReplaySubject(1)
+            }
+        }),
         workerContext: self
     }),
     World: makeGameBox2dDriver()
