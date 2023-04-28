@@ -7,16 +7,16 @@ import { makeFeatureGenerator } from './app/generator/make';
 import { makeFeatureOffset } from './app/offset/make';
 import { makeRenderer$ } from './app/render/make';
 import { makeFeatureScale } from './app/scale/make';
-import { ActionKeys, WorkerSinks, WorkerSources } from './app/state';
+import { ActionHandlers, WorkerSinks, WorkerSources } from './app/state';
 
 declare var self: DedicatedWorkerGlobalScope;
 
 function main(sources: WorkerSources): WorkerSinks {
-    sources.GameEngine.action$.handlers.camera.pipe(
+    sources.GameEngine.action$.getHandler('camera').pipe(
         withLatestFrom(sources.GameEngine.renderTarget$)
-    ).subscribe(([app, canvas]) => {
-        canvas.width = app.width;
-        canvas.height = app.height;
+    ).subscribe(([camera, canvas]) => {
+        canvas.width = camera.width;
+        canvas.height = camera.height;
     });
     const state = {
         generator: undefined,
@@ -41,7 +41,7 @@ function main(sources: WorkerSources): WorkerSinks {
 
 self.close = gameRun(main, {
     GameEngine: makeDriverGameEngine({
-        action$: new ActionSubjectDefault({ keys: ActionKeys }),
+        action$: new ActionSubjectDefault(new ActionHandlers()),
         workerContext: self
     })
 });

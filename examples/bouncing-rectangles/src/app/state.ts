@@ -1,7 +1,9 @@
+import { XY } from '@box2d/core';
 import { MainDOMSource } from '@cycle/dom';
 import { GameBox2dSink, GameBox2dSource } from '@ogod/game-box2d-driver';
 import { GameEngineSink, GameEngineSource } from '@ogod/game-engine-driver';
 import { GameWorkerSource } from '@ogod/game-worker-driver';
+import { ReplaySubject } from 'rxjs';
 import { ObjectState } from './object/state';
 import { Rect } from './rect';
 import { Camera } from './screen/state';
@@ -20,7 +22,14 @@ export type AppReflectState = Pick<AppState, 'fps'> & {
 };
 
 export const ActionKeys = ['camera', 'objects', 'paused', 'playerColor'] as const;
-export type AppAction = typeof ActionKeys[number];
+export class ActionHandlers {
+    constructor(
+        public camera?: Camera,
+        public objects?: XY,
+        public paused?: boolean,
+        public playerColor = new ReplaySubject<string>(1)
+    ) { }
+}
 
 export interface AppSources {
     GameWorker: GameWorkerSource<AppReflectState>;
@@ -28,7 +37,7 @@ export interface AppSources {
 }
 
 export interface WorkerSources {
-    GameEngine: GameEngineSource<AppState, AppAction, number>;
+    GameEngine: GameEngineSource<AppState, ActionHandlers, number>;
     World: GameBox2dSource;
 }
 

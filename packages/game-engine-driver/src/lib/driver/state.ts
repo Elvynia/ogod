@@ -6,7 +6,7 @@ import { UpdateState } from "../update/state";
 
 export interface GameEngineSource<
     S = any,
-    A extends string = string,
+    A = any,
     U = UpdateState,
     C = OffscreenCanvas> {
     action$: ActionSubject<A>;
@@ -20,9 +20,8 @@ export interface GameEngineSource<
 export interface GameEngineSink<
     S = any,
     R = any,
-    U = UpdateState,
-    A extends string = string> {
-    action$?: Observable<ActionSubjectChanges<A>>;
+    U = UpdateState> {
+    action$?: Observable<ActionSubjectChanges>;
     game$?: Observable<RenderState<U, S>>;
     reflect$?: Observable<R>;
     renderer$?: Observable<Renderer<U, S>[]>;
@@ -31,8 +30,8 @@ export interface GameEngineSink<
 
 export type GameEngineDriver<
     S = any,
-    A extends string = string,
+    A = any,
     R = any,
     U = UpdateState,
     C = OffscreenCanvas>
-    = Driver<GameEngineSink<S, R, U, A>, GameEngineSource<S, A, U, C>>;
+    = Driver<GameEngineSink<S, R, U>, GameEngineSource<S, A, U, C>>;

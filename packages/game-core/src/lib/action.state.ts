@@ -1,3 +1,5 @@
+import { Subject } from "rxjs";
+
 export type EngineActionType = 'OGOD_ENGINE_CLOSE' | 'OGOD_ENGINE_TARGET';
 export const WorkerActionInit = 'OGOD_ENGINE_INIT';
 
@@ -6,7 +8,7 @@ export interface EngineAction<T = EngineActionType> {
     payload?: any;
 }
 
-export interface EngineActionCanvas<C = OffscreenCanvas> extends EngineAction {
+export interface EngineActionCanvas<C = OffscreenCanvas> extends EngineAction<'OGOD_ENGINE_TARGET'> {
     type: 'OGOD_ENGINE_TARGET';
     payload: C;
 }
@@ -26,4 +28,8 @@ export function isEngineActionCanvas<C = OffscreenCanvas>(action: EngineAction):
 export interface WorkerAction<K extends string = string, V extends any = any> {
     key: K;
     value?: V;
+}
+
+export interface ActionHandlerDefault {
+    engine: Subject<EngineAction>;
 }

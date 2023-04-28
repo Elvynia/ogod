@@ -6,7 +6,7 @@ import { merge } from 'rxjs';
 import { makeFeatureCamera } from './app/camera/make';
 import { makeFeatureObjects } from './app/object/make';
 import { makeRenderer$ } from './app/renderer/make';
-import { ActionKeys, AppState, WorkerSinks, WorkerSources } from './app/state';
+import { ActionHandlers, AppState, WorkerSinks, WorkerSources } from './app/state';
 
 declare var self: DedicatedWorkerGlobalScope;
 
@@ -36,7 +36,7 @@ function main(sources: WorkerSources): WorkerSinks {
 
 self.close = gameRun(main, {
     GameEngine: makeDriverGameEngine({
-        action$: new ActionSubjectDefault({ keys: ActionKeys }),
+        action$: new ActionSubjectDefault(new ActionHandlers()),
         workerContext: self
     })
 });

@@ -1,4 +1,3 @@
-import { isEngineActionCanvas } from "@ogod/game-core";
 import { filter, first, map, switchMap } from "rxjs";
 import { AppState, WorkerSources } from "../state";
 
@@ -7,13 +6,12 @@ export function makeRenderer(ctx: OffscreenCanvasRenderingContext2D) {
 }
 
 export function makeRenderer$(sources: WorkerSources) {
-    return sources.GameEngine.action$.handlers.engine.pipe(
-        filter(isEngineActionCanvas),
-        switchMap(({ payload }) => {
+    return sources.GameEngine.renderTarget$.pipe(
+        switchMap((canvas) => {
             return sources.GameEngine.state$.pipe(
                 filter((s) => !!s.data),
                 first(),
-                map(() => [makeRenderer(payload.getContext('2d'))])
+                map(() => [makeRenderer(canvas.getContext('2d'))])
             )
         })
     );

@@ -19,11 +19,16 @@ export interface AppSources {
     ElementHost: Subject<WorkerMessage>;
 }
 
-export const ActionKeys = ['camera', 'objects', 'reset'] as const;
-export type AppAction = typeof ActionKeys[number];
+export class ActionHandlers {
+    constructor(
+        public camera?: Camera,
+        public objects?: { x: number, y: number },
+        public reset?: void
+    ) { }
+}
 
 export interface WorkerSources {
-    GameEngine: GameEngineSource<AppState, AppAction>;
+    GameEngine: GameEngineSource<AppState, ActionHandlers>;
 }
 
 export interface WorkerSinks {

@@ -32,11 +32,19 @@ export interface AppState {
     splash?: Record<string, Sleet>;
 }
 
-export const ActionKeys = ['camera', 'controls', 'phase', 'paused', 'gravity', 'background'] as const;
-export type AppAction = typeof ActionKeys[number];
+export class ActionHandlers {
+    constructor(
+        public camera?: Camera,
+        public controls?: any,
+        public phase?: number,
+        public paused?: boolean,
+        public gravity?: number,
+        public background?: string
+    ) { }
+}
 
 export interface WorkerSources {
-    GameEngine: GameEngineSource<AppState, AppAction>;
+    GameEngine: GameEngineSource<AppState, ActionHandlers>;
     World: GameBox2dSource;
 }
 

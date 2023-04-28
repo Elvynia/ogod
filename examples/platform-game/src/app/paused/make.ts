@@ -1,11 +1,11 @@
 import { makeFeature$ } from '@ogod/game-engine-driver';
-import { map, tap, withLatestFrom } from 'rxjs';
+import { map, withLatestFrom } from 'rxjs';
 import { AppState, WorkerSources } from '../state';
 
 export function makeFeaturePaused(sources: WorkerSources, target: AppState) {
     return makeFeature$({
         key: 'paused',
-        value$: sources.GameEngine.action$.handlers.paused.pipe(
+        value$: sources.GameEngine.action$.getHandler('paused').pipe(
             withLatestFrom(sources.GameEngine.state$.pipe(
                 map((s) => s.paused)
             )),

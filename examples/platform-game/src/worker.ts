@@ -13,7 +13,7 @@ import { makeFeaturePhase } from './app/phase/make';
 import { PHASE } from './app/phase/state';
 import { makeRenderer$ } from './app/render';
 import { makeFeatureSplash as makeFeatureSceneSplash } from './app/splash/make';
-import { ActionKeys, AppState, WorkerSinks, WorkerSources } from './app/state';
+import { ActionHandlers, AppState, WorkerSinks, WorkerSources } from './app/state';
 
 declare var self: DedicatedWorkerGlobalScope;
 
@@ -47,7 +47,7 @@ function main(sources: WorkerSources): WorkerSinks {
         map((s) => s.paused),
         distinctUntilChanged(),
         switchMap((paused) => paused ?
-            sources.GameEngine.action$.handlers.background.pipe(
+            sources.GameEngine.action$.getHandler('background').pipe(
                 switchMap(() => update$.pipe(
                     first()
                 ))
@@ -96,7 +96,7 @@ function main(sources: WorkerSources): WorkerSinks {
 
 self.close = gameRun(main, {
     GameEngine: makeDriverGameEngine({
-        action$: new ActionSubjectDefault({ keys: ActionKeys }),
+        action$: new ActionSubjectDefault(new ActionHandlers()),
         workerContext: self
     }),
     World: makeGameBox2dDriver({ x: 0, y: -10 })

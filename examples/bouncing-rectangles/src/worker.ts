@@ -2,14 +2,14 @@ import { makeGameBox2dDriver } from '@ogod/game-box2d-driver';
 import { makeDriverGameEngine, makeFeature$, makeGame$, makeReflect$, makeUpdate$ } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import { ActionSubjectDefault } from 'packages/game-engine-driver/src/lib/action/state';
-import { EMPTY, ReplaySubject, distinctUntilChanged, filter, first, map, merge, share, switchMap, withLatestFrom } from 'rxjs';
+import { EMPTY, distinctUntilChanged, filter, first, map, merge, share, switchMap, withLatestFrom } from 'rxjs';
 import { makeFeatureFps } from './app/fps';
 import { makeGrounds } from './app/ground/make';
 import { makeFeatureObjects } from './app/object/make';
 import { makeFeaturePlayer } from './app/player/make';
 import { makeRenderer$ } from './app/renderer/make';
 import { makeFeatureCamera } from './app/screen/make';
-import { ActionKeys, AppState, WorkerSinks, WorkerSources } from './app/state';
+import { ActionHandlers, AppState, WorkerSinks, WorkerSources } from './app/state';
 
 declare var self: DedicatedWorkerGlobalScope;
 
@@ -58,7 +58,7 @@ function main(sources: WorkerSources): WorkerSinks {
                 makeFeatureFps(sources.GameEngine, target),
                 makeFeature$({
                     key: 'paused',
-                    value$: sources.GameEngine.action$.handlers.paused,
+                    value$: sources.GameEngine.action$.getHandler('paused'),
                     target
                 }),
                 makeFeatureCamera(sources, target),
@@ -84,12 +84,7 @@ function main(sources: WorkerSources): WorkerSinks {
 
 self.close = gameRun(main, {
     GameEngine: makeDriverGameEngine({
-        action$: new ActionSubjectDefault({
-            keys: ActionKeys,
-            handlers: {
-                playerColor: new ReplaySubject(1)
-            }
-        }),
+        action$: new ActionSubjectDefault(new ActionHandlers()),
         workerContext: self
     }),
     World: makeGameBox2dDriver()

@@ -1,70 +1,59 @@
-import { WorkerAction } from "@ogod/game-core";
+import { ActionHandlerDefault } from "@ogod/game-core";
 import { Subject, SubjectLike } from "rxjs";
 import { makeActionEngineHandler } from "./make";
 
-export interface ActionSubjectChanges<A extends string = string> {
-    key: A;
+export interface ActionSubjectChanges {
+    key: string;
     mode: 'add' | 'remove';
     subject?: Subject<any>;
 }
 
-export type ActionHandlers<A extends string = string, W extends WorkerAction<A> = WorkerAction<A>>
-    = { [k in W['value']]: Subject<W['value']> };
-
-export interface ActionSubject<A extends string = string>
-    extends SubjectLike<ActionSubjectChanges<A>> {
-    handlers: ActionHandlers<A>;
-    getHandler<S extends Subject<any>>(key: A): S;
-    getHandler<T>(key: A): Subject<T>;
+export interface ActionSubject<T, H = T & ActionHandlerDefault> extends SubjectLike<ActionSubjectChanges> {
+    getHandler<K extends keyof H>(key: K): Subject<NonNullable<H[K]> extends Subject<infer S> ? S : NonNullable<H[K]>>;
 }
 
-export interface ActionSubjectParams<A extends string = string> {
-    handlers?: Partial<ActionHandlers<A>>;
-    keys?: ReadonlyArray<A>;
-};
+export class ActionSubjectDefault<T, H = T & ActionHandlerDefault> extends Subject<ActionSubjectChanges> implements ActionSubject<T, H> {
+    private _handlers: Record<string | keyof H, Subject<any>>;
 
-export class ActionSubjectDefault<A extends string = string, W extends WorkerAction<A> = WorkerAction<A>>
-    extends Subject<ActionSubjectChanges<A>> implements ActionSubject<A> {
-    private _handlers: ActionHandlers<A>;
-
-    get handlers(): Readonly<ActionHandlers<A>> {
-        return this._handlers;
-    }
-
-    constructor(params?: ActionSubjectParams<A>) {
+    constructor(handlers?: T) {
         super();
-        this._handlers = makeActionEngineHandler() as ActionHandlers<A>;
-        if (params?.handlers) {
-            Object.assign(this._handlers, params.handlers);
-        }
-        if (params?.keys) {
-            params.keys.map((key) => ({ [key]: new Subject<any>() }))
-                .reduce((handlers, handler) => Object.assign(handlers, handler), this._handlers);
-        }
+        this._handlers = {
+            ...handlers,
+            ...makeActionEngineHandler()
+        } as Record<string | keyof H, Subject<any>>;
+        Object.keys(this._handlers).filter((k) => !this._handlers[k])
+            .forEach((k) => this.addHandler(k));
     }
 
-    getHandler<S extends Subject<any>>(key: A): S;
-    getHandler<T>(key: A): Subject<T>;
-    getHandler<S extends Subject<T>, T = any>(key: A): S | Subject<T> {
+    getHandler<K extends keyof H>(key: K): Subject<NonNullable<H[K]> extends Subject<infer S> ? S : NonNullable<H[K]>> {
         return this._handlers[key];
     }
 
-    protected addHandler(key: W["key"], subject: Subject<W["value"]> = new Subject()): void {
-        this._handlers[key] = subject;
+    protected addHandler(key: string, subject?: Subject<any>): void {
+        Object.assign(this._handlers, { [key]: subject || new Subject() });
     }
 
-    protected removeHandler(key: W["key"]): void {
-        this.handlers[key].unsubscribe();
-        delete this._handlers[key];
+    protected removeHandler(key: string): void {
+        if (this._handlers[key]) {
+            this._handlers[key].unsubscribe();
+            delete this._handlers[key];
+        }
     }
 
-    override next(changes: ActionSubjectChanges<A>): void {
+    override complete() {
+        Object.values(this._handlers).forEach((h) => h.complete());
+        super.complete();
+    }
+
+    override next(changes: ActionSubjectChanges): void {
         switch (changes.mode) {
             case 'add':
                 this.addHandler(changes.key, changes.subject);
                 break;
             case 'remove':
                 this.removeHandler(changes.key);
+                break;
         }
+        super.next(changes);
     }
 }

@@ -20,7 +20,7 @@ export function makeBackground(ctx: OffscreenCanvasRenderingContext2D, rect: Omi
 export function makeFeatureBackgroundColors(sources: WorkerSources, target: AppState) {
     return makeFeature$({
         key: 'background',
-        value$: sources.GameEngine.action$.handlers.background.pipe(
+        value$: sources.GameEngine.action$.getHandler('background').pipe(
             startWith(randColor()),
             map((color: string) => {
                 const ch = chroma(color).lch();

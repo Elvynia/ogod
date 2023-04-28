@@ -67,10 +67,10 @@ export function makeRandomBall$(reset$: Observable<void>, objects: ObjectState) 
 
 
 export function makeFeatureObjects(sources: WorkerSources, state: AppState) {
-    const randomBall$ = makeRandomBall$(sources.GameEngine.action$.handlers.reset, state.objects);
+    const randomBall$ = makeRandomBall$(sources.GameEngine.action$.getHandler('reset'), state.objects);
     return makeFeature$({
         key: 'objects',
-        value$: sources.GameEngine.action$.handlers.objects.pipe(
+        value$: sources.GameEngine.action$.getHandler('objects').pipe(
             mergeMap(({ x, y }) => randomBall$(x, y))
         ),
         target: state

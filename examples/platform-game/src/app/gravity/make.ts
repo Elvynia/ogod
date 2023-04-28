@@ -6,7 +6,7 @@ export function makeFeatureMapGravity(sources: WorkerSources, target: AppState) 
         key: 'gmap',
         value$: makeFeature$({
             key: 'gravity',
-            value$: sources.GameEngine.action$.handlers.gravity,
+            value$: sources.GameEngine.action$.getHandler('gravity'),
             target: target.gmap
         }),
         target

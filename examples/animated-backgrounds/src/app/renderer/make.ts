@@ -1,7 +1,6 @@
-import { isEngineActionCanvas } from '@ogod/game-core';
 import { Renderer } from '@ogod/game-engine-driver';
 import { UpdateState } from 'packages/game-engine-driver/src/lib/update/state';
-import { filter, map, Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { AppState, WorkerSources } from '../state';
 import { drawCircle, drawRect } from './draw';
 
@@ -18,8 +17,7 @@ export function makeRenderer(canvas: OffscreenCanvas) {
 }
 
 export function makeRenderer$(sources: WorkerSources): Observable<Renderer<UpdateState, AppState>[]> {
-    return sources.GameEngine.action$.handlers.engine.pipe(
-        filter(isEngineActionCanvas),
-        map(({ payload }) => [makeRenderer(payload)])
+    return sources.GameEngine.renderTarget$.pipe(
+        map((canvas) => [makeRenderer(canvas)])
     );
 }

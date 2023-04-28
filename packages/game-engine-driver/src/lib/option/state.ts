@@ -7,7 +7,7 @@ import { UpdateState } from '../update/state';
 export interface GameEngineOptions<
     U = UpdateState,
     S = any,
-    A extends string = string,
+    A = any,
     C = OffscreenCanvas> {
     action$: ActionSubject<A>;
     game$: RendererSubject<U, S>;

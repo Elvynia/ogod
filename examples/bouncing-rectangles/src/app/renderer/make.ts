@@ -1,4 +1,3 @@
-import { isEngineActionCanvas } from "@ogod/game-core";
 import { filter, first, map, switchMap } from "rxjs";
 import { Rect } from "../rect";
 import { AppState, WorkerSources } from "../state";
@@ -26,12 +25,11 @@ export const makeRenderer = (canvas: any) => {
 }
 
 export function makeRenderer$(sources: WorkerSources) {
-    return sources.GameEngine.action$.handlers.engine.pipe(
-        filter(isEngineActionCanvas),
-        switchMap(({ payload }) => sources.GameEngine.state$.pipe(
+    return sources.GameEngine.renderTarget$.pipe(
+        switchMap((canvas) => sources.GameEngine.state$.pipe(
             filter((state) => state.camera && state.player && !!state.objects),
             first(),
-            map(() => [makeRenderer(payload)])
+            map(() => [makeRenderer(canvas)])
         )),
     );
 }

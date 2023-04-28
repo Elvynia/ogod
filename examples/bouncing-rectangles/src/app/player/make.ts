@@ -1,5 +1,5 @@
 import { makeFeature$ } from "@ogod/game-engine-driver";
-import { ignoreElements, map, merge, startWith, tap } from 'rxjs';
+import { ignoreElements, map, merge, tap } from 'rxjs';
 import { updateMovement } from "../object/make";
 import { makeRect } from '../rect';
 import { AppState, WorkerSources } from "../state";
@@ -15,7 +15,7 @@ export function makeFeaturePlayer(sources: WorkerSources, target: AppState) {
     return makeFeature$({
         key: 'player',
         value$: merge(
-            sources.GameEngine.action$.handlers.playerColor.pipe(
+            sources.GameEngine.action$.getHandler('playerColor').pipe(
                 map((color: string) => {
                     player.color = color;
                     return player;

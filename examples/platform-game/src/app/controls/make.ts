@@ -30,7 +30,7 @@ export function makeControls$<S extends KeyState>(keyState: S, controls: Control
 export function makeFeatureControls(sources: WorkerSources, target: AppState) {
     return makeFeature$({
         key: 'controls',
-        value$: sources.GameEngine.action$.handlers.controls.pipe(
+        value$: sources.GameEngine.action$.getHandler('controls').pipe(
             startWith({})
         ),
         target,

@@ -11,13 +11,13 @@ import { GameEngineDriver, GameEngineSink, GameEngineSource } from './state';
  * @param options GameEngineOptions<S, A> parameters to control driver properties at creation.
  * @returns GameEngineDriver<S, A, R> a driver that can be used with game-run package.
  */
-export function makeDriverGameEngine<S, A extends string, R, U, C>
+export function makeDriverGameEngine<S, A, R, U, C>
     (params: Partial<GameEngineOptions<U, S, A, C>>): GameEngineDriver<S, A, R, U, C> {
     const options = {
         ...makeGameEngineOptionsDefaults<U, S, A, C>(),
         ...params
     };
-    return (sink$: Promise<GameEngineSink<S, R, U, A>>): GameEngineSource<S, A, U, C> => {
+    return (sink$: Promise<GameEngineSink<S, R, U>>): GameEngineSource<S, A, U, C> => {
         console.debug('[GameEngine] Created');
         sink$.then((sink) => {
             if (sink.action$) {
@@ -49,7 +49,7 @@ export function makeDriverGameEngine<S, A extends string, R, U, C>
             dispose: () => {
                 options.game$.complete();
                 options.state$.complete();
-                Object.keys(source.action$).forEach((k) => source.action$.handlers[k as A].complete());
+                options.action$.complete();
                 console.debug('[GameEngine] Disposed');
             },
             game$: options.game$.asObservable(),
@@ -61,7 +61,7 @@ export function makeDriverGameEngine<S, A extends string, R, U, C>
         if (options.workerContext) {
             options.workerContext.onmessage = (event) => {
                 try {
-                    source.action$.handlers[event.data.key as A].next(event.data.value);
+                    source.action$.getHandler(event.data.key).next(event.data.value);
                 } catch (e) {
                     console.error('cannot send action for event data: ', event.data, e);
                 }

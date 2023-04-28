@@ -8,7 +8,7 @@ import { GameEngineOptions } from "./state";
 export function makeGameEngineOptionsDefaults<
     U = UpdateState,
     S = any,
-    A extends string = string,
+    A = any,
     C = OffscreenCanvas>(): GameEngineOptions<U, S, A, C> {
     return {
         action$: new ActionSubjectDefault<A>(),
