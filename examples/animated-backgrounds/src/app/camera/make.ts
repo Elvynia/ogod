@@ -6,7 +6,6 @@ export function makeFeatureCamera(sources: WorkerSources, state: AppState) {
     return makeFeature$({
         key: 'camera',
         value$: sources.GameEngine.renderTarget$.pipe(
-            first(),
             switchMap((canvas) => sources.GameEngine.action$.getHandler('camera').pipe(
                 tap((camera) => {
                     canvas.width = camera.width;
