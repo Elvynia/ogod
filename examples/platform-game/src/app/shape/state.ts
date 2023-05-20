@@ -1,5 +1,5 @@
 import { b2Body, b2BodyType } from "@box2d/core";
-import { Player } from "../player/state";
+import { Player } from "./player/state";
 
 export interface Shape {
     angle?: number;

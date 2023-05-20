@@ -1,7 +1,7 @@
 import { canvas, div, h, h3, makeDOMDriver } from '@cycle/dom';
 import { gameRun } from '@ogod/game-run';
 import { makeDriverGameWorker, makeEngineAction, makeWorkerMessage } from '@ogod/game-worker-driver';
-import { Observable, Subject, combineLatest, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, map, merge, of, startWith, switchMap, throttleTime } from 'rxjs';
+import { Observable, Subject, combineLatest, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, map, merge, of, startWith, switchMap, tap, throttleTime } from 'rxjs';
 import xs from 'xstream';
 import { makeControls$ } from './app/controls/make';
 import { makeElementMenu$, makeListenerMenu$ } from './app/menu/make';
@@ -54,7 +54,7 @@ function main(sources: AppSources) {
             of(canvas({ attrs: { id: 'game', tabindex: 0 } })),
             merge(
                 sources.GameWorker.input$.pipe(
-                    map((state) => !!state.loading),
+                    map((state) => Object.keys(state.loading || {}).length > 0),
                     startWith(false),
                     distinctUntilChanged(),
                     switchMap((shouldLoad) => shouldLoad ? sources.GameWorker.input$.pipe(
@@ -64,7 +64,7 @@ function main(sources: AppSources) {
                             class: {
                                 loading: true
                             },
-                        }, [l.message])))
+                        }, [l.message, l.progress.toString()])))
                     ) : of([]))
                 ),
                 sources.GameWorker.input$.pipe(
@@ -115,9 +115,9 @@ function main(sources: AppSources) {
         )
     }
 }
-
+const worker = new Worker(new URL('worker.ts', import.meta.url));
 const dispose = gameRun(main, {
-    GameWorker: makeDriverGameWorker<AppReflectState>(new Worker(new URL('worker.ts', import.meta.url))),
+    GameWorker: makeDriverGameWorker<AppReflectState>(worker),
     DOM: (promise) => {
         const dom = makeDOMDriver('#app');
         const wrapper = new Subject();
@@ -125,4 +125,7 @@ const dispose = gameRun(main, {
         return dom(xs.from(wrapper));
     }
 });
-window.onunload = (e) => dispose();
+(window as any).stopApp = () => {
+    worker.postMessage(...makeEngineAction('OGOD_ENGINE_CLOSE'));
+    dispose();
+}

@@ -1,10 +1,11 @@
 import { b2BodyType, b2PolygonShape } from "@box2d/core";
 import { GameBox2dSource } from '@ogod/game-box2d-driver';
-import { makeFeature$ } from '@ogod/game-engine-driver';
-import { distinctUntilKeyChanged, ignoreElements, merge, of, switchMap, tap } from "rxjs";
-import { makePlayer, makePlayerUpdate$ } from "../player/make";
+import { FeatureKey } from "@ogod/game-engine-driver";
+import { distinctUntilKeyChanged, filter, first, ignoreElements, merge, of, switchMap, takeUntil, tap } from "rxjs";
+import { PHASE } from "../phase/state";
 import { AppState, WorkerSources } from "../state";
 import { randNum } from "../util";
+import { makePlayer, makePlayerUpdate$ } from "./player/make";
 import { Shape } from "./state";
 
 export function makeShape<R extends Shape = Shape, T extends Omit<R, 'body'> = Omit<R, 'body'>>(
@@ -51,23 +52,27 @@ export function makeShapeUpdate$(sources: WorkerSources) {
     )
 }
 
-export function makeFeatureShapesPrepare(sources: WorkerSources, target: AppState) {
-    return makeFeature$({
+export function makeFeatureShapesLoad(sources: WorkerSources): FeatureKey<AppState, 'shapes'> {
+    return {
         key: 'shapes',
+        publishOnNext: true,
         value$: of({
             player: makePlayer(sources.World)
-        }),
-        target
-    });
+        })
+    };
 }
 
-export function makeFeatureShapesUpdate(sources: WorkerSources, target: AppState) {
-    return makeFeature$({
+export function makeFeatureShapesUpdate(sources: WorkerSources): FeatureKey<AppState, 'shapes'> {
+    return {
         key: 'shapes',
         value$: merge(
             makeShapeUpdate$(sources),
             makePlayerUpdate$(sources)
-        ),
-        target
-    });
+        ).pipe(
+            takeUntil(sources.GameEngine.state$.pipe(
+                filter((s) => s.phase === PHASE.END),
+                first()
+            ))
+        )
+    };
 }

@@ -26,11 +26,9 @@ export const runApp = (worker, host) => {
         GameWorker: makeDriverGameWorker(worker),
         ElementHost: makeDriverGameElement(host)
     });
-    const stopApp = () => {
+    return () => {
         console.log('STOP app');
         worker.postMessage(...makeEngineAction('OGOD_ENGINE_CLOSE'));
         disposeApp();
     };
-    (window as any).stopApp = stopApp;
-    return stopApp;
 };

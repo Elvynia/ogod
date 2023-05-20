@@ -1,11 +1,8 @@
 import gsap, { Linear } from 'gsap';
 import { delay, from, ignoreElements } from 'rxjs';
-import { AppState } from '../state';
+import { AppState } from '../../state';
 import { Sleet } from './state';
-
-function randValue(min: number, max: number) {
-    return min + Math.round(Math.random() * (max - min))
-}
+import { randValue } from '../../util';
 
 export function makeSleet(value: Pick<Sleet, 'x' | 'y'> & Partial<Sleet>): Sleet {
     return {

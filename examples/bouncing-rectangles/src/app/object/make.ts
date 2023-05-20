@@ -1,72 +1,67 @@
-import { makeFeature$ } from '@ogod/game-engine-driver';
-import { concat, filter, map, mergeMap, of, takeWhile, tap } from 'rxjs';
-import { Rect, makeRect } from '../rect';
-import { Camera } from '../screen/state';
+import { FeatureKey, makeFeatureObject$ } from '@ogod/game-engine-driver';
+import { AsyncSubject, filter, first, map, switchMap, takeWhile, withLatestFrom } from 'rxjs';
+import { waitForCamera } from '../camera/make';
+import { Camera } from '../camera/state';
+import { Rect, makeRect, updateMovement } from '../rect';
 import { AppState, WorkerSources } from '../state';
+import { ObjectState } from './state';
 
-export const updateMovement = (_, obj: Rect, screen: Camera) => {
-    const pos = obj.body.GetPosition();
-    const newPos = pos.Clone();
-    const appWidth = screen.width / screen.scale;
-    const appHeight = screen.height / screen.scale;
-    if (pos.x < 0) {
-        newPos.Set(pos.x + appWidth, appHeight - pos.y);
-    } else if (pos.x > appWidth) {
-        newPos.Set(pos.x - appWidth, appHeight - pos.y);
-    }
-    if (pos.y < 0) {
-        newPos.Set(appWidth - newPos.x, pos.y + appHeight);
-    } else if (pos.y > appHeight) {
-        newPos.Set(appWidth - newPos.x, pos.y - appHeight);
-    }
-    if (pos.x !== newPos.x || pos.y !== newPos.y) {
-        obj.body.SetTransformVec(newPos, 0);
-    }
-    obj.x = Math.round(obj.body.GetPosition().x * screen.scale);
-    obj.y = Math.round(obj.body.GetPosition().y * screen.scale);
-};
+export function makeFeatureObject(sources: WorkerSources, { x, y }, camera: Camera): FeatureKey<ObjectState, string> {
+    const rect = makeRect({
+        x,
+        y: camera.height - y,
+        dynamic: true
+    }, sources.World.instance, camera.scale);
+    const value$ = new AsyncSubject<Rect>();
+    // FIXME: Should be batched.
+    sources.GameEngine.game$.pipe(
+        takeWhile(() => rect.health > 0)
+    ).subscribe({
+        next: (delta) => updateMovement(delta, rect, camera),
+        complete: () => {
+            sources.World.instance.DestroyBody(rect.body);
+            value$.complete();
+        }
+    });
+    return {
+        key: rect.id,
+        publishOnComplete: true,
+        publishOnCreate: true,
+        value$,
+        value: rect
+    };
+}
 
-export function makeFeatureObjects(sources: WorkerSources, target: AppState) {
+export function makeFeatureObjects(sources: WorkerSources): FeatureKey<AppState, 'objects'> {
     sources.World.contact$.pipe(
         filter((contact) => contact.touching === 1),
-        map(({ idA, idB }) => {
+        withLatestFrom(sources.GameEngine.state$),
+        map(([{ idA, idB }, state]) => {
             const ids = [];
-            if (target.objects[idA]) {
-                ids.push(idA)
+            if (state.objects[idA]) {
+                ids.push(state.objects[idA])
             }
-            if (target.objects[idB]) {
-                ids.push(idB);
+            if (state.objects[idB]) {
+                ids.push(state.objects[idB]);
             }
             return ids;
         })
-    ).subscribe((ids: string[]) => ids.forEach((id) => --target.objects[id].health));
-    return makeFeature$({
+    ).subscribe((rects: Rect[]) => rects.forEach((rect) => --rect.health));
+    return {
         key: 'objects',
-        value$: sources.GameEngine.action$.getHandler('objects').pipe(
-            mergeMap(({ x, y }) => {
-                const rect = makeRect({
-                    x,
-                    y: target.camera.height - y,
-                    dynamic: true
-                }, sources.World.instance, target.camera.scale);
-                target.objects[rect.id] = rect;
-                return concat(
-                    of(target.objects),
-                    sources.GameEngine.game$.pipe(
-                        takeWhile(() => rect.health > 0),
-                        tap({
-                            next: (delta) => updateMovement(delta, rect, target.camera),
-                            complete: () => {
-                                sources.World.instance.DestroyBody(rect.body);
-                                delete target.objects[rect.id];
-                            }
-                        }),
-                        map(() => target.objects)
-                    ),
-                    of(target.objects)
-                );
-            }),
-        ),
-        target
-    })
+        publishOnCreate: true,
+        publishOnNext: true,
+        value$: makeFeatureObject$({
+            key$: waitForCamera(sources).pipe(
+                switchMap((state) => sources.GameEngine.action$.getHandler('objects').pipe(
+                    map((pos) => makeFeatureObject(sources, pos, state.camera)),
+                ))
+            ),
+            state$: sources.GameEngine.state$.pipe(
+                map((s) => s.objects),
+                first()
+            )
+        }),
+        value: {}
+    };
 }

@@ -8,11 +8,21 @@ export interface ActionSubjectChanges {
     subject?: Subject<any>;
 }
 
-export interface ActionSubject<T, H = T & ActionHandlerDefault> extends SubjectLike<ActionSubjectChanges> {
-    getHandler<K extends keyof H>(key: K): Subject<NonNullable<H[K]> extends Subject<infer S> ? S : NonNullable<H[K]>>;
+export type ActionHandlers<T> = {
+    [K in keyof T]-?: T[K];
 }
 
-export class ActionSubjectDefault<T, H = T & ActionHandlerDefault> extends Subject<ActionSubjectChanges> implements ActionSubject<T, H> {
+export interface ActionSubject<
+    T,
+    H = ActionHandlers<T> & ActionHandlerDefault
+> extends SubjectLike<ActionSubjectChanges> {
+    getHandler<K extends keyof H>(key: K): Subject<H[K] extends Subject<infer S> ? S : H[K]>;
+}
+
+export class ActionSubjectDefault<
+    T,
+    H = ActionHandlers<T> & ActionHandlerDefault
+> extends Subject<ActionSubjectChanges> implements ActionSubject<T, H> {
     private _handlers: Record<string | keyof H, Subject<any>>;
 
     constructor(handlers?: T) {
@@ -25,7 +35,7 @@ export class ActionSubjectDefault<T, H = T & ActionHandlerDefault> extends Subje
             .forEach((k) => this.addHandler(k));
     }
 
-    getHandler<K extends keyof H>(key: K): Subject<NonNullable<H[K]> extends Subject<infer S> ? S : NonNullable<H[K]>> {
+    getHandler<K extends keyof H>(key: K): Subject<H[K] extends Subject<infer S> ? S : H[K]> {
         return this._handlers[key];
     }
 

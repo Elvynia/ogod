@@ -1,31 +1,31 @@
-import { makeFeature$ } from "@ogod/game-engine-driver";
-import { ignoreElements, map, merge, tap } from 'rxjs';
-import { updateMovement } from "../object/make";
-import { makeRect } from '../rect';
+import { FeatureKey, makeFeatureObject$ } from '@ogod/game-engine-driver';
+import { of, switchMap } from 'rxjs';
+import { waitForCamera } from '../camera/make';
+import { makeRect, updateMovement } from '../rect';
 import { AppState, WorkerSources } from "../state";
 
-export function makeFeaturePlayer(sources: WorkerSources, target: AppState) {
-    const player = makeRect({
-        x: 400,
-        y: 400,
-        width: 15,
-        height: 25,
-        dynamic: true
-    }, sources.World.instance, target.camera.scale);
-    return makeFeature$({
+export function makeFeaturePlayer(sources: WorkerSources): FeatureKey<AppState, 'player'> {
+    return {
         key: 'player',
-        value$: merge(
-            sources.GameEngine.action$.getHandler('playerColor').pipe(
-                map((color: string) => {
-                    player.color = color;
-                    return player;
+        value$: waitForCamera(sources).pipe(
+            switchMap((state) => {
+                const player = makeRect({
+                    x: 400,
+                    y: 400,
+                    width: 15,
+                    height: 25,
+                    dynamic: true
+                }, sources.World.instance, state.camera.scale);
+                sources.GameEngine.game$.subscribe(([delta]) => updateMovement(delta, player, state.camera));
+                return makeFeatureObject$({
+                    key$: of({
+                        key: 'color' as const,
+                        publishOnNext: true,
+                        value$: sources.GameEngine.action$.getHandler('playerColor')
+                    }),
+                    state$: of(player)
                 })
-            ),
-            sources.GameEngine.game$.pipe(
-                tap(([delta]) => updateMovement(delta, player, target.camera)),
-                ignoreElements()
-            )
-        ),
-        target
-    })
+            })
+        )
+    }
 }

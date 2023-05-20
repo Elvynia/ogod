@@ -1,4 +1,4 @@
-import { PlatformState } from './../platform/state';
+import { PlatformState } from './platform/state';
 
 export interface MapState {
     platforms: PlatformState;

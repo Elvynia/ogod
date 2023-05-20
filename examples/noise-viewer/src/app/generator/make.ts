@@ -1,4 +1,4 @@
-import { makeFeature$ } from "@ogod/game-engine-driver";
+import { FeatureKey } from '@ogod/game-engine-driver';
 import { map } from 'rxjs';
 import { createNoise2D } from 'simplex-noise';
 import { AppState, WorkerSources } from "../state";
@@ -13,13 +13,13 @@ export function makeGenerators(): Record<GeneratorType, () => (x: number, y: num
     };
 }
 
-export function makeFeatureGenerator(sources: WorkerSources, target: AppState) {
+export function makeFeatureGenerator(sources: WorkerSources): FeatureKey<AppState, 'generator'> {
     const generators = makeGenerators();
-    return makeFeature$({
+    return {
         key: 'generator',
+        publishOnNext: true,
         value$: sources.GameEngine.action$.getHandler('generator').pipe(
             map((genType) => generators[genType])
-        ),
-        target
-    })
+        )
+    };
 }

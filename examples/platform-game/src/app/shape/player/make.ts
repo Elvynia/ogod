@@ -1,8 +1,8 @@
 import { b2BodyType, b2PolygonShape } from "@box2d/core";
 import { GameBox2dSource } from '@ogod/game-box2d-driver';
 import { concat, distinctUntilChanged, filter, first, ignoreElements, map, merge, of, switchMap, takeUntil, tap, timer } from "rxjs";
-import { makeShape } from "../shape/make";
-import { AppState, WorkerSources } from "../state";
+import { AppState, WorkerSources } from "../../state";
+import { makeShape } from "../make";
 import { Player, PlayerFeet, PlayerId } from "./state";
 
 export function makePlayer(world: GameBox2dSource): Player {

@@ -1,6 +1,6 @@
-import { makeFeature$ } from "@ogod/game-engine-driver";
+import { FeatureKey, makeFeatureObject$ } from '@ogod/game-engine-driver';
 import gsap, { Elastic, Expo, Linear } from 'gsap';
-import { EMPTY, Observable, concat, concatWith, defer, finalize, from, ignoreElements, mergeMap, of, takeUntil, tap } from "rxjs";
+import { Observable, concatWith, defer, first, from, map, takeUntil } from "rxjs";
 import { AppState, WorkerSources } from '../state';
 import { randNum, randShape, randSize, randomColor } from '../util';
 import { CanvasObject, ObjectState } from "./state";
@@ -18,11 +18,10 @@ function randBall(x: number, y: number): CanvasObject {
 }
 
 const resetDuration = 400;
-export function makeRandomBall$(reset$: Observable<void>, objects: ObjectState) {
-    return (x: number, y: number): Observable<ObjectState> => {
+export function makeRandomBall$(reset$: Observable<void>) {
+    return (x: number, y: number): FeatureKey<ObjectState, string> => {
         const duration = 2000;
         const obj = randBall(x + (150 - Math.random() * 300), y + (150 - Math.random() * 300));
-        objects[obj.id] = obj;
         let tween = gsap.to(obj, {
             x,
             y,
@@ -36,13 +35,10 @@ export function makeRandomBall$(reset$: Observable<void>, objects: ObjectState) 
             duration: duration / 1000
         });
         const updateBall$ = from(tween.then()).pipe(
-            tap({
-                complete: () => delete objects[obj.id]
-            }),
             takeUntil(reset$),
             concatWith(defer(() => {
-                if (!objects[obj.id]) {
-                    return EMPTY;
+                if (obj.v == 1) {
+                    return from(tween2.then());
                 }
                 tween2.kill();
                 tween.vars = {
@@ -54,25 +50,33 @@ export function makeRandomBall$(reset$: Observable<void>, objects: ObjectState) 
                 tween.invalidate();
                 return from(tween.then());
             })),
-            finalize(() => delete objects[obj.id]),
-            ignoreElements()
+            map(() => obj),
         );
-        return concat(
-            of(objects),
-            updateBall$,
-            of(objects)
-        );
+        return {
+            key: obj.id,
+            publishOnComplete: true,
+            publishOnCreate: true,
+            value$: updateBall$,
+            value: obj
+        };
     }
 }
 
 
-export function makeFeatureObjects(sources: WorkerSources, state: AppState) {
-    const randomBall$ = makeRandomBall$(sources.GameEngine.action$.getHandler('reset'), state.objects);
-    return makeFeature$({
+export function makeFeatureObjects(sources: WorkerSources): FeatureKey<AppState, 'objects'> {
+    const randomBall$ = makeRandomBall$(sources.GameEngine.action$.getHandler('reset'));
+    return {
         key: 'objects',
-        value$: sources.GameEngine.action$.getHandler('objects').pipe(
-            mergeMap(({ x, y }) => randomBall$(x, y))
-        ),
-        target: state
-    });
+        publishOnNext: true,
+        value$: makeFeatureObject$({
+            key$: sources.GameEngine.action$.getHandler('objects').pipe(
+                map(({ x, y }) => randomBall$(x, y))
+            ),
+            state$: sources.GameEngine.state$.pipe(
+                map((s) => s.objects),
+                first()
+            )
+        }),
+        value: {} as ObjectState
+    };
 }

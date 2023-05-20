@@ -43,7 +43,7 @@ export default define<AppElement>({
         },
         connect(host) {
             console.log('[ROOT] Connect');
-            const dispose = runApp(new Worker(new URL('../worker.ts', import.meta.url)), host);
+            const dispose = runApp(host);
             return () => {
                 console.log('[ROOT] Disconnect');
                 dispose();

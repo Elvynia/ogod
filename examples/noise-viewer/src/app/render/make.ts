@@ -8,8 +8,8 @@ export function makeRenderer(ctx: OffscreenCanvasRenderingContext2D) {
 export function makeRenderer$(sources: WorkerSources) {
     return sources.GameEngine.renderTarget$.pipe(
         switchMap((canvas) => {
-            return sources.GameEngine.state$.pipe(
-                filter((s) => !!s.data),
+            return sources.GameEngine.game$.pipe(
+                filter(([_, s]) => !!s.data),
                 first(),
                 map(() => [makeRenderer(canvas.getContext('2d'))])
             )

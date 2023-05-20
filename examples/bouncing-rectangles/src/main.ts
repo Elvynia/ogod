@@ -1,9 +1,9 @@
 import { canvas, div, h3, input, makeDOMDriver } from '@cycle/dom';
 import { gameRun } from '@ogod/game-run';
 import { makeDriverGameWorker, makeEngineAction, makeWorkerMessage } from '@ogod/game-worker-driver';
-import { Subject, combineLatest, concat, debounceTime, delay, delayWhen, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, interval, map, merge, of, skipUntil, startWith, switchMap, take, takeUntil, tap } from 'rxjs';
+import { Subject, combineLatest, concat, debounceTime, delayWhen, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, interval, map, merge, of, startWith, switchMap, take, takeUntil } from 'rxjs';
 import xs from 'xstream';
-import { Camera } from './app/screen/state';
+import { Camera } from './app/camera/state';
 import { AppReflectState, AppSources } from './app/state';
 
 function main(sources: AppSources) {

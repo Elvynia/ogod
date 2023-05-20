@@ -1,49 +1,66 @@
-import { makeFeature$ } from '@ogod/game-engine-driver';
-import { concat, concatMap, delay, first, map, of, range, switchMap, tap } from 'rxjs';
-import { createNoise2D } from 'simplex-noise';
-import { Loading, LoadingState } from '../loading/state';
-import { makeCreatePlatform } from '../platform/make';
+import { FeatureKey, makeFeatureObject$ } from '@ogod/game-engine-driver';
+import { distinctUntilKeyChanged, filter, first, map, of } from 'rxjs';
+import { PHASE } from '../phase/state';
 import { AppState, WorkerSources } from '../state';
-import { MapState } from './state';
+import { makeFeatureMapGravity } from './gravity/make';
+import { makeFeatureMapPlatform } from './platform/make';
 
-export function makeFeatureMapLoad(sources: WorkerSources, target: AppState) {
-    const loading = {
-        progress: 0,
-        message: 'Generating map platforms !'
-    } as Loading;
-    const noise = createNoise2D();
-    return makeFeature$({
-        key: 'loading',
-        value$: concat(
-            sources.GameEngine.state$.pipe(
-                first(),
-                map((state) => state.gmap),
-                switchMap((gmap: MapState) => {
-                    const makePlatform = makeCreatePlatform(sources.World)
-                    return range(0, gmap.width).pipe(
-                        concatMap((i) => of(i).pipe(
-                            tap((x) => {
-                                let y = 0;
-                                while (y < gmap.height) {
-                                    const value = noise(x, y);
-                                    if (value > 0) {
-                                        const p = makePlatform(x * gmap.scale, y * gmap.scale, 80, 10);
-                                        gmap.platforms[p.id] = p;
-                                    }
-                                    ++y;
-                                }
-                            }),
-                            map((i) => ({ ...loading, progress: i / 100 })),
-                            delay(30)
-                        ))
-                    )
-                })
+function selectMap$(sources: WorkerSources) {
+    return sources.GameEngine.state$.pipe(
+        map((s) => s.map),
+        first()
+    );
+}
+
+export function makeFeatureMapInit(sources: WorkerSources): FeatureKey<AppState, 'map'> {
+    return {
+        key: 'map',
+        publishOnCreate: true,
+        value$: makeFeatureObject$({
+            key$: of(
+                makeFeatureMapGravity(sources)
             ),
-            of({ ...loading, progress: 1 }),
-        ).pipe(
-            map((l) => ({ map: l } as LoadingState))
+            state$: selectMap$(sources)
+        }),
+        value: {
+            platforms: {},
+            width: 20,
+            height: 5,
+            gravity: -10,
+            scale: 100,
+            level: 0
+        }
+    }
+}
+
+export function makeFeatureMapLoad(sources: WorkerSources): FeatureKey<AppState, 'map'> {
+    return {
+        key: 'map',
+        publishOnNext: true,
+        value$: makeFeatureObject$({
+            key$: of(
+                makeFeatureMapPlatform(sources)
+            ),
+            state$: selectMap$(sources)
+        })
+    }
+}
+
+export function makeFeatureMapNext(sources: WorkerSources): FeatureKey<AppState, 'map'> {
+    return {
+        key: 'map',
+        value$: sources.GameEngine.state$.pipe(
+            distinctUntilKeyChanged('phase'),
+            filter((s) => s.phase === PHASE.END),
+            first(),
+            map((state) => {
+                Object.values(state.map.platforms).forEach((p) => sources.World.instance.DestroyBody(p.body))
+                sources.World.instance.DestroyBody(state.shapes.player.body);
+                state.map.platforms = {};
+                state.map.width += 5;
+                ++state.map.level;
+                return state.map;
+            })
         ),
-        target,
-        remove: true
-    });
+    }
 }

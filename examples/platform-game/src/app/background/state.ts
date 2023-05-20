@@ -1,18 +1,9 @@
-export interface BackgroundGradient {
-    color: CanvasGradient;
-    x: number;
-    y: number;
-    x1: number;
-    y1: number;
-    x2: number;
-    y2: number;
-    width: number;
-    height: number;
-}
+import { BackgroundGradient } from "./gradient/state";
 
 export interface Background {
     baseColor: string;
     colors?: string[];
+    // FIXME: Use camera.x changes to remove this property.
     lastPos?: number;
-    gradients: Array<BackgroundGradient>;
+    gradient: BackgroundGradient;
 }

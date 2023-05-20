@@ -6,7 +6,7 @@ import { GameWorkerSource } from '@ogod/game-worker-driver';
 import { ReplaySubject } from 'rxjs';
 import { ObjectState } from './object/state';
 import { Rect } from './rect';
-import { Camera } from './screen/state';
+import { Camera } from './camera/state';
 
 export interface AppState {
     camera: Camera;
@@ -21,7 +21,6 @@ export type AppReflectState = Pick<AppState, 'fps'> & {
     objects: Array<Omit<Rect, 'dynamic' | 'color' | 'body'>>;
 };
 
-export const ActionKeys = ['camera', 'objects', 'paused', 'playerColor'] as const;
 export class ActionHandlers {
     constructor(
         public camera?: Camera,

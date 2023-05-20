@@ -1,9 +1,11 @@
-import { distinctUntilChanged, map, switchMap } from 'rxjs';
+import { Renderer } from '@ogod/game-engine-driver';
+import { UpdateState } from 'packages/game-engine-driver/src/lib/update/state';
+import { Observable, distinctUntilChanged, map, switchMap } from 'rxjs';
 import { Camera } from './camera/state';
 import { PHASE } from './phase/state';
 import { Shape } from "./shape/state";
-import { Sleet } from './sleet/state';
 import { AppState, WorkerSources } from './state';
+import { Sleet } from './splash/sleet/state';
 
 const PI2 = 2 * Math.PI;
 
@@ -48,30 +50,28 @@ export const makeDrawHandlers = (ctx) => ({
 export function makeRenderer(ctx: OffscreenCanvasRenderingContext2D) {
     const drawHandlers = makeDrawHandlers(ctx);
     return {
-        splash: (delta: number, state: AppState) => {
+        splash: (_, state: AppState) => {
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
             Object.values(state.splash).forEach((obj) => drawHandlers.splash(obj));
         },
-        start: (delta: number, state: AppState) => {
+        start: (_, state: AppState) => {
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-            Object.values(state.background.gradients).forEach((g) => {
-                ctx.fillStyle = g.color;
-                ctx.fillRect(g.x, g.y, g.width, g.height);
-            });
+            const grad = state.background.gradient;
+            ctx.fillStyle = grad.color;
+            ctx.fillRect(grad.x, grad.y, grad.width, grad.height);
         },
-        play: (delta: number, state: AppState) => {
+        play: (_, state: AppState) => {
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-            Object.values(state.background.gradients).forEach((g) => {
-                ctx.fillStyle = g.color;
-                ctx.fillRect(g.x, g.y, g.width, g.height);
-            });
-            Object.values(state.gmap.platforms).forEach((obj) => drawHandlers[obj.type](obj, state.camera));
+            const grad = state.background.gradient;
+            ctx.fillStyle = grad.color;
+            ctx.fillRect(grad.x, grad.y, grad.width, grad.height);
+            Object.values(state.map.platforms).forEach((obj) => drawHandlers[obj.type](obj, state.camera));
             Object.values(state.shapes).forEach((obj) => drawHandlers[obj.type](obj, state.camera));
         }
     };
 }
 
-export function makeRenderer$(sources: WorkerSources) {
+export function makeRenderer$(sources: WorkerSources): Observable<Renderer<UpdateState, AppState>[]> {
     return sources.GameEngine.renderTarget$.pipe(
         switchMap((canvas) => {
             const ctx = canvas.getContext('2d');

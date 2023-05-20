@@ -1,11 +1,13 @@
-import { GameEngineSource, makeFeature$ } from '@ogod/game-engine-driver';
+import { FeatureKey } from '@ogod/game-engine-driver';
 import { bufferCount, distinctUntilChanged, map } from 'rxjs';
-import { AppState } from './state';
+import { AppState, WorkerSources } from '../state';
 
-export function makeFeatureFps(engine: GameEngineSource, target: AppState) {
-    return makeFeature$({
+export function makeFeatureFps(sources: WorkerSources): FeatureKey<AppState, 'fps'> {
+    return {
         key: 'fps',
-        value$: engine.game$.pipe(
+        publishOnCreate: true,
+        publishOnNext: true,
+        value$: sources.GameEngine.game$.pipe(
             bufferCount(10),
             map((frames) => {
                 const total = frames.reduce((acc, curr) => {
@@ -17,6 +19,6 @@ export function makeFeatureFps(engine: GameEngineSource, target: AppState) {
             map((fps) => Math.round(fps)),
             distinctUntilChanged(),
         ),
-        target
-    });
+        value: 0
+    };
 }

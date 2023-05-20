@@ -2,12 +2,13 @@ import { ReplaySubject } from "rxjs";
 import { makeActionEngineListener } from "../action/make";
 import { ActionSubjectDefault } from "../action/state";
 import { RendererSubjectDefault } from "../render/state";
+import { StateSubjectDefault } from "../state/state";
 import { UpdateState } from "../update/state";
 import { GameEngineOptions } from "./state";
 
 export function makeGameEngineOptionsDefaults<
     U = UpdateState,
-    S = any,
+    S extends object = any,
     A = any,
     C = OffscreenCanvas>(): GameEngineOptions<U, S, A, C> {
     return {
@@ -15,6 +16,6 @@ export function makeGameEngineOptionsDefaults<
         game$: new RendererSubjectDefault(),
         listeners: [makeActionEngineListener],
         renderTarget$: new ReplaySubject<C>(1),
-        state$: new ReplaySubject<S>(1)
+        state$: new StateSubjectDefault<S>(1)
     }
 }

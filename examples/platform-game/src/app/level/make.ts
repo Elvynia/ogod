@@ -1,43 +1,59 @@
-import { makeFeature$ } from '@ogod/game-engine-driver';
-import { concat, delayWhen, distinctUntilChanged, filter, first, ignoreElements, map, switchMap } from "rxjs";
-import { makeFeatureSceneLoad } from "../scenes/load";
-import { makeFeatureScenePlay } from "../scenes/play";
+import { FeatureKey, makeFeatureObject$, makeFeatureProperty$ } from "@ogod/game-engine-driver";
+import { concat, filter, first, of, switchMap, takeUntil, tap } from "rxjs";
+import { makeFeatureCameraUpdate } from "../camera/make";
+import { makeFeatureMapLoad, makeFeatureMapNext } from "../map/make";
+import { makeFeaturePaused } from "../paused/make";
+import { PHASE } from '../phase/state';
+import { makeFeatureShapesLoad, makeFeatureShapesUpdate } from "../shape/make";
 import { AppState, WorkerSources } from "../state";
-import { PHASE } from './../phase/state';
+import { distinctState } from "../util";
 
-export function makeFeatureSceneLevel(sources: WorkerSources, target: AppState) {
+export function makeSceneLevel$(sources: WorkerSources) {
     return sources.GameEngine.state$.pipe(
-        map((s) => s.gmap.level),
-        distinctUntilChanged(),
-        switchMap((level) => concat(
-            sources.GameEngine.state$.pipe(
-                map((s) => s.phase),
-                filter((p) => p === PHASE.LOAD),
-                first(),
-                ignoreElements()
-            ),
-            makeFeatureSceneLoad(sources, target),
-            makeFeatureScenePlay(sources, target),
-            makeFeature$({
-                key: 'gmap',
-                value$: sources.GameEngine.state$.pipe(
-                    first(),
-                    delayWhen(() => sources.GameEngine.game$.pipe(
-                        first()
-                    )),
-                    map((state) => {
-                        // FIXME: Refactor into map next level action.
-                        Object.values(state.gmap.platforms).forEach((p) => sources.World.instance.DestroyBody(p.body))
-                        sources.World.instance.DestroyBody(state.shapes.player.body);
-                        state.gmap.platforms = {};
-                        state.gmap.width += 5;
-                        ++state.gmap.level;
-                        sources.GameEngine.action$.getHandler('phase').next(PHASE.START);
-                        return state.gmap;
-                    })
+        distinctState({
+            key: 'phase'
+        }),
+        filter((s) => s.phase === PHASE.LOAD),
+        switchMap((state) => concat(
+            makeFeatureObject$({
+                key$: of(
+                    makeFeatureShapesLoad(sources),
+                    makeFeatureMapLoad(sources)
                 ),
-                target
-            })
+                state$: of(state)
+            }),
+            makeFeatureObject$({
+                key$: of(
+                    {
+                        key: 'phase',
+                        publishOnNext: true,
+                        value$: of(PHASE.PLAY)
+                    } as FeatureKey<AppState, 'phase'>,
+                    makeFeatureShapesUpdate(sources),
+                    makeFeatureCameraUpdate(sources),
+                    makeFeaturePaused(sources)
+                ),
+                state$: of(state)
+            }).pipe(
+                takeUntil(sources.GameEngine.game$.pipe(
+                    filter(([_, s]) => s.phase === PHASE.PLAY
+                        && s.shapes.player.x > s.map.width * s.map.scale - 75),
+                    first()
+                )),
+                tap({
+                    complete: () => sources.GameEngine.action$.getHandler('phase').next(PHASE.END)
+                })
+            ),
+            makeFeatureProperty$({
+                ...makeFeatureMapNext(sources),
+                state
+            }),
+            makeFeatureProperty$({
+                key: 'phase',
+                publishOnNext: true,
+                value$: of(PHASE.START),
+                state
+            }),
         ))
-    );
+    )
 }

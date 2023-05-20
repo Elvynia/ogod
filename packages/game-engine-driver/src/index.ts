@@ -9,4 +9,5 @@ export * from './lib/option/make';
 export * from './lib/option/state';
 export * from './lib/reflect/make';
 export * from './lib/render/state';
+export * from './lib/state/state';
 export * from './lib/update/make';

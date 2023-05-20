@@ -28,8 +28,9 @@ function makeGameElementDriver(host: any) {
     }
 }
 
-export const runApp = (worker, host) => {
+export const runApp = (host) => {
     console.log('START app');
+    const worker = new Worker(new URL('../worker.ts', import.meta.url));
     const disposeApp = gameRun(main, {
         GameWorker: makeDriverGameWorker(worker),
         ElementHost: makeGameElementDriver(host)

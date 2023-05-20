@@ -2,25 +2,28 @@ import { Driver } from "@ogod/game-core";
 import { Observable, Subject } from "rxjs";
 import { ActionSubject, ActionSubjectChanges } from "../action/state";
 import { RenderState, Renderer } from "../render/state";
+import { StateSubject } from "../state/state";
 import { UpdateState } from "../update/state";
 
 export interface GameEngineSource<
-    S = any,
+    S extends object = any,
     A = any,
     U = UpdateState,
-    C = OffscreenCanvas> {
+    C = OffscreenCanvas
+> {
     action$: ActionSubject<A>;
     dispose: Function;
     game$: Observable<RenderState<U, S>>;
     renderTarget$: Subject<C>;
-    state$: Observable<S>;
+    state$: StateSubject<S>;
     workerContext?: DedicatedWorkerGlobalScope;
 }
 
 export interface GameEngineSink<
-    S = any,
+    S extends object = any,
     R = any,
-    U = UpdateState> {
+    U = UpdateState
+> {
     action$?: Observable<ActionSubjectChanges>;
     game$?: Observable<RenderState<U, S>>;
     reflect$?: Observable<R>;
@@ -29,9 +32,9 @@ export interface GameEngineSink<
 }
 
 export type GameEngineDriver<
-    S = any,
+    S extends object = any,
     A = any,
     R = any,
     U = UpdateState,
-    C = OffscreenCanvas>
-    = Driver<GameEngineSink<S, R, U>, GameEngineSource<S, A, U, C>>;
+    C = OffscreenCanvas
+> = Driver<GameEngineSink<S, R, U>, GameEngineSource<S, A, U, C>>;

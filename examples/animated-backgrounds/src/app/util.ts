@@ -5,7 +5,8 @@ export function randNum(length: number = 4): number {
 }
 
 export function colorPart() {
-    return Math.floor(Math.random() * 256).toString(16);
+    const c = Math.floor(Math.random() * 256).toString(16);
+    return c.length < 2 ? '0' + c : c;
 }
 
 export function randomColor() {

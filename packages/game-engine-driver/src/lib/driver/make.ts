@@ -11,7 +11,7 @@ import { GameEngineDriver, GameEngineSink, GameEngineSource } from './state';
  * @param options GameEngineOptions<S, A> parameters to control driver properties at creation.
  * @returns GameEngineDriver<S, A, R> a driver that can be used with game-run package.
  */
-export function makeDriverGameEngine<S, A, R, U, C>
+export function makeDriverGameEngine<S extends object, A, R, U, C>
     (params: Partial<GameEngineOptions<U, S, A, C>>): GameEngineDriver<S, A, R, U, C> {
     const options = {
         ...makeGameEngineOptionsDefaults<U, S, A, C>(),
@@ -47,14 +47,15 @@ export function makeDriverGameEngine<S, A, R, U, C>
         const source = {
             action$: options.action$,
             dispose: () => {
+                options.action$.complete();
                 options.game$.complete();
                 options.state$.complete();
-                options.action$.complete();
                 console.debug('[GameEngine] Disposed');
             },
-            game$: options.game$.asObservable(),
+            state$: options.state$,
+            game$: options.game$,
             renderTarget$: options.renderTarget$,
-            state$: options.state$.asObservable()
+            workerContext: options.workerContext
         };
         // FIXME: Cannot use partial typing on listeners if using generics en source argument.
         options.listeners.forEach((listener) => listener(source as any as GameEngineSource));
@@ -68,6 +69,6 @@ export function makeDriverGameEngine<S, A, R, U, C>
             };
             options.workerContext.postMessage(WorkerActionInit);
         }
-        return source;
+        return source as any;
     };
 }

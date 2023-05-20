@@ -1,8 +1,8 @@
-import { makeDriverGameEngine, makeReflect$ } from '@ogod/game-engine-driver';
+import { FeatureObject, makeDriverGameEngine, makeFeatureObject$, makeReflect$ } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import { gsap } from 'gsap';
 import { ActionSubjectDefault } from 'packages/game-engine-driver/src/lib/action/state';
-import { merge } from 'rxjs';
+import { of } from 'rxjs';
 import { makeFeatureCamera } from './app/camera/make';
 import { makeFeatureObjects } from './app/object/make';
 import { makeRenderer$ } from './app/renderer/make';
@@ -11,9 +11,6 @@ import { ActionHandlers, AppState, WorkerSinks, WorkerSources } from './app/stat
 declare var self: DedicatedWorkerGlobalScope;
 
 function main(sources: WorkerSources): WorkerSinks {
-    const state = {
-        objects: {}
-    } as AppState;
     gsap.ticker.remove(gsap.updateRoot);
     sources.GameEngine.game$.subscribe(([{ elapsed }]) => gsap.updateRoot(elapsed / 1000));
     return {
@@ -26,17 +23,20 @@ function main(sources: WorkerSources): WorkerSinks {
                 })
             }),
             renderer$: makeRenderer$(sources),
-            state$: merge(
-                makeFeatureCamera(sources, state),
-                makeFeatureObjects(sources, state)
-            )
+            state$: makeFeatureObject$({
+                key$: of(
+                    makeFeatureCamera(sources),
+                    makeFeatureObjects(sources)
+                ),
+                state$: of({} as AppState)
+            })
         }
     };
 }
 
-self.close = gameRun(main, {
+gameRun(main, {
     GameEngine: makeDriverGameEngine({
         action$: new ActionSubjectDefault(new ActionHandlers()),
         workerContext: self
     })
-});
+}, self);

@@ -1,14 +1,15 @@
 import { MainDOMSource } from '@cycle/dom';
 import { GameBox2dSink, GameBox2dSource } from '@ogod/game-box2d-driver';
-import { GameEngineSink, GameEngineSource } from '@ogod/game-engine-driver';
+import { FeatureKey, GameEngineSink, GameEngineSource } from '@ogod/game-engine-driver';
 import { GameWorkerSource } from '@ogod/game-worker-driver';
 import { Background } from './background/state';
 import { Camera } from './camera/state';
 import { Controls } from './controls/state';
 import { LoadingState } from './loading/state';
 import { MapState } from './map/state';
+import { PHASE } from './phase/state';
 import { Shapes } from './shape/state';
-import { Sleet } from './sleet/state';
+import { SplashState } from './splash/state';
 
 export type AppReflectState = Pick<AppState, 'phase' | 'loading' | 'fps' | 'paused'>
     & Pick<MapState, 'level' | 'gravity'>
@@ -22,24 +23,25 @@ export interface AppSources {
 export interface AppState {
     background: Background;
     camera: Camera;
-    controls?: Controls<any>;
+    controls?: Controls<any>; // FIXME: Add control type !
     fps: number;
-    gmap: MapState;
     loading?: LoadingState;
+    map: MapState;
     paused: boolean;
-    phase: number;
+    phase: PHASE;
     shapes: Shapes;
-    splash?: Record<string, Sleet>;
+    splash?: SplashState;
 }
 
 export class ActionHandlers {
     constructor(
+        public background?: string,
         public camera?: Camera,
         public controls?: any,
-        public phase?: number,
-        public paused?: boolean,
         public gravity?: number,
-        public background?: string
+        public loading?: FeatureKey<LoadingState, string>,
+        public paused?: boolean,
+        public phase?: number
     ) { }
 }
 

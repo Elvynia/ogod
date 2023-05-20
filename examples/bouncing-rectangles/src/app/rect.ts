@@ -1,4 +1,5 @@
 import { b2Body, b2BodyType, b2PolygonShape, b2World } from '@box2d/core';
+import { Camera } from './camera/state';
 
 export interface Rect {
     angle: number;
@@ -80,3 +81,25 @@ export function makeRect(rect: Partial<Rect>, world: b2World, scale: number): Re
         health: Math.round(width * height / 50)
     } as Rect;
 }
+
+export const updateMovement = (_, obj: Rect, camera: Camera) => {
+    const pos = obj.body.GetPosition();
+    const newPos = pos.Clone();
+    const appWidth = camera.width / camera.scale;
+    const appHeight = camera.height / camera.scale;
+    if (pos.x < 0) {
+        newPos.Set(pos.x + appWidth, appHeight - pos.y);
+    } else if (pos.x > appWidth) {
+        newPos.Set(pos.x - appWidth, appHeight - pos.y);
+    }
+    if (pos.y < 0) {
+        newPos.Set(appWidth - newPos.x, pos.y + appHeight);
+    } else if (pos.y > appHeight) {
+        newPos.Set(appWidth - newPos.x, pos.y - appHeight);
+    }
+    if (pos.x !== newPos.x || pos.y !== newPos.y) {
+        obj.body.SetTransformVec(newPos, 0);
+    }
+    obj.x = Math.round(obj.body.GetPosition().x * camera.scale);
+    obj.y = Math.round(obj.body.GetPosition().y * camera.scale);
+};

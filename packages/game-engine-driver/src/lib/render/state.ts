@@ -5,6 +5,7 @@ export type RenderState<U = UpdateState, T = any> = [U, T];
 
 export type Renderer<U = UpdateState, T = any> = (update: U, state: T) => void;
 
+// FIXME: GameSubject ?
 export interface RendererSubject<U = UpdateState, T = any> extends SubjectLike<RenderState<U, T>> {
     asObservable(): Observable<RenderState<U, T>>;
     get renderers$(): BehaviorSubject<Renderer<U, T>[]>;

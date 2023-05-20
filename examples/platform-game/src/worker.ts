@@ -1,18 +1,20 @@
 import { makeGameBox2dDriver } from '@ogod/game-box2d-driver';
-import { Renderer, makeDriverGameEngine, makeGame$, makeReflect$, makeUpdate$ } from '@ogod/game-engine-driver';
+import { makeDriverGameEngine, makeFeatureObject$, makeGame$, makeReflect$, makeUpdate$ } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import gsap from 'gsap';
 import { ActionSubjectDefault } from 'packages/game-engine-driver/src/lib/action/state';
-import { EMPTY, Observable, concat, distinctUntilChanged, first, map, merge, share, switchMap } from "rxjs";
-import { makeFeatureBackgroundColors, makeFeatureBackgroundUpdate } from './app/background/make';
+import { EMPTY, distinctUntilChanged, first, map, merge, of, share, switchMap } from "rxjs";
+import { makeFeatureBackground } from './app/background/make';
 import { makeFeatureCameraResize } from './app/camera/make';
-import { makeFeatureFps } from './app/fps';
-import { makeFeatureMapGravity } from './app/gravity/make';
-import { makeFeatureSceneLevel } from './app/level/make';
+import { makeFeatureControls } from './app/controls/make';
+import { makeFeatureFps } from './app/fps/make';
+import { makeFeatureLoading } from './app/loading/make';
+import { makeFeatureMapInit } from './app/map/make';
 import { makeFeaturePhase } from './app/phase/make';
 import { PHASE } from './app/phase/state';
 import { makeRenderer$ } from './app/render';
-import { makeFeatureSplash as makeFeatureSceneSplash } from './app/splash/make';
+import { makeSceneLevel$ } from './app/level/make';
+import { makeFeatureSplash } from './app/splash/make';
 import { ActionHandlers, AppState, WorkerSinks, WorkerSources } from './app/state';
 
 declare var self: DedicatedWorkerGlobalScope;
@@ -20,26 +22,6 @@ declare var self: DedicatedWorkerGlobalScope;
 function main(sources: WorkerSources): WorkerSinks {
     gsap.ticker.remove(gsap.updateRoot);
     sources.GameEngine.game$.subscribe(([{ elapsed }]) => gsap.updateRoot(elapsed / 1000));
-    const state = {
-        background: {
-            gradients: []
-        },
-        camera: {
-            x: 0,
-            y: 0
-        },
-        gmap: {
-            platforms: {},
-            width: 20,
-            height: 5,
-            gravity: -10,
-            scale: 100,
-            level: 0
-        },
-        fps: 0,
-        phase: -1,
-        splash: {}
-    } as AppState;
     const update$ = makeUpdate$().pipe(
         share()
     );
@@ -53,6 +35,8 @@ function main(sources: WorkerSources): WorkerSinks {
                 ))
             ) : update$)
     );
+    // sources.GameEngine.state$.subscribe((s) => console.log('STATE- key after: ' + s.phase));
+    // sources.GameEngine.game$.subscribe(([_, s]) => console.log('DEBUG GAME PHASE: ', s.phase));
     return {
         GameEngine: {
             game$: makeGame$({
@@ -62,21 +46,25 @@ function main(sources: WorkerSources): WorkerSinks {
             reflect$: makeReflect$({
                 state$: sources.GameEngine.state$,
                 buffer$: update$,
-                transform: ({ fps, loading, paused, gmap, phase, background }) =>
-                    ({ fps, loading, paused, gravity: gmap.gravity, level: gmap.level, phase, baseColor: background.baseColor })
+                transform: ({ fps, loading, paused, map, phase, background }) =>
+                    ({ fps, loading, paused, gravity: map.gravity, level: map.level, phase, baseColor: background.baseColor })
             }),
-            renderer$: makeRenderer$(sources) as any as Observable<Renderer[]>,
+            renderer$: makeRenderer$(sources),
             state$: merge(
-                makeFeatureFps(sources.GameEngine, state),
-                makeFeatureCameraResize(sources, state),
-                makeFeatureMapGravity(sources, state),
-                makeFeatureBackgroundColors(sources, state),
-                makeFeatureBackgroundUpdate(sources, state),
-                makeFeaturePhase(sources, state),
-                concat(
-                    makeFeatureSceneSplash(sources, state),
-                    makeFeatureSceneLevel(sources, state)
-                )
+                makeFeatureObject$({
+                    key$: of(
+                        makeFeatureBackground(sources),
+                        makeFeatureCameraResize(sources),
+                        makeFeatureControls(sources),
+                        makeFeatureFps(sources),
+                        makeFeatureLoading(sources),
+                        makeFeatureMapInit(sources),
+                        makeFeaturePhase(sources),
+                        makeFeatureSplash(sources)
+                    ),
+                    state$: of({} as AppState)
+                }),
+                makeSceneLevel$(sources)
             )
         },
         World: {
@@ -86,7 +74,7 @@ function main(sources: WorkerSources): WorkerSinks {
                 switchMap((phase) => phase === PHASE.PLAY ? pausableUpdate$.pipe(map(({ delta }) => delta)) : EMPTY)
             ),
             gravity$: sources.GameEngine.state$.pipe(
-                map((s) => s.gmap.gravity),
+                map((s) => s.map.gravity),
                 distinctUntilChanged(),
                 map((g) => ({ x: 0, y: g }))
             )
@@ -94,10 +82,10 @@ function main(sources: WorkerSources): WorkerSinks {
     }
 }
 
-self.close = gameRun(main, {
+gameRun(main, {
     GameEngine: makeDriverGameEngine({
         action$: new ActionSubjectDefault(new ActionHandlers()),
         workerContext: self
     }),
     World: makeGameBox2dDriver({ x: 0, y: -10 })
-});
+}, self);
