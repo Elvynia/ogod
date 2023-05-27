@@ -77,10 +77,7 @@ function main(sources: AppSources) {
         DOM: combineLatest([
             of(canvas({ attrs: { id: 'game', width: camera.width, height: camera.height, tabindex: 0 } })),
             sources.GameWorker.input$.pipe(
-                map((state) => state.objects.map(({ id, x, y, angle, width, height, health, colorLight }) => div({
-                    attrs: {
-                        id
-                    },
+                map((state) => state.objects.map(({ x, y, angle, width, height, health, colorLight }) => div({
                     class: {
                         rect: true
                     },
@@ -103,13 +100,19 @@ function main(sources: AppSources) {
                 map((fps) => h3('FPS: ' + fps)),
             ),
             sources.GameWorker.input$.pipe(
-                map((state: any) => Object.keys(state.objects).length),
+                map((state) => state.objects.length),
                 distinctUntilChanged(),
                 startWith('0'),
-                map((objects) => h3('Object count: ' + objects)),
+                map((count) => h3('Object count: ' + count)),
+            ),
+            sources.GameWorker.input$.pipe(
+                map((state) => state.box2dCount),
+                distinctUntilChanged(),
+                startWith('0'),
+                map((count) => h3('Box2D count: ' + count)),
             )
         ]).pipe(
-            map(([canvas, divs, color, fps, objects]) => div([
+            map(([canvas, divs, color, fps, count1, count2]) => div([
                 div({
                     class: {
                         wrapper: true
@@ -119,7 +122,7 @@ function main(sources: AppSources) {
                     class: {
                         content: true
                     }
-                }, [color, fps, objects])
+                }, [color, fps, count1, count2])
             ]))
         )
     };

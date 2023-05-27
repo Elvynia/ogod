@@ -1,6 +1,6 @@
 import { b2BodyType } from "@box2d/core";
 import { GameBox2dSource } from '@ogod/game-box2d-driver';
-import { FeatureKey, makeFeatureObject$ } from "@ogod/game-engine-driver";
+import { FeatureKey, makeStateObject } from "@ogod/game-engine-driver";
 import { EMPTY, concatMap, delay, first, map, of, range, tap } from "rxjs";
 import { createNoise2D } from "simplex-noise";
 import { makeShape } from "../../shape/make";
@@ -28,7 +28,7 @@ export function makeFeatureMapPlatform(sources: WorkerSources): FeatureKey<MapSt
     return {
         key: 'platforms',
         publishOnNext: true,
-        value$: makeFeatureObject$({
+        value$: makeStateObject({
             key$: sources.GameEngine.state$.pipe(
                 first(),
                 map(({ map: mapState }) => ({
@@ -62,7 +62,7 @@ export function makeFeatureMapPlatform(sources: WorkerSources): FeatureKey<MapSt
                     )
                 }))
             ),
-            state$: of({})
+            state: {}
         })
     }
 }

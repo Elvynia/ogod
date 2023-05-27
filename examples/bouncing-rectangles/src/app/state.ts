@@ -1,24 +1,25 @@
 import { XY } from '@box2d/core';
 import { MainDOMSource } from '@cycle/dom';
-import { GameBox2dSink, GameBox2dSource } from '@ogod/game-box2d-driver';
+import { Contact, GameBox2dSink, GameBox2dSource } from '@ogod/game-box2d-driver';
 import { GameEngineSink, GameEngineSource } from '@ogod/game-engine-driver';
 import { GameWorkerSource } from '@ogod/game-worker-driver';
-import { ReplaySubject } from 'rxjs';
-import { ObjectState } from './object/state';
-import { Rect } from './rect';
+import { BehaviorSubject, ReplaySubject } from 'rxjs';
 import { Camera } from './camera/state';
+import { ObjectState } from './object/state';
+import { Rect } from './rect/state';
 
 export interface AppState {
     camera: Camera;
     fps: number;
+    grounds: Rect[];
     objects: ObjectState;
     paused: boolean;
-    grounds: Rect[];
     player: Rect;
 }
 
 export type AppReflectState = Pick<AppState, 'fps'> & {
-    objects: Array<Omit<Rect, 'dynamic' | 'color' | 'body'>>;
+    objects: Array<Omit<Rect, 'id' | 'dynamic' | 'color' | 'body'>>;
+    box2dCount: number;
 };
 
 export class ActionHandlers {
@@ -30,6 +31,8 @@ export class ActionHandlers {
     ) { }
 }
 
+export type HealthContact = Contact<BehaviorSubject<number>>;
+
 export interface AppSources {
     GameWorker: GameWorkerSource<AppReflectState>;
     DOM: MainDOMSource;
@@ -37,7 +40,7 @@ export interface AppSources {
 
 export interface WorkerSources {
     GameEngine: GameEngineSource<AppState, ActionHandlers, number>;
-    World: GameBox2dSource;
+    World: GameBox2dSource<HealthContact>;
 }
 
 export interface WorkerSinks {

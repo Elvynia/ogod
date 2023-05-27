@@ -3,15 +3,11 @@ import { Subject } from 'rxjs';
 import { Contact } from './state';
 
 function getContactInfos(contact: b2Contact): Contact {
-    const idA = contact.GetFixtureA().GetBody().GetUserData();
-    const idB = contact.GetFixtureB().GetBody().GetUserData();
-    const sensorA = contact.GetFixtureA().IsSensor() ? contact.GetFixtureA().GetUserData() : undefined;
-    const sensorB = contact.GetFixtureB().IsSensor() ? contact.GetFixtureB().GetUserData() : undefined;
     return {
-        idA,
-        idB,
-        sensorA,
-        sensorB,
+        dataA: contact.GetFixtureA().GetBody().GetUserData(),
+        dataB: contact.GetFixtureB().GetBody().GetUserData(),
+        sensorA: contact.GetFixtureA().IsSensor() ? contact.GetFixtureA().GetUserData() : undefined,
+        sensorB: contact.GetFixtureB().IsSensor() ? contact.GetFixtureB().GetUserData() : undefined,
         touching: contact.IsTouching() ? 1 : -1
     };
 }

@@ -1,5 +1,4 @@
-import { FeatureKey, makeFeatureObject$ } from "@ogod/game-engine-driver";
-import { of } from "rxjs";
+import { FeatureKey, makeStateObject } from "@ogod/game-engine-driver";
 import { AppState, WorkerSources } from "../state";
 import { LoadingState } from "./state";
 
@@ -7,9 +6,9 @@ export function makeFeatureLoading(sources: WorkerSources): FeatureKey<AppState,
     return {
         key: 'loading',
         publishOnNext: true,
-        value$: makeFeatureObject$({
+        value$: makeStateObject({
             key$: sources.GameEngine.action$.getHandler('loading'),
-            state$: of({} as LoadingState)
+            state: {} as LoadingState
         })
     }
 }

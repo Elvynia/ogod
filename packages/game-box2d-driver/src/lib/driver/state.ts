@@ -3,8 +3,8 @@ import { Driver } from '@ogod/game-core';
 import { Observable, Subject } from 'rxjs';
 import { Contact } from '../contact/state';
 
-export interface GameBox2dSource {
-    contact$: Subject<Contact>;
+export interface GameBox2dSource<C extends Contact = Contact> {
+    contact$: Subject<C>;
     dispose: Function;
     instance: b2World;
     scale: number;

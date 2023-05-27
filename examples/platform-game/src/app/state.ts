@@ -1,5 +1,5 @@
 import { MainDOMSource } from '@cycle/dom';
-import { GameBox2dSink, GameBox2dSource } from '@ogod/game-box2d-driver';
+import { Contact, GameBox2dSink, GameBox2dSource } from '@ogod/game-box2d-driver';
 import { FeatureKey, GameEngineSink, GameEngineSource } from '@ogod/game-engine-driver';
 import { GameWorkerSource } from '@ogod/game-worker-driver';
 import { Background } from './background/state';
@@ -47,7 +47,7 @@ export class ActionHandlers {
 
 export interface WorkerSources {
     GameEngine: GameEngineSource<AppState, ActionHandlers>;
-    World: GameBox2dSource;
+    World: GameBox2dSource<Contact<string, string>>;
 }
 
 export interface WorkerSinks {

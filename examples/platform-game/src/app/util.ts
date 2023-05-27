@@ -1,5 +1,7 @@
 import { MonoTypeOperatorFunction, Observable } from "rxjs";
 
+export const WORLD_SCALE = 20;
+
 export function randNum(length: number = 4): number {
     return Math.floor(Math.random() * Math.pow(10, length));
 }
@@ -18,6 +20,8 @@ export function randColor() {
 
 const defaultComparator = (a, b) => a === b;
 
+// FIXME: Replace key and comparator with resolver directly in params and always compare with ===.
+// FIXME: publishOnInitial instead of initialValue ?
 export function distinctState<T>(params: {
     comparator?: (previous: T, current: T) => boolean,
     initialValue?: T,

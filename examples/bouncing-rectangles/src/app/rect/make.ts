@@ -1,23 +1,6 @@
-import { b2Body, b2BodyType, b2PolygonShape, b2World } from '@box2d/core';
-import { Camera } from './camera/state';
-
-export interface Rect {
-    angle: number;
-    dynamic: boolean;
-    id: string;
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    color: string | CanvasGradient;
-    body: b2Body;
-    health: number;
-    colorLight: boolean;
-}
-
-function randNum(length: number = 4): number {
-    return Math.floor(Math.random() * Math.pow(10, length));
-}
+import { b2BodyType, b2PolygonShape, b2World } from '@box2d/core';
+import { randNum } from '../util';
+import { Rect } from './state';
 
 function colorPart() {
     const c = Math.floor(Math.random() * 256).toString(16);
@@ -45,12 +28,13 @@ function isColorLight(color: string) {
     return brightness > 125;
 }
 
-export function makeRect(rect: Partial<Rect>, world: b2World, scale: number): Rect {
+export function makeRect(rect: Partial<Rect>, world: b2World, scale: number) {
     const id = rect.id || randNum(8).toString();
     const width = rect.width || randSize(20, 50);
     const height = rect.height || randSize(20, 50);
     const b2Width = width / (2 * scale);
     const b2Height = height / (2 * scale);
+    const health = Math.round(width * height / 50);
     const body = world.CreateBody({
         position: {
             x: rect.x / scale,
@@ -61,8 +45,7 @@ export function makeRect(rect: Partial<Rect>, world: b2World, scale: number): Re
             y: randSpeed()
         } : undefined,
         type: rect.dynamic ? b2BodyType.b2_dynamicBody : b2BodyType.b2_staticBody,
-        angle: rect.angle,
-        userData: id
+        angle: -(rect.angle || 0)
     });
     body.CreateFixture({
         shape: new b2PolygonShape().SetAsBox(b2Width, b2Height),
@@ -78,28 +61,6 @@ export function makeRect(rect: Partial<Rect>, world: b2World, scale: number): Re
         height,
         color,
         colorLight: typeof color === 'string' ? isColorLight(color) : false,
-        health: Math.round(width * height / 50)
+        health
     } as Rect;
 }
-
-export const updateMovement = (_, obj: Rect, camera: Camera) => {
-    const pos = obj.body.GetPosition();
-    const newPos = pos.Clone();
-    const appWidth = camera.width / camera.scale;
-    const appHeight = camera.height / camera.scale;
-    if (pos.x < 0) {
-        newPos.Set(pos.x + appWidth, appHeight - pos.y);
-    } else if (pos.x > appWidth) {
-        newPos.Set(pos.x - appWidth, appHeight - pos.y);
-    }
-    if (pos.y < 0) {
-        newPos.Set(appWidth - newPos.x, pos.y + appHeight);
-    } else if (pos.y > appHeight) {
-        newPos.Set(appWidth - newPos.x, pos.y - appHeight);
-    }
-    if (pos.x !== newPos.x || pos.y !== newPos.y) {
-        obj.body.SetTransformVec(newPos, 0);
-    }
-    obj.x = Math.round(obj.body.GetPosition().x * camera.scale);
-    obj.y = Math.round(obj.body.GetPosition().y * camera.scale);
-};

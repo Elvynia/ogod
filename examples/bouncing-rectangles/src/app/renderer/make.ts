@@ -1,5 +1,5 @@
 import { filter, first, map, switchMap } from "rxjs";
-import { Rect } from "../rect";
+import { Rect } from "../rect/state";
 import { AppState, WorkerSources } from "../state";
 
 function makeDrawRect(canvas, ctx: CanvasRenderingContext2D) {

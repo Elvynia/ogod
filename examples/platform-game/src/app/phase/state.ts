@@ -3,6 +3,8 @@ export enum PHASE {
     SPLASH,
     START,
     LOAD,
+    RESTART,
     PLAY,
+    GAMEOVER,
     END
 }

@@ -2,7 +2,7 @@ import { FeatureKey } from '@ogod/game-engine-driver';
 import { first, map, withLatestFrom } from 'rxjs';
 import { waitForCamera } from '../camera/make';
 import { Camera } from '../camera/state';
-import { makeRect } from '../rect';
+import { makeRect } from '../rect/make';
 import { AppState, WorkerSources } from '../state';
 
 export function makeGrad(ctx: OffscreenCanvasRenderingContext2D, length: number, middle: number = 0.5) {
@@ -32,7 +32,7 @@ export function makeGrounds(sources: WorkerSources, camera: Camera, ctx: Offscre
             width: xLength,
             height: width,
             dynamic: false,
-            angle: Math.PI / 2,
+            angle: -Math.PI / 2,
             color: makeGrad(ctx, yLength)
         }, sources.World.instance, camera.scale),
         makeRect({
@@ -41,7 +41,7 @@ export function makeGrounds(sources: WorkerSources, camera: Camera, ctx: Offscre
             width: xLength,
             height: width,
             dynamic: false,
-            angle: Math.PI / 2,
+            angle: -Math.PI / 2,
             color: makeGrad(ctx, yLength)
         }, sources.World.instance, camera.scale),
         makeRect({

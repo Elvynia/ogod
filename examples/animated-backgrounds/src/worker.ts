@@ -1,4 +1,4 @@
-import { FeatureObject, makeDriverGameEngine, makeFeatureObject$, makeReflect$ } from '@ogod/game-engine-driver';
+import { makeDriverGameEngine, makeStateObject, makeReflect$ } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import { gsap } from 'gsap';
 import { ActionSubjectDefault } from 'packages/game-engine-driver/src/lib/action/state';
@@ -23,12 +23,12 @@ function main(sources: WorkerSources): WorkerSinks {
                 })
             }),
             renderer$: makeRenderer$(sources),
-            state$: makeFeatureObject$({
+            state$: makeStateObject({
                 key$: of(
                     makeFeatureCamera(sources),
                     makeFeatureObjects(sources)
                 ),
-                state$: of({} as AppState)
+                state: {} as AppState
             })
         }
     };

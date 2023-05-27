@@ -1,7 +1,7 @@
-import { Observable, Observer, Subscriber, mergeMap, switchMap } from "rxjs";
-import { FeatureGroup, FeatureKey, FeatureObject, FeatureProperty, isFeatureKey } from "./state";
+import { Observable, Observer, Subscriber, mergeMap, startWith, switchMap } from "rxjs";
+import { FeatureGroup, FeatureKey, FeatureObject, FeatureProperty, isFeatureKey } from "../feature/state";
 
-export function makeFeaturePropertyObserver<T extends object, V>(
+export function makeObserverProperty<T extends object, V>(
     assign: (value: V) => void,
     feature: FeatureProperty<T>,
     remove: () => void,
@@ -35,11 +35,11 @@ export function makeFeaturePropertyObserver<T extends object, V>(
     return observer;
 }
 
-export function makeFeatureGroupObserver<T extends object>(
+export function makeObserverGroup<T extends object>(
     feature: FeatureGroup<T> & { state: T },
     subscriber: Subscriber<T>
 ): Observer<Partial<T>> {
-    return makeFeaturePropertyObserver(
+    return makeObserverProperty(
         (value) => Object.assign(feature.state, value),
         feature,
         () => feature.publishOnComplete ? feature.keys.forEach((k) => delete feature.state[k]) : undefined,
@@ -47,11 +47,11 @@ export function makeFeatureGroupObserver<T extends object>(
     );
 }
 
-export function makeFeatureKeyObserver<T extends object, K extends keyof T = keyof T>(
+export function makeObserverKey<T extends object, K extends keyof T = keyof T>(
     feature: FeatureKey<T> & { state: T },
     subscriber: Subscriber<T>
 ): Observer<T[K]> {
-    return makeFeaturePropertyObserver(
+    return makeObserverProperty(
         (value) => feature.state[feature.key] = value,
         feature,
         () => delete feature.state[feature.key],
@@ -59,24 +59,37 @@ export function makeFeatureKeyObserver<T extends object, K extends keyof T = key
     );
 }
 
-export function makeFeatureProperty$<T extends object>(feature: FeatureProperty<T>): Observable<T> {
+export function makeStateProperty<T extends object>(feature: FeatureProperty<T>): Observable<T> {
     return new Observable<T>((subscriber) => {
         const sub = isFeatureKey(feature)
-            ? feature.value$.subscribe(makeFeatureKeyObserver(feature, subscriber))
-            : feature.value$.subscribe(makeFeatureGroupObserver(feature, subscriber));
+            ? feature.value$.subscribe(makeObserverKey(feature, subscriber))
+            : feature.value$.subscribe(makeObserverGroup(feature, subscriber));
         return () => sub.unsubscribe();
     });
 }
 
-export function makeFeatureObject$<T extends object>(feature: FeatureObject<T>): Observable<T> {
-    return feature.state$.pipe(
-        switchMap((state) => feature.key$.pipe(
+export function makeStateObject<T extends object>(feature: FeatureObject<T>): Observable<T> {
+    let makeKey$ = (state: T) => {
+        let source$ = feature.key$.pipe(
             mergeMap((featureKey) => {
-                return makeFeatureProperty$<T>({
+                return makeStateProperty<T>({
                     ...featureKey,
                     state
                 })
             })
-        ))
-    )
+        );
+        if (feature.publishOnCreate) {
+            source$ = source$.pipe(
+                startWith(state)
+            );
+        }
+        return source$;
+    };
+    if (feature.state instanceof Observable) {
+        return feature.state.pipe(
+            switchMap((state) => makeKey$(state))
+        )
+    } else {
+        return makeKey$(feature.state);
+    }
 }

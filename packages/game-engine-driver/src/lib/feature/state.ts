@@ -37,7 +37,8 @@ export type FeatureProperty<T extends object> = (FeatureGroup<T> | FeatureKeys<T
 
 export interface FeatureObject<T extends object> {
     key$: Observable<FeatureGroup<T> | FeatureKeys<T>>;
-    state$: Observable<T>;
+    publishOnCreate?: boolean;
+    state: T | Observable<T>;
 }
 
 export function isFeatureKey<T extends object>(f: any): f is FeatureKey<T, typeof f['key']> {

@@ -1,7 +1,7 @@
-export interface Contact {
-    idA: string;
-    idB: string;
-    sensorA?: string;
-    sensorB?: string;
+export interface Contact<T = any, S = any> {
+    dataA: T;
+    dataB: T;
+    sensorA?: S;
+    sensorB?: S;
     touching: number;
 }

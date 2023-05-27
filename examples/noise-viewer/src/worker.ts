@@ -1,4 +1,4 @@
-import { makeDriverGameEngine, makeFeatureObject$ } from '@ogod/game-engine-driver';
+import { makeDriverGameEngine, makeStateObject } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import { ActionSubjectDefault } from 'packages/game-engine-driver/src/lib/action/state';
 import { of, withLatestFrom } from 'rxjs';
@@ -21,14 +21,14 @@ function main(sources: WorkerSources): WorkerSinks {
     return {
         GameEngine: {
             renderer$: makeRenderer$(sources),
-            state$: makeFeatureObject$({
+            state$: makeStateObject({
                 key$: of(
                     makeFeatureData(sources),
                     makeFeatureGenerator(sources),
                     makeFeatureOffset(sources),
                     makeFeatureScale(sources)
                 ),
-                state$: of({} as AppState)
+                state: {} as AppState
             })
         }
     };

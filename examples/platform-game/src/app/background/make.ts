@@ -1,4 +1,4 @@
-import { FeatureKey, makeFeatureObject$ } from '@ogod/game-engine-driver';
+import { FeatureKey, makeStateObject } from '@ogod/game-engine-driver';
 import { of } from 'rxjs';
 import { AppState, WorkerSources } from "../state";
 import { makeBackgroundColors, makeFeatureBackgroundColors } from './color/make';
@@ -8,12 +8,12 @@ import { Background } from './state';
 export function makeFeatureBackground(sources: WorkerSources): FeatureKey<AppState, 'background'> {
     return {
         key: 'background',
-        value$: makeFeatureObject$({
+        value$: makeStateObject({
             key$: of(
                 makeFeatureBackgroundColors(sources),
                 makeFeatureBackgroundGradient(sources)
             ),
-            state$: of(makeBackgroundColors('#ff00ff') as Background)
+            state: makeBackgroundColors('#ff00ff') as Background
         })
     }
 }

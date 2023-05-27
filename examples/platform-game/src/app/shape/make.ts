@@ -1,11 +1,10 @@
 import { b2BodyType, b2PolygonShape } from "@box2d/core";
 import { GameBox2dSource } from '@ogod/game-box2d-driver';
-import { FeatureKey } from "@ogod/game-engine-driver";
-import { distinctUntilKeyChanged, filter, first, ignoreElements, merge, of, switchMap, takeUntil, tap } from "rxjs";
-import { PHASE } from "../phase/state";
+import { FeatureKey, makeStateObject } from "@ogod/game-engine-driver";
+import { first, map, of } from "rxjs";
 import { AppState, WorkerSources } from "../state";
 import { randNum } from "../util";
-import { makePlayer, makePlayerUpdate$ } from "./player/make";
+import { makeFeaturePlayer, makePlayer } from "./player/make";
 import { Shape } from "./state";
 
 export function makeShape<R extends Shape = Shape, T extends Omit<R, 'body'> = Omit<R, 'body'>>(
@@ -35,23 +34,6 @@ export function makeShape<R extends Shape = Shape, T extends Omit<R, 'body'> = O
     };
 }
 
-export function makeShapeUpdate$(sources: WorkerSources) {
-    return sources.GameEngine.state$.pipe(
-        distinctUntilKeyChanged('shapes'),
-        switchMap((state) => {
-            const shapes = Object.values(state.shapes)
-                .filter((s: any) => s.bodyType === b2BodyType.b2_dynamicBody);
-            return sources.GameEngine.game$.pipe(
-                tap(() => shapes.forEach((shape: any) => {
-                    shape.x = Math.round(shape.body.GetPosition().x * sources.World.scale);
-                    shape.y = Math.round(shape.body.GetPosition().y * sources.World.scale);
-                })),
-                ignoreElements()
-            )
-        })
-    )
-}
-
 export function makeFeatureShapesLoad(sources: WorkerSources): FeatureKey<AppState, 'shapes'> {
     return {
         key: 'shapes',
@@ -59,20 +41,19 @@ export function makeFeatureShapesLoad(sources: WorkerSources): FeatureKey<AppSta
         value$: of({
             player: makePlayer(sources.World)
         })
-    };
+    }
 }
 
 export function makeFeatureShapesUpdate(sources: WorkerSources): FeatureKey<AppState, 'shapes'> {
     return {
         key: 'shapes',
-        value$: merge(
-            makeShapeUpdate$(sources),
-            makePlayerUpdate$(sources)
-        ).pipe(
-            takeUntil(sources.GameEngine.state$.pipe(
-                filter((s) => s.phase === PHASE.END),
+        publishOnNext: true,
+        value$: makeStateObject({
+            key$: makeFeaturePlayer(sources),
+            state: sources.GameEngine.state$.pipe(
+                map((s) => s.shapes),
                 first()
-            ))
-        )
+            )
+        })
     };
 }

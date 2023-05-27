@@ -1,4 +1,4 @@
-import { FeatureKey, makeFeatureObject$ } from '@ogod/game-engine-driver';
+import { FeatureKey, makeStateObject } from '@ogod/game-engine-driver';
 import gsap, { Elastic, Expo, Linear } from 'gsap';
 import { Observable, concatWith, defer, first, from, map, takeUntil } from "rxjs";
 import { AppState, WorkerSources } from '../state';
@@ -68,11 +68,11 @@ export function makeFeatureObjects(sources: WorkerSources): FeatureKey<AppState,
     return {
         key: 'objects',
         publishOnNext: true,
-        value$: makeFeatureObject$({
+        value$: makeStateObject({
             key$: sources.GameEngine.action$.getHandler('objects').pipe(
                 map(({ x, y }) => randomBall$(x, y))
             ),
-            state$: sources.GameEngine.state$.pipe(
+            state: sources.GameEngine.state$.pipe(
                 map((s) => s.objects),
                 first()
             )
