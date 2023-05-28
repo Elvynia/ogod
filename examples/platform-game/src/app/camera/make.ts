@@ -27,6 +27,7 @@ export function makeFeatureCameraResize(sources: WorkerSources): FeatureKey<AppS
     };
 }
 
+// FIXME: use system$
 export function makeFeatureCameraUpdate(sources: WorkerSources): FeatureKey<AppState, 'camera'> {
     return {
         key: 'camera',
@@ -36,7 +37,7 @@ export function makeFeatureCameraUpdate(sources: WorkerSources): FeatureKey<AppS
             switchMap(({ camera, map: mapState, shapes }) => {
                 const minY = -mapState.height * mapState.scale / 2;
                 const maxX = mapState.width * mapState.scale - camera.width;
-                return sources.GameEngine.game$.pipe(
+                return sources.GameEngine.engine$.pipe(
                     tap(() => {
                         // FIXME: Smmoth scrolling by tweening with delta.
                         camera.x = Math.min(maxX, Math.max(0, shapes.player.x - camera.width / 2));

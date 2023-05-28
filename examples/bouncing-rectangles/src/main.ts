@@ -1,7 +1,7 @@
-import { canvas, div, h3, input, makeDOMDriver } from '@cycle/dom';
+import { canvas, div, h3, input, makeDOMDriver, span } from '@cycle/dom';
 import { gameRun } from '@ogod/game-run';
 import { makeDriverGameWorker, makeEngineAction, makeWorkerMessage } from '@ogod/game-worker-driver';
-import { Subject, combineLatest, concat, debounceTime, delayWhen, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, interval, map, merge, of, startWith, switchMap, take, takeUntil } from 'rxjs';
+import { EMPTY, Subject, combineLatest, concat, debounceTime, delayWhen, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, interval, map, merge, of, startWith, switchMap, take, takeUntil, takeWhile, timer } from 'rxjs';
 import xs from 'xstream';
 import { Camera } from './app/camera/state';
 import { AppReflectState, AppSources } from './app/state';
@@ -37,18 +37,21 @@ function main(sources: AppSources) {
         })
     );
     const addRect$ = from(canvas$.events('mousedown') as any).pipe(
-        switchMap((e) => interval(100).pipe(
-            map(() => e as MouseEvent),
+        switchMap((e) => paused ? EMPTY : timer(200).pipe(
+            switchMap(() => interval(100).pipe(
+                map(() => e as MouseEvent),
+                map(({ clientX, clientY }) => makeWorkerMessage({
+                    key: 'objects',
+                    value: {
+                        x: clientX + Math.round(200 - Math.random() * 400),
+                        y: clientY + Math.round(200 - Math.random() * 400)
+                    }
+                }))
+            )),
+            takeWhile(() => !paused),
             takeUntil(fromEvent(document, 'mouseup').pipe(
                 first()
-            )),
-            map(({ clientX, clientY }) => makeWorkerMessage({
-                key: 'objects',
-                value: {
-                    x: clientX + Math.round(200 - Math.random() * 400),
-                    y: clientY + Math.round(200 - Math.random() * 400)
-                }
-            }))
+            ))
         ))
     );
     const paused$ = from(canvas$.events('focus') as any).pipe(
@@ -90,8 +93,13 @@ function main(sources: AppSources) {
                 }, [health.toString()]))),
                 startWith([])
             ),
-            of(div([
-                input({ attrs: { id: 'playerColor', value: playerColor } })
+            of(div({
+                attrs: {
+                    style: 'display: flex;justify-content: space-between'
+                }
+            }, [
+                input({ attrs: { id: 'playerColor', value: playerColor } }),
+                span('Use space to pause simulation')
             ])),
             sources.GameWorker.input$.pipe(
                 distinctUntilKeyChanged('fps'),

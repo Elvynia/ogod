@@ -1,4 +1,4 @@
-import { makeDriverGameEngine, makeStateObject, makeReflect$ } from '@ogod/game-engine-driver';
+import { makeDriverGameEngine, makeReflect$, makeStateObject } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import { gsap } from 'gsap';
 import { ActionSubjectDefault } from 'packages/game-engine-driver/src/lib/action/state';
@@ -12,17 +12,17 @@ declare var self: DedicatedWorkerGlobalScope;
 
 function main(sources: WorkerSources): WorkerSinks {
     gsap.ticker.remove(gsap.updateRoot);
-    sources.GameEngine.game$.subscribe(([{ elapsed }]) => gsap.updateRoot(elapsed / 1000));
+    sources.GameEngine.engine$.subscribe(({ elapsed }) => gsap.updateRoot(elapsed / 1000));
     return {
         GameEngine: {
             reflect$: makeReflect$({
                 state$: sources.GameEngine.state$,
-                buffer$: sources.GameEngine.game$,
+                buffer$: sources.GameEngine.engine$,
                 transform: (state) => ({
                     objects: Object.keys(state.objects).length
                 })
             }),
-            renderer$: makeRenderer$(sources),
+            render$: makeRenderer$(sources),
             state$: makeStateObject({
                 key$: of(
                     makeFeatureCamera(sources),

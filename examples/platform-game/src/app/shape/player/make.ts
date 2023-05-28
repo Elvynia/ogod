@@ -2,7 +2,7 @@ import { XY, b2BodyType, b2PolygonShape } from "@box2d/core";
 import { GameBox2dSource } from '@ogod/game-box2d-driver';
 import { FeatureKey, makeStateObject } from "@ogod/game-engine-driver";
 import { filter, finalize, first, map, merge, of, switchMap, takeUntil, tap, timer } from "rxjs";
-import { WorkerSources } from "../../state";
+import { AppState, WorkerSources } from "../../state";
 import { WORLD_SCALE } from "../../util";
 import { makeShape } from "../make";
 import { Player, PlayerFeet, PlayerId } from "./state";
@@ -61,10 +61,11 @@ function makeFeaturePlayerGrounded(sources: WorkerSources, player: Player): Feat
     }
 }
 
-function makeGamePlayerMovement(sources: WorkerSources, player: Player) {
-    return sources.GameEngine.game$.pipe(
-        filter(([_, state]) => state.controls.left || state.controls.right || Math.abs(player.body.GetLinearVelocity().x) > 0)
-    ).subscribe(([{ delta }, state]) => {
+function makeGamePlayerMovement(sources: WorkerSources, state: AppState) {
+    const player = state.shapes.player;
+    return sources.GameEngine.engine$.pipe(
+        filter(() => state.controls.left || state.controls.right || Math.abs(player.body.GetLinearVelocity().x) > 0)
+    ).subscribe(({ delta }) => {
         const velocity = player.body.GetLinearVelocity();
         if (state.controls.left || state.controls.right) {
             const dir = state.controls.left ? -1 : 1;
@@ -82,7 +83,7 @@ function makeGamePlayerJump(sources: WorkerSources, player: Player) {
         filter((state: any) => !player.jumping && state.controls.jump && player.grounded > 0),
         switchMap(() => {
             player.jumping = true;
-            return sources.GameEngine.game$.pipe(
+            return sources.GameEngine.engine$.pipe(
                 takeUntil(merge(
                     sources.GameEngine.state$.pipe(
                         map((state: any) => state.controls.jump),
@@ -92,7 +93,7 @@ function makeGamePlayerJump(sources: WorkerSources, player: Player) {
                     timer(400)
                 )),
                 tap({
-                    next: ([{ delta }]) => {
+                    next: ({ delta }) => {
                         const velocity = player.body.GetLinearVelocity();
                         player.body.SetLinearVelocity({ x: velocity.x, y: Math.min(velocity.y + delta / 20, 15) })
                     },
@@ -105,19 +106,18 @@ function makeGamePlayerJump(sources: WorkerSources, player: Player) {
 
 export function makeFeaturePlayer(sources: WorkerSources) {
     return sources.GameEngine.state$.pipe(
-        map((s) => s.shapes.player),
         first(),
-        map((player) => {
-            const subMove = makeGamePlayerMovement(sources, player);
-            const jumpMove = makeGamePlayerJump(sources, player);
+        map((state) => {
+            const subMove = makeGamePlayerMovement(sources, state);
+            const jumpMove = makeGamePlayerJump(sources, state.shapes.player);
             return {
                 key: 'player',
                 value$: makeStateObject({
                     key$: of(
-                        makeFeaturePlayerGrounded(sources, player),
+                        makeFeaturePlayerGrounded(sources, state.shapes.player),
                         makeFeaturePlayerColor(sources)
                     ),
-                    state: player
+                    state: state.shapes.player
                 }).pipe(
                     finalize(() => {
                         subMove.unsubscribe();

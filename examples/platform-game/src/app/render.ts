@@ -1,11 +1,11 @@
-import { Renderer } from '@ogod/game-engine-driver';
+import { EngineFn } from '@ogod/game-engine-driver';
 import { UpdateState } from 'packages/game-engine-driver/src/lib/update/state';
-import { Observable, distinctUntilChanged, map, switchMap } from 'rxjs';
+import { Observable, distinctUntilChanged, first, map, switchMap } from 'rxjs';
 import { Camera } from './camera/state';
 import { PHASE } from './phase/state';
 import { Shape } from "./shape/state";
-import { AppState, WorkerSources } from './state';
 import { Sleet } from './splash/sleet/state';
+import { AppState, WorkerSources } from './state';
 
 const PI2 = 2 * Math.PI;
 
@@ -47,20 +47,20 @@ export const makeDrawHandlers = (ctx) => ({
     splash: makeDrawSleet(ctx)
 });
 
-export function makeRenderer(ctx: OffscreenCanvasRenderingContext2D) {
+export function makeRenderer(state: AppState, ctx: OffscreenCanvasRenderingContext2D) {
     const drawHandlers = makeDrawHandlers(ctx);
     return {
-        splash: (_, state: AppState) => {
+        splash: () => {
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
             Object.values(state.splash).forEach((obj) => drawHandlers.splash(obj));
         },
-        start: (_, state: AppState) => {
+        start: () => {
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
             const grad = state.background.gradient;
             ctx.fillStyle = grad.color;
             ctx.fillRect(grad.x, grad.y, grad.width, grad.height);
         },
-        play: (_, state: AppState) => {
+        play: () => {
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
             const grad = state.background.gradient;
             ctx.fillStyle = grad.color;
@@ -71,30 +71,32 @@ export function makeRenderer(ctx: OffscreenCanvasRenderingContext2D) {
     };
 }
 
-export function makeRenderer$(sources: WorkerSources): Observable<Renderer<UpdateState, AppState>[]> {
-    return sources.GameEngine.renderTarget$.pipe(
-        switchMap((canvas) => {
-            const ctx = canvas.getContext('2d');
-            const renderers = makeRenderer(ctx);
-            return sources.GameEngine.state$.pipe(
-                map((s) => s.phase),
-                distinctUntilChanged(),
-                map((phase) => {
-                    switch (phase) {
-                        case PHASE.SPLASH:
-                            return [renderers.splash];
-                        case PHASE.START:
-                            return [renderers.start];
-                        case PHASE.PLAY:
-                            return [renderers.play];
-                        case PHASE.END:
-                            ctx.clearRect(0, 0, canvas.width, canvas.height);
-                        default:
-                            return [];
-                    }
-                })
-            );
-        }),
-
+export function makeRenderer$(sources: WorkerSources): Observable<EngineFn<UpdateState>[]> {
+    return sources.GameEngine.state$.pipe(
+        first(),
+        switchMap((state) => sources.GameEngine.renderTarget$.pipe(
+            switchMap((canvas) => {
+                const ctx = canvas.getContext('2d');
+                const renderers = makeRenderer(state, ctx);
+                return sources.GameEngine.state$.pipe(
+                    map((s) => s.phase),
+                    distinctUntilChanged(),
+                    map((phase) => {
+                        switch (phase) {
+                            case PHASE.SPLASH:
+                                return [renderers.splash];
+                            case PHASE.START:
+                                return [renderers.start];
+                            case PHASE.PLAY:
+                                return [renderers.play];
+                            case PHASE.END:
+                                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            default:
+                                return [];
+                        }
+                    })
+                );
+            })
+        ))
     )
 }

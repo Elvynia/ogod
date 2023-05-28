@@ -13,10 +13,10 @@ function makeDrawRect(canvas, ctx: CanvasRenderingContext2D) {
     }
 }
 
-export const makeRenderer = (canvas: any) => {
+export const makeRenderer = (state: AppState, canvas: any) => {
     const ctx: CanvasRenderingContext2D = canvas.getContext('2d');
     const drawRect = makeDrawRect(canvas, ctx);
-    return (_, state: AppState) => {
+    return () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         Object.values(state.objects).forEach(drawRect);
         state.grounds.forEach(drawRect);
@@ -29,7 +29,7 @@ export function makeRenderer$(sources: WorkerSources) {
         switchMap((canvas) => sources.GameEngine.state$.pipe(
             filter((state) => state.camera && state.player && !!state.objects && !!state.grounds),
             first(),
-            map(() => [makeRenderer(canvas)])
+            map((state) => [makeRenderer(state, canvas)])
         )),
     );
 }

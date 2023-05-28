@@ -49,7 +49,7 @@ export function makeFeatureObject(sources: WorkerSources, { x, y }, camera: Came
                 key: 'health',
                 value$: health$.pipe(
                     takeWhile((health) => health > 0),
-                    finalize(() => sources.GameEngine.game$.pipe(
+                    finalize(() => sources.GameEngine.engine$.pipe(
                         first()
                     ).subscribe(() => sources.World.instance.DestroyBody(state.body)))
                 )

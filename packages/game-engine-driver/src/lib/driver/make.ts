@@ -1,9 +1,6 @@
 import { WorkerActionInit } from "@ogod/game-core";
-import { Observable } from "rxjs";
-import { makeGame$ } from '../game/make';
 import { makeGameEngineOptionsDefaults } from '../option/make';
 import { GameEngineOptions } from '../option/state';
-import { makeUpdate$ } from '../update/make';
 import { GameEngineDriver, GameEngineSink, GameEngineSource } from './state';
 
 /**
@@ -13,26 +10,15 @@ import { GameEngineDriver, GameEngineSink, GameEngineSource } from './state';
  */
 export function makeDriverGameEngine<S extends object, A, R, U, C>
     (params: Partial<GameEngineOptions<U, S, A, C>>): GameEngineDriver<S, A, R, U, C> {
-    const options = {
-        ...makeGameEngineOptionsDefaults<U, S, A, C>(),
-        ...params
-    };
+    const options = makeGameEngineOptionsDefaults<U, S, A, C>(params);
     return (sink$: Promise<GameEngineSink<S, R, U>>): GameEngineSource<S, A, U, C> => {
         console.debug('[GameEngine] Created');
         sink$.then((sink) => {
             if (sink.action$) {
                 sink.action$.subscribe(options.action$);
             }
-            if (sink.game$) {
-                sink.game$.subscribe(options.game$);
-            } else {
-                makeGame$<U, S>({
-                    state$: options.state$,
-                    update$: makeUpdate$() as Observable<U>
-                }).subscribe(options.game$);
-            }
-            if (sink.renderer$) {
-                sink.renderer$.subscribe(options.game$.renderers$);
+            if (sink.render$) {
+                sink.render$.subscribe((renders) => options.engine$.renders = renders);
             }
             if (sink.reflect$) {
                 if (options.workerContext) {
@@ -41,19 +27,22 @@ export function makeDriverGameEngine<S extends object, A, R, U, C>
                     throw new Error('[GameEngine] Worker context is required when using reflect mode');
                 }
             }
+            if (sink.system$) {
+                sink.system$.subscribe((systems) => options.engine$.systems = systems);
+            }
             sink.state$.subscribe(options.state$);
             console.debug('[GameEngine] Initialized');
         });
         const source = {
             action$: options.action$,
+            engine$: options.engine$,
             dispose: () => {
                 options.action$.complete();
-                options.game$.complete();
+                options.engine$.complete();
                 options.state$.complete();
                 console.debug('[GameEngine] Disposed');
             },
             state$: options.state$,
-            game$: options.game$,
             renderTarget$: options.renderTarget$,
             workerContext: options.workerContext
         };
@@ -69,6 +58,6 @@ export function makeDriverGameEngine<S extends object, A, R, U, C>
             };
             options.workerContext.postMessage(WorkerActionInit);
         }
-        return source as any;
+        return source;
     };
 }

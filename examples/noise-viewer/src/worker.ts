@@ -20,7 +20,7 @@ function main(sources: WorkerSources): WorkerSinks {
     });
     return {
         GameEngine: {
-            renderer$: makeRenderer$(sources),
+            render$: makeRenderer$(sources),
             state$: makeStateObject({
                 key$: of(
                     makeFeatureData(sources),

@@ -1,9 +1,9 @@
 import { makeGameBox2dDriver } from '@ogod/game-box2d-driver';
-import { makeDriverGameEngine, makeGame$, makeReflect$, makeStateObject, makeUpdate$ } from '@ogod/game-engine-driver';
+import { makeDriverGameEngine, makeReflect$, makeStateObject } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import gsap from 'gsap';
 import { ActionSubjectDefault } from 'packages/game-engine-driver/src/lib/action/state';
-import { EMPTY, distinctUntilChanged, filter, first, map, merge, of, share, switchMap } from "rxjs";
+import { EMPTY, distinctUntilChanged, filter, first, map, merge, of, switchMap } from "rxjs";
 import { makeFeatureBackground } from './app/background/make';
 import { makeFeatureCameraResize } from './app/camera/make';
 import { makeFeatureControls } from './app/controls/make';
@@ -22,44 +22,21 @@ declare var self: DedicatedWorkerGlobalScope;
 
 function main(sources: WorkerSources): WorkerSinks {
     gsap.ticker.remove(gsap.updateRoot);
-    sources.GameEngine.game$.subscribe(([{ elapsed }]) => gsap.updateRoot(elapsed / 1000));
-    const update$ = makeUpdate$().pipe(
-        share()
-    );
+    sources.GameEngine.engine$.subscribe(({ elapsed }) => gsap.updateRoot(elapsed / 1000));
     const pausableUpdate$ = sources.GameEngine.state$.pipe(
         map((s) => s.paused),
         distinctUntilChanged(),
-        switchMap((paused) => paused ?
-            sources.GameEngine.action$.getHandler('background').pipe(
-                switchMap(() => update$.pipe(
-                    first()
-                ))
-            ) : update$)
+        switchMap((paused) => paused ? EMPTY : sources.GameEngine.engine$)
     );
-    sources.GameEngine.state$.pipe(
-        filter((s) => !!s.shapes),
-        first(),
-        switchMap(() => sources.GameEngine.game$)
-    ).subscribe(([_, { shapes }]) => {
-        for (let id in shapes) {
-            const shape = shapes[id];
-            shape.x = Math.round(shape.body.GetPosition().x * sources.World.scale);
-            shape.y = Math.round(shape.body.GetPosition().y * sources.World.scale);
-        }
-    });
     return {
         GameEngine: {
-            game$: makeGame$({
-                state$: sources.GameEngine.state$,
-                update$: pausableUpdate$
-            }),
             reflect$: makeReflect$({
                 state$: sources.GameEngine.state$,
-                buffer$: update$,
+                buffer$: pausableUpdate$,
                 transform: ({ fps, loading, paused, map, phase, background }) =>
                     ({ fps, loading, paused, gravity: map.gravity, level: map.level, phase, baseColor: background.baseColor })
             }),
-            renderer$: makeRenderer$(sources),
+            render$: makeRenderer$(sources),
             state$: merge(
                 makeStateObject({
                     key$: of(
@@ -75,13 +52,24 @@ function main(sources: WorkerSources): WorkerSinks {
                     state: {} as AppState
                 }),
                 makeLevel(sources)
+            ),
+            system$: sources.GameEngine.state$.pipe(
+                filter((s) => !!s.shapes),
+                first(),
+                map((state) => [() => {
+                    for (let id in state.shapes) {
+                        const shape = state.shapes[id];
+                        shape.x = Math.round(shape.body.GetPosition().x * sources.World.scale);
+                        shape.y = Math.round(shape.body.GetPosition().y * sources.World.scale);
+                    }
+                }])
             )
         },
         World: {
             update$: sources.GameEngine.state$.pipe(
                 map((s) => s.phase),
                 distinctUntilChanged(),
-                switchMap((phase) => phase === PHASE.PLAY ? sources.GameEngine.game$.pipe(map(([{ delta }]) => delta)) : EMPTY)
+                switchMap((phase) => phase === PHASE.PLAY ? pausableUpdate$.pipe(map(({ delta }) => delta)) : EMPTY)
             ),
             gravity$: sources.GameEngine.state$.pipe(
                 map((s) => s.map.gravity),

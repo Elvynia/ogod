@@ -46,16 +46,16 @@ export function makeFeatureBackgroundGradient(sources: WorkerSources): FeatureKe
             filter((s) => s.background?.colors && s.phase > PHASE.SPLASH),
             first(),
             switchMap(() => sources.GameEngine.state$.pipe(
-                distinctUntilKeyChanged('background', (b1, b2) => b1.baseColor !== b2.baseColor),
+                distinctUntilKeyChanged('background', (b1, b2) => b1.baseColor !== b2.baseColor), //FIXME: distinctState ?
                 withLatestFrom(sources.GameEngine.renderTarget$),
-                switchMap(([initState, canvas]) => {
+                switchMap(([state, canvas]) => {
                     const ctx = canvas.getContext('2d');
-                    const colorWidth = Math.round(initState.map.width * initState.map.scale / initState.background.colors.length);
+                    const colorWidth = Math.round(state.map.width * state.map.scale / state.background.colors.length);
                     return concat(
-                        of(updateBackground(initState, ctx, colorWidth)),
-                        sources.GameEngine.game$.pipe(
-                            filter(([_, state]) => state.camera.x !== state.background.lastPos),
-                            map(([_, state]) => updateBackground(state, ctx, colorWidth))
+                        of(updateBackground(state, ctx, colorWidth)),
+                        sources.GameEngine.engine$.pipe(
+                            filter(() => state.camera.x !== state.background.lastPos),
+                            map(() => updateBackground(state, ctx, colorWidth))
                         )
                     );
                 })

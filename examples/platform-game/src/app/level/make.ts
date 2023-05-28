@@ -37,17 +37,20 @@ function makeLevelPlay(sources: WorkerSources) {
             first()
         )
     }).pipe(
-        takeUntil(race(
-            sources.GameEngine.game$.pipe(
-                filter(([_, s]) => s.shapes.player.grounded && s.shapes.player.x > s.map.width * s.map.scale - 25),
-                first(),
-                tap(() => sources.GameEngine.action$.getHandler('phase').next(PHASE.END))
-            ),
-            sources.GameEngine.game$.pipe(
-                filter(([_, s]) => s.shapes.player.body.GetPosition().y < -1),
-                first(),
-                tap(() => sources.GameEngine.action$.getHandler('phase').next(PHASE.GAMEOVER))
-            )
+        takeUntil(sources.GameEngine.state$.pipe(
+            first(),
+            switchMap((state) => race(
+                sources.GameEngine.engine$.pipe(
+                    filter(() => state.shapes.player.grounded && state.shapes.player.x > state.map.width * state.map.scale - 25),
+                    first(),
+                    tap(() => sources.GameEngine.action$.getHandler('phase').next(PHASE.END))
+                ),
+                sources.GameEngine.engine$.pipe(
+                    filter(() => state.shapes.player.body.GetPosition().y < -1),
+                    first(),
+                    tap(() => sources.GameEngine.action$.getHandler('phase').next(PHASE.GAMEOVER))
+                )
+            ))
         ))
     );
 }

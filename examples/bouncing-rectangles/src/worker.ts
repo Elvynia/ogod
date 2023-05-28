@@ -1,8 +1,8 @@
 import { makeGameBox2dDriver } from '@ogod/game-box2d-driver';
-import { makeDriverGameEngine, makeGame$, makeStateObject, makeUpdate$ } from '@ogod/game-engine-driver';
+import { EngineSubject, makeDriverGameEngine, makeStateObject, makeUpdate$ } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import { ActionSubjectDefault } from 'packages/game-engine-driver/src/lib/action/state';
-import { EMPTY, distinctUntilChanged, filter, first, map, of, share, switchMap } from 'rxjs';
+import { EMPTY, distinctUntilChanged, filter, first, map, of, switchMap } from 'rxjs';
 import { makeFeatureCamera } from './app/camera/make';
 import { makeFeatureFps } from './app/fps';
 import { makeFeatureGrounds } from './app/ground/make';
@@ -15,37 +15,17 @@ import { ActionHandlers, AppState, WorkerSinks, WorkerSources } from './app/stat
 declare var self: DedicatedWorkerGlobalScope;
 
 function main(sources: WorkerSources): WorkerSinks {
-    sources.GameEngine.state$.pipe(
-        filter((s) => s.player && !!s.objects),
-        first(),
-        switchMap(() => sources.GameEngine.game$)
-    ).subscribe(([_, state]) => {
-        for (let id in state.objects) {
-            updateMovement(state.objects[id], state.camera);
-        }
-        updateMovement(state.player, state.camera);
-    });
     sources.World.contact$.pipe(
         filter((contact) => contact.touching === 1),
         map(({ dataA, dataB }) => [dataA, dataB].filter((data) => !!data))
     ).subscribe((healths) => healths.forEach((h) => h.next(h.value - 1)));
     return {
         GameEngine: {
-            game$: makeGame$({
-                state$: sources.GameEngine.state$,
-                update$: sources.GameEngine.state$.pipe(
-                    map((state) => state.paused),
-                    distinctUntilChanged(),
-                    switchMap((paused) => paused ? EMPTY : makeUpdate$(0).pipe(
-                        share()
-                    ))
-                )
-            }),
             reflect$: sources.GameEngine.state$.pipe(
                 filter((state) => state.camera && state.player && !!state.objects),
                 first(),
-                switchMap(() => sources.GameEngine.game$.pipe(
-                    map(([_, state]) => {
+                switchMap((state) => sources.GameEngine.engine$.pipe(
+                    map(() => {
                         const objects = new Array();
                         for (let k in state.objects) {
                             const o = {
@@ -65,7 +45,7 @@ function main(sources: WorkerSources): WorkerSinks {
                     })
                 ))
             ),
-            renderer$: makeRenderer$(sources),
+            render$: makeRenderer$(sources),
             state$: makeStateObject({
                 key$: of(
                     makeFeatureCamera(sources),
@@ -76,11 +56,23 @@ function main(sources: WorkerSources): WorkerSinks {
                     makeFeatureObjects(sources)
                 ),
                 state: {} as AppState
-            })
+            }),
+            system$: sources.GameEngine.state$.pipe(
+                filter((s) => s.player && !!s.objects),
+                first(),
+                map((state) => [() => {
+                    for (let id in state.objects) {
+                        updateMovement(state.objects[id], state.camera);
+                    }
+                    updateMovement(state.player, state.camera);
+                }])
+            )
         },
         World: {
-            update$: sources.GameEngine.game$.pipe(
-                map(([delta]) => delta)
+            update$: sources.GameEngine.state$.pipe(
+                map((state) => state.paused),
+                distinctUntilChanged(),
+                switchMap((paused) => paused ? EMPTY : sources.GameEngine.engine$)
             )
         }
     };
@@ -89,6 +81,7 @@ function main(sources: WorkerSources): WorkerSinks {
 gameRun(main, {
     GameEngine: makeDriverGameEngine({
         action$: new ActionSubjectDefault(new ActionHandlers()),
+        engine$: new EngineSubject(makeUpdate$(0)),
         workerContext: self
     }),
     World: makeGameBox2dDriver()

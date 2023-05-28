@@ -1,9 +1,9 @@
 import { FeatureKey } from '@ogod/game-engine-driver';
-import { filter, first, map, switchMap, throttleTime } from 'rxjs';
+import { filter, map, switchMap, throttleTime } from 'rxjs';
 import { AppState, WorkerSources } from '../state';
 
 export function makeNoiseViewCreator(ctx: OffscreenCanvasRenderingContext2D) {
-    return (nextRandFn, x: number, y: number, scale: number = 1, offset: number = 0) => {
+    return (nextRandFn, scale: number = 1, offset: number = 0) => {
         const data = ctx.createImageData(ctx.canvas.width, ctx.canvas.height);
         const buffer = new Uint32Array(data.data.buffer);
         for (let i = 0; i < buffer.length; ++i) {
@@ -29,9 +29,9 @@ export function makeFeatureData(sources: WorkerSources): FeatureKey<AppState, 'd
                 return sources.GameEngine.state$.pipe(
                     filter((s) => s.scale && s.offset && !!s.generator),
                     // first(),
-                    switchMap((state) => sources.GameEngine.game$.pipe(
+                    switchMap((state) => sources.GameEngine.engine$.pipe(
                         throttleTime(throttle),
-                        map(() => makeNoiseView(state.generator(), 0, 0, state.scale, state.offset()))
+                        map(() => makeNoiseView(state.generator(), state.scale, state.offset()))
                     ))
                 )
             })
