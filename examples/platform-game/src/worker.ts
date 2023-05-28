@@ -1,9 +1,9 @@
 import { makeGameBox2dDriver } from '@ogod/game-box2d-driver';
-import { makeDriverGameEngine, makeReflect$, makeStateObject } from '@ogod/game-engine-driver';
+import { makeDriverGameEngine, makeStateObject } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import gsap from 'gsap';
 import { ActionSubjectDefault } from 'packages/game-engine-driver/src/lib/action/state';
-import { EMPTY, distinctUntilChanged, filter, first, map, merge, of, switchMap } from "rxjs";
+import { EMPTY, concat, distinctUntilChanged, filter, first, map, merge, of, switchMap } from "rxjs";
 import { makeFeatureBackground } from './app/background/make';
 import { makeFeatureCameraResize } from './app/camera/make';
 import { makeFeatureControls } from './app/controls/make';
@@ -20,9 +20,11 @@ import { WORLD_SCALE } from './app/util';
 
 declare var self: DedicatedWorkerGlobalScope;
 
+const reflectState = ({ fps, loading, paused, map, phase, background }) =>
+    ({ fps, loading, paused, gravity: map.gravity, level: map.level, phase, baseColor: background.baseColor });
+
 function main(sources: WorkerSources): WorkerSinks {
     gsap.ticker.remove(gsap.updateRoot);
-    sources.GameEngine.engine$.subscribe(({ elapsed }) => gsap.updateRoot(elapsed / 1000));
     const pausableUpdate$ = sources.GameEngine.state$.pipe(
         map((s) => s.paused),
         distinctUntilChanged(),
@@ -30,12 +32,12 @@ function main(sources: WorkerSources): WorkerSinks {
     );
     return {
         GameEngine: {
-            reflect$: makeReflect$({
-                state$: sources.GameEngine.state$,
-                buffer$: pausableUpdate$,
-                transform: ({ fps, loading, paused, map, phase, background }) =>
-                    ({ fps, loading, paused, gravity: map.gravity, level: map.level, phase, baseColor: background.baseColor })
-            }),
+            reflect$: sources.GameEngine.state$.pipe(
+                first(),
+                switchMap((state) => sources.GameEngine.engine$.reflect$.pipe(
+                    map(() => reflectState(state))
+                ))
+            ),
             render$: makeRenderer$(sources),
             state$: merge(
                 makeStateObject({
@@ -53,16 +55,19 @@ function main(sources: WorkerSources): WorkerSinks {
                 }),
                 makeLevel(sources)
             ),
-            system$: sources.GameEngine.state$.pipe(
-                filter((s) => !!s.shapes),
-                first(),
-                map((state) => [() => {
-                    for (let id in state.shapes) {
-                        const shape = state.shapes[id];
-                        shape.x = Math.round(shape.body.GetPosition().x * sources.World.scale);
-                        shape.y = Math.round(shape.body.GetPosition().y * sources.World.scale);
-                    }
-                }])
+            system$: concat(
+                of([({ elapsed }) => gsap.updateRoot(elapsed / 1000)]),
+                sources.GameEngine.state$.pipe(
+                    filter((s) => !!s.shapes),
+                    first(),
+                    map((state) => [() => {
+                        for (let id in state.shapes) {
+                            const shape = state.shapes[id];
+                            shape.x = Math.round(shape.body.GetPosition().x * sources.World.scale);
+                            shape.y = Math.round(shape.body.GetPosition().y * sources.World.scale);
+                        }
+                    }])
+                )
             )
         },
         World: {

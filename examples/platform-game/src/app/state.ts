@@ -25,7 +25,7 @@ export interface AppState {
     camera: Camera;
     controls?: Controls<any>; // FIXME: Add control type !
     fps: number;
-    loading?: LoadingState;
+    loading: LoadingState;
     map: MapState;
     paused: boolean;
     phase: PHASE;

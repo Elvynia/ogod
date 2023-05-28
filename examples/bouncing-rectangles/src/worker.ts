@@ -1,5 +1,5 @@
 import { makeGameBox2dDriver } from '@ogod/game-box2d-driver';
-import { EngineSubject, makeDriverGameEngine, makeStateObject, makeUpdate$ } from '@ogod/game-engine-driver';
+import { EngineSubjectDefault, makeDriverGameEngine, makeStateObject, makeUpdate$ } from '@ogod/game-engine-driver';
 import { gameRun } from '@ogod/game-run';
 import { ActionSubjectDefault } from 'packages/game-engine-driver/src/lib/action/state';
 import { EMPTY, distinctUntilChanged, filter, first, map, of, switchMap } from 'rxjs';
@@ -24,7 +24,7 @@ function main(sources: WorkerSources): WorkerSinks {
             reflect$: sources.GameEngine.state$.pipe(
                 filter((state) => state.camera && state.player && !!state.objects),
                 first(),
-                switchMap((state) => sources.GameEngine.engine$.pipe(
+                switchMap((state) => sources.GameEngine.engine$.reflect$.pipe(
                     map(() => {
                         const objects = new Array();
                         for (let k in state.objects) {
@@ -81,7 +81,7 @@ function main(sources: WorkerSources): WorkerSinks {
 gameRun(main, {
     GameEngine: makeDriverGameEngine({
         action$: new ActionSubjectDefault(new ActionHandlers()),
-        engine$: new EngineSubject(makeUpdate$(0)),
+        engine$: new EngineSubjectDefault(makeUpdate$(0)),
         workerContext: self
     }),
     World: makeGameBox2dDriver()
