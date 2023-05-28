@@ -5,7 +5,7 @@ export function gameRun<D extends Drivers<SO, SI>, SO, SI extends Record<keyof S
 export function gameRun<D extends Drivers<SO, SI>, SO, SI extends Record<keyof SO, any>>
     (main: (sources: SO) => SI, drivers: D): DisposeFunction;
 export function gameRun<D extends Drivers<SO, SI>, SO, SI extends Record<keyof SO, any>>
-    (main: (sources: SO) => SI, drivers: D, workerContext?: DedicatedWorkerGlobalScope): DisposeFunction {
+    (main: (sources: SO) => SI, drivers: D, workerContext?: DedicatedWorkerGlobalScope): DisposeFunction | void {
     if (typeof drivers !== `object` || drivers === null) {
         throw new Error(
             `Argument given to gameRun must be an object with driver functions as properties.`
@@ -38,6 +38,7 @@ export function gameRun<D extends Drivers<SO, SI>, SO, SI extends Record<keyof S
             dispose();
             workerClose();
         }
+    } else {
+        return dispose;
     }
-    return dispose;
 }

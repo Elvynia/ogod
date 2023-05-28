@@ -1,5 +1,6 @@
 import { Driver, WorkerMessage, isEngineActionInit } from '@ogod/game-core';
 import { AsyncSubject, Observable, ReplaySubject, forkJoin, from, switchMap, tap } from 'rxjs';
+import { makeEngineAction } from '../message/make';
 import { GameWorkerSink, GameWorkerSource } from './state';
 
 export function makeDriverGameWorker<R = any>(worker: Worker): Driver<GameWorkerSink, GameWorkerSource<R>> {
@@ -12,8 +13,6 @@ export function makeDriverGameWorker<R = any>(worker: Worker): Driver<GameWorker
             initialized$.next();
             initialized$.complete();
         })
-        const input$ = new ReplaySubject<R>(1);
-        const inputListener = (event: MessageEvent) => input$.next(event.data);
         const sub = from(sink$).pipe(
             tap(() => console.debug('[GameWorker] Initialized')),
             switchMap((input$) => {
@@ -21,7 +20,9 @@ export function makeDriverGameWorker<R = any>(worker: Worker): Driver<GameWorker
                 initWorker$.complete();
                 return input$;
             })
-        ).subscribe((args: WorkerMessage) => worker.postMessage(args[0], args[1]));
+        ).subscribe((args: WorkerMessage) => worker.postMessage(...args));
+        const input$ = new ReplaySubject<R>(1);
+        const inputListener = (event: MessageEvent) => input$.next(event.data);
         worker.onmessage = (event) => {
             if (isEngineActionInit(event)) {
                 console.debug('[GameWorker] Connected to engine');
@@ -37,6 +38,7 @@ export function makeDriverGameWorker<R = any>(worker: Worker): Driver<GameWorker
             dispose: () => {
                 input$.complete();
                 sub.unsubscribe();
+                worker.postMessage(...makeEngineAction('OGOD_ENGINE_CLOSE'));
                 console.debug('[GameWorker] Disposed');
             }
         };

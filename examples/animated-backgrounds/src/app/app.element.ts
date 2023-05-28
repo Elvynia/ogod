@@ -1,8 +1,8 @@
-import { WorkerMessage } from '@ogod/game-core';
-import { makeEngineAction, makeWorkerMessage } from '@ogod/game-worker-driver';
-import { define, html } from 'hybrids';
-import { debounceTime, distinctUntilChanged, fromEvent, map, merge, Observable, of, startWith, Subject } from 'rxjs';
-import { runApp } from './app';
+import { WorkerMessage } from "@ogod/game-core";
+import { makeEngineAction, makeWorkerMessage } from "@ogod/game-worker-driver";
+import { define, html } from "hybrids";
+import { Observable, Subject, debounceTime, distinctUntilChanged, fromEvent, map, merge, of, startWith } from "rxjs";
+import { runApp } from "./app";
 
 interface AppElement extends HTMLElement {
     app: {
@@ -43,10 +43,10 @@ export default define<AppElement>({
         },
         connect(host) {
             console.log('[ROOT] Connect');
-            const dispose = runApp(host);
+            (window as any).stopApp = runApp(host);
             return () => {
                 console.log('[ROOT] Disconnect');
-                dispose();
+                (window as any).stopApp();
             };
         }
     },

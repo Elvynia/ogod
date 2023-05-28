@@ -1,7 +1,7 @@
 import { canvas, div, h, h3, makeDOMDriver } from '@cycle/dom';
 import { gameRun } from '@ogod/game-run';
 import { makeDriverGameWorker, makeEngineAction, makeWorkerMessage } from '@ogod/game-worker-driver';
-import { Observable, Subject, combineLatest, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, map, merge, of, startWith, switchMap, tap, throttleTime } from 'rxjs';
+import { Observable, Subject, combineLatest, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, map, merge, of, startWith, switchMap, throttleTime } from 'rxjs';
 import xs from 'xstream';
 import { makeControls$ } from './app/controls/make';
 import { makeElementMenu$, makeListenerMenu$ } from './app/menu/make';
@@ -116,7 +116,7 @@ function main(sources: AppSources) {
     }
 }
 const worker = new Worker(new URL('worker.ts', import.meta.url));
-const dispose = gameRun(main, {
+(window as any).stopApp = gameRun(main, {
     GameWorker: makeDriverGameWorker<AppReflectState>(worker),
     DOM: (promise) => {
         const dom = makeDOMDriver('#app');
@@ -125,7 +125,3 @@ const dispose = gameRun(main, {
         return dom(xs.from(wrapper));
     }
 });
-(window as any).stopApp = () => {
-    worker.postMessage(...makeEngineAction('OGOD_ENGINE_CLOSE'));
-    dispose();
-}

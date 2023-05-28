@@ -1,5 +1,5 @@
 import { gameRun } from '@ogod/game-run';
-import { makeDriverGameWorker, makeEngineAction } from '@ogod/game-worker-driver';
+import { makeDriverGameWorker } from '@ogod/game-worker-driver';
 import { Observable, from, switchMap } from "rxjs";
 import { AppReflectState, AppSources } from "./state";
 
@@ -28,7 +28,6 @@ export const runApp = (worker, host) => {
     });
     return () => {
         console.log('STOP app');
-        worker.postMessage(...makeEngineAction('OGOD_ENGINE_CLOSE'));
         disposeApp();
     };
 };
