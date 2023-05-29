@@ -1,7 +1,7 @@
 {
-  "name": "ogod",
+  "name": "@ogod/source",
   "version": "0.0.1",
-  "license": "MIT",
+  "license": "GPL-3.0-only",
   "scripts": {},
   "private": true,
   "dependencies": {
