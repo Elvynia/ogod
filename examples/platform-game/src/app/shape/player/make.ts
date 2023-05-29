@@ -1,10 +1,11 @@
 import { XY, b2BodyType, b2PolygonShape } from "@box2d/core";
 import { GameBox2dSource } from '@ogod/game-box2d-driver';
 import { FeatureKey, makeStateObject } from "@ogod/game-engine-driver";
-import { filter, finalize, first, map, merge, of, switchMap, takeUntil, tap, timer } from "rxjs";
+import { filter, first, map, merge, of, switchMap, takeUntil, tap, timer } from "rxjs";
 import { AppState, WorkerSources } from "../../state";
 import { WORLD_SCALE } from "../../util";
 import { makeShape } from "../make";
+import { Shapes } from "../state";
 import { Player, PlayerFeet, PlayerId } from "./state";
 
 export const PLAYER_INIT_POS_BODY: XY = {
@@ -109,7 +110,7 @@ export function makeFeaturePlayer(sources: WorkerSources) {
         first(),
         map((state) => {
             const subMove = makeGamePlayerMovement(sources, state);
-            const jumpMove = makeGamePlayerJump(sources, state.shapes.player);
+            const subJump = makeGamePlayerJump(sources, state.shapes.player);
             return {
                 key: 'player',
                 value$: makeStateObject({
@@ -118,12 +119,8 @@ export function makeFeaturePlayer(sources: WorkerSources) {
                         makeFeaturePlayerColor(sources)
                     ),
                     state: state.shapes.player
-                }).pipe(
-                    finalize(() => {
-                        subMove.unsubscribe();
-                        jumpMove.unsubscribe();
-                    })
-                )
-            }
+                }),
+                subscriptions: [subMove, subJump]
+            } as FeatureKey<Shapes, 'player'>
         }))
 }

@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 export interface FeatureObservable<T> {
     publishOnCreate?: boolean;
@@ -6,6 +6,7 @@ export interface FeatureObservable<T> {
     publishOnNext?: boolean;
     value$: Observable<T>;
     value?: T;
+    subscriptions?: Subscription[];
 }
 
 export interface FeatureGroupObservable<T, P extends Partial<T> = Partial<T>> extends FeatureObservable<P> {
@@ -39,6 +40,7 @@ export interface FeatureObject<T extends object> {
     key$: Observable<FeatureGroup<T> | FeatureKeys<T>>;
     publishOnCreate?: boolean;
     state: T | Observable<T>;
+    subscriptions?: Subscription[];
 }
 
 export function isFeatureKey<T extends object>(f: any): f is FeatureKey<T, typeof f['key']> {

@@ -1,9 +1,8 @@
-import { Observable, ReplaySubject, Subject, share } from "rxjs";
+import { Observable, ReplaySubject, Subject, share, tap } from "rxjs";
 
 export interface StateSubject<T> extends Subject<T> {
     getState<O = any>(path: string): Observable<O>;
     registerState<O>(path: string, state$: Observable<O>): Observable<O>;
-    // removeState(path: string): void;
 }
 
 export class StateSubjectDefault<T extends object> extends ReplaySubject<T> implements StateSubject<T> {
@@ -20,19 +19,11 @@ export class StateSubjectDefault<T extends object> extends ReplaySubject<T> impl
 
     registerState<O>(path: string, state$: Observable<O>): Observable<O> {
         this.states[path] = state$.pipe(
-            share()
+            share(),
+            tap({
+                finalize: () => delete this.states[path]
+            })
         );
-        this.states[path].subscribe({
-            // complete: () => this.removeState(path)
-            complete: () => delete this.states[path]
-        });
         return this.states[path];
     }
-
-    // removeState(path: string): void {
-    //     if (!this.states[path].closed) {
-    //         this.states[path].unsubscribe();
-    //     }
-    //     delete this.states[path];
-    // }
 }

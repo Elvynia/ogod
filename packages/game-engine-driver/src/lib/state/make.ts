@@ -1,4 +1,4 @@
-import { Observable, Observer, Subscriber, mergeMap, startWith, switchMap } from "rxjs";
+import { Observable, Observer, Subscriber, finalize, mergeMap, startWith, switchMap } from "rxjs";
 import { FeatureGroup, FeatureKey, FeatureObject, FeatureProperty, isFeatureKey } from "../feature/state";
 
 export function makeObserverProperty<T extends object, V>(
@@ -64,7 +64,10 @@ export function makeStateProperty<T extends object>(feature: FeatureProperty<T>)
         const sub = isFeatureKey(feature)
             ? feature.value$.subscribe(makeObserverKey(feature, subscriber))
             : feature.value$.subscribe(makeObserverGroup(feature, subscriber));
-        return () => sub.unsubscribe();
+        return () => {
+            sub.unsubscribe();
+            feature.subscriptions?.forEach((sub) => sub.unsubscribe());
+        };
     });
 }
 
@@ -81,6 +84,11 @@ export function makeStateObject<T extends object>(feature: FeatureObject<T>): Ob
         if (feature.publishOnCreate) {
             source$ = source$.pipe(
                 startWith(state)
+            );
+        }
+        if (feature.subscriptions) {
+            source$ = source$.pipe(
+                finalize(() => feature.subscriptions!.forEach((sub) => sub.unsubscribe()))
             );
         }
         return source$;
