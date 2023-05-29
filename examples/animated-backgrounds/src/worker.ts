@@ -30,7 +30,9 @@ function main(sources: WorkerSources): WorkerSinks {
                 ),
                 state: {} as AppState
             }),
-            system$: of([({ elapsed }) => gsap.updateRoot(elapsed / 1000)])
+            systems: {
+                pre$: of([({ elapsed }) => gsap.updateRoot(elapsed / 1000)])
+            }
         }
     };
 }

@@ -28,7 +28,10 @@ export interface GameEngineSink<
     reflect$?: Observable<R>;
     render$?: Observable<EngineFn<U>[]>;
     state$: Observable<S>;
-    system$?: Observable<EngineFn<U>[]>;
+    systems?: {
+        pre$?: Observable<EngineFn<U>[]>;
+        post$?: Observable<EngineFn<U>[]>;
+    };
 }
 
 export type GameEngineDriver<

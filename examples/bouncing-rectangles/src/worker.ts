@@ -57,16 +57,18 @@ function main(sources: WorkerSources): WorkerSinks {
                 ),
                 state: {} as AppState
             }),
-            system$: sources.GameEngine.state$.pipe(
-                filter((s) => s.player && !!s.objects),
-                first(),
-                map((state) => [() => {
-                    for (let id in state.objects) {
-                        updateMovement(state.objects[id], state.camera);
-                    }
-                    updateMovement(state.player, state.camera);
-                }])
-            )
+            systems: {
+                pre$: sources.GameEngine.state$.pipe(
+                    filter((s) => s.player && !!s.objects),
+                    first(),
+                    map((state) => [() => {
+                        for (let id in state.objects) {
+                            updateMovement(state.objects[id], state.camera);
+                        }
+                        updateMovement(state.player, state.camera);
+                    }])
+                )
+            }
         },
         World: {
             update$: sources.GameEngine.state$.pipe(

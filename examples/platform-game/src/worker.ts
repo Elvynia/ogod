@@ -55,20 +55,22 @@ function main(sources: WorkerSources): WorkerSinks {
                 }),
                 makeLevel(sources)
             ),
-            system$: concat(
-                of([({ elapsed }) => gsap.updateRoot(elapsed / 1000)]),
-                sources.GameEngine.state$.pipe(
-                    filter((s) => !!s.shapes),
-                    first(),
-                    map((state) => [() => {
-                        for (let id in state.shapes) {
-                            const shape = state.shapes[id];
-                            shape.x = Math.round(shape.body.GetPosition().x * sources.World.scale);
-                            shape.y = Math.round(shape.body.GetPosition().y * sources.World.scale);
-                        }
-                    }])
+            systems: {
+                pre$: concat(
+                    of([({ elapsed }) => gsap.updateRoot(elapsed / 1000)]),
+                    sources.GameEngine.state$.pipe(
+                        filter((s) => !!s.shapes),
+                        first(),
+                        map((state) => [() => {
+                            for (let id in state.shapes) {
+                                const shape = state.shapes[id];
+                                shape.x = Math.round(shape.body.GetPosition().x * sources.World.scale);
+                                shape.y = Math.round(shape.body.GetPosition().y * sources.World.scale);
+                            }
+                        }])
+                    )
                 )
-            )
+            }
         },
         World: {
             update$: sources.GameEngine.state$.pipe(

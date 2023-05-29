@@ -27,8 +27,9 @@ export function makeDriverGameEngine<S extends object, A, R, U, C>
                     throw new Error('[GameEngine] Worker context is required when using reflect mode');
                 }
             }
-            if (sink.system$) {
-                sink.system$.subscribe((systems) => options.engine$.systems = systems);
+            if (sink.systems) {
+                sink.systems.pre$?.subscribe((systems) => options.engine$.systems.pre = systems);
+                sink.systems.post$?.subscribe((systems) => options.engine$.systems.post = systems);
             }
             sink.state$.subscribe(options.state$);
             console.debug('[GameEngine] Initialized');
