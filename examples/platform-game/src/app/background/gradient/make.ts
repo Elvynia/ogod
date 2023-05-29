@@ -1,5 +1,5 @@
-import { FeatureKey } from "@ogod/game-engine-driver";
-import { concat, distinctUntilKeyChanged, filter, first, map, of, switchMap, withLatestFrom } from "rxjs";
+import { FeatureKey, distinctState } from "@ogod/game-engine-driver";
+import { concat, filter, first, map, of, switchMap, withLatestFrom } from "rxjs";
 import { PHASE } from "../../phase/state";
 import { AppState, WorkerSources } from "../../state";
 import { Background } from "../state";
@@ -46,7 +46,7 @@ export function makeFeatureBackgroundGradient(sources: WorkerSources): FeatureKe
             filter((s) => s.background?.colors && s.phase > PHASE.SPLASH),
             first(),
             switchMap(() => sources.GameEngine.state$.pipe(
-                distinctUntilKeyChanged('background', (b1, b2) => b1.baseColor !== b2.baseColor), //FIXME: distinctState ?
+                distinctState((state) => state.background.baseColor),
                 withLatestFrom(sources.GameEngine.renderTarget$),
                 switchMap(([state, canvas]) => {
                     const ctx = canvas.getContext('2d');

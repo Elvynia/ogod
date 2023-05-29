@@ -1,5 +1,3 @@
-import { MonoTypeOperatorFunction, Observable } from "rxjs";
-
 export const WORLD_SCALE = 20;
 
 export function randNum(length: number = 4): number {
@@ -16,36 +14,4 @@ export function randColor() {
         c += '0';
     }
     return '#' + c;
-}
-
-const defaultComparator = (a, b) => a === b;
-
-// FIXME: Replace key and comparator with resolver directly in params and always compare with ===.
-// FIXME: publishOnInitial instead of initialValue ?
-export function distinctState<T>(params: {
-    comparator?: (previous: T, current: T) => boolean,
-    initialValue?: T,
-}): MonoTypeOperatorFunction<T>;
-export function distinctState<T, K extends keyof T = keyof T>(params: {
-    comparator?: (previous: T[K], current: T[K]) => boolean,
-    key: K,
-    initialValue?: T[K],
-}): MonoTypeOperatorFunction<T>;
-export function distinctState<T, K extends keyof T = keyof T>(params: {
-    comparator?: (previous: T | T[K], current: T | T[K]) => boolean,
-    key?: K,
-    initialValue?: T | T[K],
-}): MonoTypeOperatorFunction<T> {
-    return (source) => new Observable((subscriber) => {
-        const resolver = params.key ? (value) => value[params.key] : (value) => value;
-        const comparator = params.comparator || defaultComparator;
-        const sub = source.subscribe((value) => {
-            const nextValue = resolver(value);
-            if (!comparator(params.initialValue, nextValue)) {
-                params.initialValue = resolver(value);
-                subscriber.next(value);
-            }
-        });
-        return () => sub.unsubscribe();
-    });
 }
