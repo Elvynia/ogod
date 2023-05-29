@@ -32,16 +32,20 @@ export class EngineSubjectDefault<U = UpdateState> extends Subject<U> implements
     }
 
     override next(value: U): void {
-        for (let i = 0; i < this.systems.pre.length; ++i) {
-            this.systems.pre[i](value);
-        }
-        super.next(value);
-        for (let i = 0; i < this.systems.post.length; ++i) {
-            this.systems.post[i](value);
-        }
-        this.reflect$.next(value);
-        for (let i = 0; i < this.renders.length; ++i) {
-            this.renders[i](value);
+        try {
+            for (let i = 0; i < this.systems.pre.length; ++i) {
+                this.systems.pre[i](value);
+            }
+            super.next(value);
+            for (let i = 0; i < this.systems.post.length; ++i) {
+                this.systems.post[i](value);
+            }
+            this.reflect$.next(value);
+            for (let i = 0; i < this.renders.length; ++i) {
+                this.renders[i](value);
+            }
+        } catch (e) {
+            this.error(e);
         }
     }
 

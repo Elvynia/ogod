@@ -34,15 +34,22 @@ export function makeDriverGameEngine<S extends object, A, R, U, C>
             sink.state$.subscribe(options.state$);
             console.debug('[GameEngine] Initialized');
         });
+        const dispose = () => {
+            options.action$.complete();
+            options.engine$.complete();
+            options.state$.complete();
+            console.debug('[GameEngine] Disposed');
+        };
+        options.engine$.subscribe({
+            error: (e) => {
+                dispose();
+                console.error('[GameEngine] An error occured in animationFrame loop and stopped the engine:\n', e);
+            }
+        });
         const source = {
             action$: options.action$,
             engine$: options.engine$,
-            dispose: () => {
-                options.action$.complete();
-                options.engine$.complete();
-                options.state$.complete();
-                console.debug('[GameEngine] Disposed');
-            },
+            dispose,
             state$: options.state$,
             renderTarget$: options.renderTarget$,
             workerContext: options.workerContext
