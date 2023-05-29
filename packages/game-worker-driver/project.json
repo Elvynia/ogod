@@ -6,12 +6,16 @@
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/packages/game-worker-driver",
         "main": "packages/game-worker-driver/src/index.ts",
         "tsConfig": "packages/game-worker-driver/tsconfig.lib.json",
-        "assets": ["packages/game-worker-driver/*.md"]
+        "assets": [
+          "packages/game-worker-driver/*.md"
+        ]
       }
     },
     "publish": {
@@ -27,14 +31,20 @@
     },
     "lint": {
       "executor": "@nx/linter:eslint",
-      "outputs": ["{options.outputFile}"],
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
-        "lintFilePatterns": ["packages/game-worker-driver/**/*.ts"]
+        "lintFilePatterns": [
+          "packages/game-worker-driver/**/*.ts"
+        ]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/packages/game-worker-driver"],
+      "outputs": [
+        "{workspaceRoot}/coverage/packages/game-worker-driver"
+      ],
       "options": {
         "jestConfig": "packages/game-worker-driver/jest.config.ts",
         "passWithNoTests": true

@@ -41,24 +41,6 @@
       ]
     }
   },
-  "workspaceLayout": {
-    "appsDir": "examples",
-    "libsDir": "packages"
-  },
-  "defaultProject": "bouncing-rectangles",
-  "generators": {
-    "@nx/web:application": {
-      "style": "css",
-      "linter": "eslint",
-      "unitTestRunner": "none",
-      "e2eTestRunner": "none"
-    },
-    "@nx/web:library": {
-      "style": "css",
-      "linter": "eslint",
-      "unitTestRunner": "none"
-    }
-  },
   "namedInputs": {
     "default": [
       "{projectRoot}/**/*",
@@ -74,5 +56,18 @@
       "!{projectRoot}/tsconfig.spec.json",
       "!{projectRoot}/jest.config.[jt]s"
     ]
+  },
+  "workspaceLayout": {
+    "appsDir": "examples",
+    "libsDir": "packages"
+  },
+  "defaultProject": "bouncing-rectangles",
+  "generators": {
+    "@nx/web:application": {
+      "style": "css",
+      "linter": "eslint",
+      "unitTestRunner": "none",
+      "e2eTestRunner": "none"
+    }
   }
 }

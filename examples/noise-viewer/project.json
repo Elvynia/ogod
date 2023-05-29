@@ -7,23 +7,26 @@
   "targets": {
     "build": {
       "executor": "@nx/webpack:webpack",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "defaultConfiguration": "production",
       "options": {
         "outputPath": "dist/examples/noise-viewer",
         "compiler": "babel",
-        "index": "examples/noise-viewer/src/index.html",
-        "baseHref": "/",
         "main": "examples/noise-viewer/src/main.ts",
-        "polyfills": "examples/noise-viewer/src/polyfills.ts",
         "tsConfig": "examples/noise-viewer/tsconfig.app.json",
+        "webpackConfig": "examples/noise-viewer/webpack.config.js",
         "assets": [
           "examples/noise-viewer/src/favicon.ico",
           "examples/noise-viewer/src/assets"
         ],
-        "styles": ["examples/noise-viewer/src/styles.css"],
-        "scripts": [],
-        "webpackConfig": "examples/noise-viewer/webpack.config.js"
+        "index": "examples/noise-viewer/src/index.html",
+        "baseHref": "/",
+        "styles": [
+          "examples/noise-viewer/src/styles.css"
+        ],
+        "scripts": []
       },
       "configurations": {
         "production": {
@@ -56,9 +59,13 @@
     },
     "lint": {
       "executor": "@nx/linter:eslint",
-      "outputs": ["{options.outputFile}"],
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
-        "lintFilePatterns": ["examples/noise-viewer/**/*.ts"]
+        "lintFilePatterns": [
+          "examples/noise-viewer/**/*.ts"
+        ]
       }
     }
   }

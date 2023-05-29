@@ -6,12 +6,16 @@
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/packages/game-box2d-driver",
         "main": "packages/game-box2d-driver/src/index.ts",
         "tsConfig": "packages/game-box2d-driver/tsconfig.lib.json",
-        "assets": ["packages/game-box2d-driver/*.md"]
+        "assets": [
+          "packages/game-box2d-driver/*.md"
+        ]
       }
     },
     "publish": {
@@ -27,14 +31,20 @@
     },
     "lint": {
       "executor": "@nx/linter:eslint",
-      "outputs": ["{options.outputFile}"],
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
-        "lintFilePatterns": ["packages/game-box2d-driver/**/*.ts"]
+        "lintFilePatterns": [
+          "packages/game-box2d-driver/**/*.ts"
+        ]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/packages/game-box2d-driver"],
+      "outputs": [
+        "{workspaceRoot}/coverage/packages/game-box2d-driver"
+      ],
       "options": {
         "jestConfig": "packages/game-box2d-driver/jest.config.ts",
         "passWithNoTests": true

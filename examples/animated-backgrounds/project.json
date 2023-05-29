@@ -7,38 +7,41 @@
   "targets": {
     "build": {
       "executor": "@nx/webpack:webpack",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "defaultConfiguration": "production",
       "options": {
         "outputPath": "dist/examples/animated-backgrounds",
         "compiler": "babel",
-        "index": "examples/animated-backgrounds/src/index.html",
-        "baseHref": "/",
         "main": "examples/animated-backgrounds/src/main.ts",
-        "polyfills": "examples/animated-backgrounds/src/polyfills.ts",
         "tsConfig": "examples/animated-backgrounds/tsconfig.app.json",
+        "webpackConfig": "examples/animated-backgrounds/webpack.config.js",
         "assets": [
           "examples/animated-backgrounds/src/favicon.ico",
           "examples/animated-backgrounds/src/assets"
         ],
-        "styles": ["examples/animated-backgrounds/src/styles.css"],
-        "scripts": [],
-        "webpackConfig": "examples/animated-backgrounds/webpack.config.js"
+        "index": "examples/animated-backgrounds/src/index.html",
+        "baseHref": "/",
+        "styles": [
+          "examples/animated-backgrounds/src/styles.css"
+        ],
+        "scripts": []
       },
       "configurations": {
         "production": {
-          "fileReplacements": [
-            {
-              "replace": "examples/animated-backgrounds/src/environments/environment.ts",
-              "with": "examples/animated-backgrounds/src/environments/environment.prod.ts"
-            }
-          ],
           "optimization": true,
           "outputHashing": "all",
           "sourceMap": false,
           "namedChunks": false,
           "extractLicenses": true,
-          "vendorChunk": false
+          "vendorChunk": false,
+          "fileReplacements": [
+            {
+              "replace": "examples/animated-backgrounds/src/environments/environment.ts",
+              "with": "examples/animated-backgrounds/src/environments/environment.prod.ts"
+            }
+          ]
         }
       }
     },
@@ -56,9 +59,13 @@
     },
     "lint": {
       "executor": "@nx/linter:eslint",
-      "outputs": ["{options.outputFile}"],
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
-        "lintFilePatterns": ["examples/animated-backgrounds/**/*.ts"]
+        "lintFilePatterns": [
+          "examples/animated-backgrounds/**/*.ts"
+        ]
       }
     }
   }

@@ -6,19 +6,27 @@
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/packages/game-core",
         "main": "packages/game-core/src/index.ts",
         "tsConfig": "packages/game-core/tsconfig.lib.json",
-        "assets": ["packages/game-core/*.md"]
+        "assets": [
+          "packages/game-core/*.md"
+        ]
       }
     },
     "lint": {
       "executor": "@nx/linter:eslint",
-      "outputs": ["{options.outputFile}"],
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
-        "lintFilePatterns": ["packages/game-core/**/*.ts"]
+        "lintFilePatterns": [
+          "packages/game-core/**/*.ts"
+        ]
       }
     }
   },

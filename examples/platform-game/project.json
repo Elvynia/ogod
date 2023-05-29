@@ -7,23 +7,26 @@
   "targets": {
     "build": {
       "executor": "@nx/webpack:webpack",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "defaultConfiguration": "production",
       "options": {
         "outputPath": "dist/examples/platform-game",
         "compiler": "babel",
-        "index": "examples/platform-game/src/index.html",
-        "baseHref": "/",
         "main": "examples/platform-game/src/main.ts",
-        "polyfills": "examples/platform-game/src/polyfills.ts",
         "tsConfig": "examples/platform-game/tsconfig.app.json",
+        "webpackConfig": "examples/bouncing-rectangles/webpack.config.js",
         "assets": [
           "examples/platform-game/src/favicon.ico",
           "examples/platform-game/src/assets"
         ],
-        "styles": ["examples/platform-game/src/styles.css"],
-        "scripts": [],
-        "webpackConfig": "examples/bouncing-rectangles/webpack.config.js"
+        "index": "examples/platform-game/src/index.html",
+        "baseHref": "/",
+        "styles": [
+          "examples/platform-game/src/styles.css"
+        ],
+        "scripts": []
       },
       "configurations": {
         "production": {
@@ -56,9 +59,13 @@
     },
     "lint": {
       "executor": "@nx/linter:eslint",
-      "outputs": ["{options.outputFile}"],
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
-        "lintFilePatterns": ["examples/platform-game/**/*.ts"]
+        "lintFilePatterns": [
+          "examples/platform-game/**/*.ts"
+        ]
       }
     }
   }

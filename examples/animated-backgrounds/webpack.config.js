@@ -1,7 +1,11 @@
+const { composePlugins, withNx, withWeb } = require('@nx/webpack');
 const { merge } = require('webpack-merge');
 const path = require("path");
 
-module.exports = (config, context) => {
+// Nx plugins for webpack.
+module.exports = composePlugins(withNx(), withWeb(), (config) => {
+    // Update the webpack config as needed here.
+    // e.g. `config.plugins.push(new MyPlugin())`
     return merge(config, {
         entry: {
             worker: path.resolve(__dirname, 'src/worker.ts')
@@ -21,4 +25,4 @@ module.exports = (config, context) => {
             ]
         }
     });
-};
+});
