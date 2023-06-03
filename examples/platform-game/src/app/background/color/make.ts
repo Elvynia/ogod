@@ -1,4 +1,4 @@
-import { FeatureGroupObservable } from '@ogod/game-engine-driver';
+import { FeatureGroupObservable } from '@ogod/driver-engine';
 import * as chroma from 'chroma-js';
 import { map, startWith } from 'rxjs';
 import { WorkerSources } from '../../state';

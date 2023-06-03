@@ -15,11 +15,11 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@ogod/game-box2d-driver": ["packages/game-box2d-driver/src/index.ts"],
-      "@ogod/game-core": ["packages/game-core/src/index.ts"],
-      "@ogod/game-engine-driver": ["packages/game-engine-driver/src/index.ts"],
-      "@ogod/game-run": ["packages/game-run/src/index.ts"],
-      "@ogod/game-worker-driver": ["packages/game-worker-driver/src/index.ts"]
+      "@ogod/core": ["packages/core/src/index.ts"],
+      "@ogod/driver-box2d": ["packages/driver-box2d/src/index.ts"],
+      "@ogod/driver-engine": ["packages/driver-engine/src/index.ts"],
+      "@ogod/driver-worker": ["packages/driver-worker/src/index.ts"],
+      "@ogod/run": ["packages/run/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

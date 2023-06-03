@@ -1,4 +1,4 @@
-import { FeatureKey, makeStateObject } from "@ogod/game-engine-driver";
+import { FeatureKey, makeStateObject } from "@ogod/driver-engine";
 import { AppState, WorkerSources } from "../state";
 import { LoadingState } from "./state";
 

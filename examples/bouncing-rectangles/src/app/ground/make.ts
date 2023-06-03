@@ -1,4 +1,4 @@
-import { FeatureKey } from '@ogod/game-engine-driver';
+import { FeatureKey } from '@ogod/driver-engine';
 import { first, map, withLatestFrom } from 'rxjs';
 import { waitForCamera } from '../camera/make';
 import { Camera } from '../camera/state';

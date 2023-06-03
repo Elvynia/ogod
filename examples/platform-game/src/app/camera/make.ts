@@ -1,4 +1,4 @@
-import { FeatureKey } from "@ogod/game-engine-driver";
+import { FeatureKey } from "@ogod/driver-engine";
 import { filter, first, ignoreElements, map, switchMap, tap, withLatestFrom } from "rxjs";
 import { AppState, WorkerSources } from "../state";
 import { Camera } from "./state";

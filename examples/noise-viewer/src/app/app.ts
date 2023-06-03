@@ -1,5 +1,5 @@
-import { gameRun } from '@ogod/game-run';
-import { makeDriverGameWorker } from '@ogod/game-worker-driver';
+import { run } from '@ogod/run';
+import { makeDriverGameWorker } from '@ogod/driver-worker';
 import { Observable, from, switchMap } from "rxjs";
 import { AppReflectState, AppSources } from "./state";
 
@@ -22,7 +22,7 @@ function makeDriverGameElement(host: any) {
 
 export const runApp = (worker, host) => {
     console.log('START app');
-    const disposeApp = gameRun(main, {
+    const disposeApp = run(main, {
         GameWorker: makeDriverGameWorker(worker),
         ElementHost: makeDriverGameElement(host)
     });

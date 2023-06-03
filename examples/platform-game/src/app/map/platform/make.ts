@@ -1,6 +1,6 @@
 import { b2BodyType } from "@box2d/core";
-import { GameBox2dSource } from '@ogod/game-box2d-driver';
-import { FeatureKey, makeStateObject } from "@ogod/game-engine-driver";
+import { GameBox2dSource } from '@ogod/driver-box2d';
+import { FeatureKey, makeStateObject } from "@ogod/driver-engine";
 import { EMPTY, concatMap, delay, first, map, of, range, tap } from "rxjs";
 import { createNoise2D } from "simplex-noise";
 import { makeShape } from "../../shape/make";

@@ -1,6 +1,6 @@
 import { b2BodyType, b2PolygonShape } from "@box2d/core";
-import { GameBox2dSource } from '@ogod/game-box2d-driver';
-import { FeatureKey, makeStateObject } from "@ogod/game-engine-driver";
+import { GameBox2dSource } from '@ogod/driver-box2d';
+import { FeatureKey, makeStateObject } from "@ogod/driver-engine";
 import { first, map, of } from "rxjs";
 import { AppState, WorkerSources } from "../state";
 import { randNum } from "../util";

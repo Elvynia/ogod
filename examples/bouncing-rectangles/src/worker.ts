@@ -1,7 +1,7 @@
-import { makeGameBox2dDriver } from '@ogod/game-box2d-driver';
-import { EngineSubjectDefault, makeDriverGameEngine, makeStateObject, makeUpdate$ } from '@ogod/game-engine-driver';
-import { gameRun } from '@ogod/game-run';
-import { ActionSubjectDefault } from 'packages/game-engine-driver/src/lib/action/state';
+import { makeGameBox2dDriver } from '@ogod/driver-box2d';
+import { EngineSubjectDefault, makeDriverGameEngine, makeStateObject, makeUpdate$ } from '@ogod/driver-engine';
+import { run } from '@ogod/run';
+import { ActionSubjectDefault } from 'packages/driver-engine/src/lib/action/state';
 import { EMPTY, distinctUntilChanged, filter, first, map, of, switchMap } from 'rxjs';
 import { makeFeatureCamera } from './app/camera/make';
 import { makeFeatureFps } from './app/fps';
@@ -80,7 +80,7 @@ function main(sources: WorkerSources): WorkerSinks {
     };
 }
 
-gameRun(main, {
+run(main, {
     GameEngine: makeDriverGameEngine({
         action$: new ActionSubjectDefault(new ActionHandlers()),
         engine$: new EngineSubjectDefault(makeUpdate$(0)),

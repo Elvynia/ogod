@@ -1,4 +1,4 @@
-import { makeStateObject } from "@ogod/game-engine-driver";
+import { makeStateObject } from "@ogod/driver-engine";
 import { Observable, concat, filter, first, of, race, switchMap, takeUntil, tap } from "rxjs";
 import { makeFeatureCameraUpdate } from "../camera/make";
 import { makeFeatureMapLoad } from "../map/make";

@@ -1,4 +1,4 @@
-import { FeatureKey } from '@ogod/game-engine-driver';
+import { FeatureKey } from '@ogod/driver-engine';
 import { bufferCount, distinctUntilChanged, map } from 'rxjs';
 import { AppState, WorkerSources } from './state';
 

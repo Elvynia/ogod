@@ -1,8 +1,8 @@
 import { XY } from '@box2d/core';
 import { MainDOMSource } from '@cycle/dom';
-import { Contact, GameBox2dSink, GameBox2dSource } from '@ogod/game-box2d-driver';
-import { GameEngineSink, GameEngineSource } from '@ogod/game-engine-driver';
-import { GameWorkerSource } from '@ogod/game-worker-driver';
+import { Contact, GameBox2dSink, GameBox2dSource } from '@ogod/driver-box2d';
+import { GameEngineSink, GameEngineSource } from '@ogod/driver-engine';
+import { GameWorkerSource } from '@ogod/driver-worker';
 import { BehaviorSubject, ReplaySubject } from 'rxjs';
 import { Camera } from './camera/state';
 import { ObjectState } from './object/state';

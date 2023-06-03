@@ -1,4 +1,4 @@
-import { FeatureKey, makeStateObject } from '@ogod/game-engine-driver';
+import { FeatureKey, makeStateObject } from '@ogod/driver-engine';
 import { of } from 'rxjs';
 import { AppState, WorkerSources } from "../state";
 import { makeFeatureBackgroundColors } from './color/make';

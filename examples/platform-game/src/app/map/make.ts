@@ -1,4 +1,4 @@
-import { FeatureKey, makeStateObject } from '@ogod/game-engine-driver';
+import { FeatureKey, makeStateObject } from '@ogod/driver-engine';
 import { first, map, of } from 'rxjs';
 import { AppState, WorkerSources } from '../state';
 import { makeFeatureMapGravity } from './gravity/make';

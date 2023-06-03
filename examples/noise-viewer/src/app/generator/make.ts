@@ -1,4 +1,4 @@
-import { FeatureKey } from '@ogod/game-engine-driver';
+import { FeatureKey } from '@ogod/driver-engine';
 import { map } from 'rxjs';
 import { createNoise2D } from 'simplex-noise';
 import { AppState, WorkerSources } from "../state";

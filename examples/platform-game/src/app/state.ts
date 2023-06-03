@@ -1,7 +1,7 @@
 import { MainDOMSource } from '@cycle/dom';
-import { Contact, GameBox2dSink, GameBox2dSource } from '@ogod/game-box2d-driver';
-import { FeatureKey, GameEngineSink, GameEngineSource } from '@ogod/game-engine-driver';
-import { GameWorkerSource } from '@ogod/game-worker-driver';
+import { Contact, GameBox2dSink, GameBox2dSource } from '@ogod/driver-box2d';
+import { FeatureKey, GameEngineSink, GameEngineSource } from '@ogod/driver-engine';
+import { GameWorkerSource } from '@ogod/driver-worker';
 import { Background } from './background/state';
 import { Camera } from './camera/state';
 import { Controls } from './controls/state';

@@ -1,4 +1,4 @@
-import { EngineFn } from '@ogod/game-engine-driver';
+import { EngineFn } from '@ogod/driver-engine';
 import { Observable, first, map, switchMap } from 'rxjs';
 import { AppState, WorkerSources } from '../state';
 import { drawCircle, drawRect } from './draw';

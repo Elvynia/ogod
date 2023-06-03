@@ -1,6 +1,6 @@
 import { XY, b2BodyType, b2PolygonShape } from "@box2d/core";
-import { GameBox2dSource } from '@ogod/game-box2d-driver';
-import { FeatureKey, makeStateObject } from "@ogod/game-engine-driver";
+import { GameBox2dSource } from '@ogod/driver-box2d';
+import { FeatureKey, makeStateObject } from "@ogod/driver-engine";
 import { filter, first, map, merge, of, switchMap, takeUntil, tap, timer } from "rxjs";
 import { AppState, WorkerSources } from "../../state";
 import { WORLD_SCALE } from "../../util";

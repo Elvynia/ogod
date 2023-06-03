@@ -1,5 +1,5 @@
-import { EngineFn } from '@ogod/game-engine-driver';
-import { UpdateState } from 'packages/game-engine-driver/src/lib/update/state';
+import { EngineFn } from '@ogod/driver-engine';
+import { UpdateState } from 'packages/driver-engine/src/lib/update/state';
 import { Observable, distinctUntilChanged, first, map, switchMap } from 'rxjs';
 import { Camera } from './camera/state';
 import { PHASE } from './phase/state';

@@ -1,4 +1,4 @@
-import { FeatureKey, makeStateObject } from '@ogod/game-engine-driver';
+import { FeatureKey, makeStateObject } from '@ogod/driver-engine';
 import { of, switchMap } from 'rxjs';
 import { waitForCamera } from '../camera/make';
 import { makeRect } from '../rect/make';

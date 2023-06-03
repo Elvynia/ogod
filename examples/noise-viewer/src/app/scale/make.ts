@@ -1,4 +1,4 @@
-import { FeatureKey } from "@ogod/game-engine-driver";
+import { FeatureKey } from "@ogod/driver-engine";
 import { AppState, WorkerSources } from "../state";
 
 export function makeFeatureScale(sources: WorkerSources): FeatureKey<AppState, 'scale'> {

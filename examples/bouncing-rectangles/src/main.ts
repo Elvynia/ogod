@@ -1,6 +1,6 @@
 import { canvas, div, h3, input, makeDOMDriver, span } from '@cycle/dom';
-import { gameRun } from '@ogod/game-run';
-import { makeDriverGameWorker, makeEngineAction, makeWorkerMessage } from '@ogod/game-worker-driver';
+import { run } from '@ogod/run';
+import { makeDriverGameWorker, makeEngineAction, makeWorkerMessage } from '@ogod/driver-worker';
 import { EMPTY, Subject, combineLatest, concat, debounceTime, delayWhen, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, interval, map, merge, of, startWith, switchMap, take, takeUntil, takeWhile, timer } from 'rxjs';
 import xs from 'xstream';
 import { Camera } from './app/camera/state';
@@ -136,7 +136,7 @@ function main(sources: AppSources) {
     };
 }
 
-(window as any).stopApp = gameRun(main, {
+(window as any).stopApp = run(main, {
     GameWorker: makeDriverGameWorker<AppReflectState>(new Worker(new URL('worker.ts', import.meta.url))),
     DOM: (promise) => {
         const dom = makeDOMDriver('#app');

@@ -1,6 +1,6 @@
 import { canvas, div, h, h3, makeDOMDriver } from '@cycle/dom';
-import { gameRun } from '@ogod/game-run';
-import { makeDriverGameWorker, makeEngineAction, makeWorkerMessage } from '@ogod/game-worker-driver';
+import { run } from '@ogod/run';
+import { makeDriverGameWorker, makeEngineAction, makeWorkerMessage } from '@ogod/driver-worker';
 import { Observable, Subject, combineLatest, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, map, merge, of, startWith, switchMap, throttleTime } from 'rxjs';
 import xs from 'xstream';
 import { makeControls$ } from './app/controls/make';
@@ -116,7 +116,7 @@ function main(sources: AppSources) {
     }
 }
 const worker = new Worker(new URL('worker.ts', import.meta.url));
-(window as any).stopApp = gameRun(main, {
+(window as any).stopApp = run(main, {
     GameWorker: makeDriverGameWorker<AppReflectState>(worker),
     DOM: (promise) => {
         const dom = makeDOMDriver('#app');

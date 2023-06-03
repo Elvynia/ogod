@@ -1,5 +1,5 @@
-import { FeatureKey } from "@ogod/game-engine-driver";
-import { makeWorkerMessage } from "@ogod/game-worker-driver";
+import { FeatureKey } from "@ogod/driver-engine";
+import { makeWorkerMessage } from "@ogod/driver-worker";
 import { distinctUntilChanged, filter, fromEvent, map, merge, startWith, tap } from "rxjs";
 import { AppState, WorkerSources } from '../state';
 import { Controls, KeyState } from "./state";

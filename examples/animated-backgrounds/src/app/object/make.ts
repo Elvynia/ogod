@@ -1,4 +1,4 @@
-import { FeatureKey, makeStateObject } from '@ogod/game-engine-driver';
+import { FeatureKey, makeStateObject } from '@ogod/driver-engine';
 import gsap, { Elastic, Expo, Linear } from 'gsap';
 import { Observable, concatWith, defer, first, from, map, takeUntil } from "rxjs";
 import { AppState, WorkerSources } from '../state';

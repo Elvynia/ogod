@@ -1,6 +1,6 @@
-import { makeDriverGameEngine, makeStateObject } from '@ogod/game-engine-driver';
-import { gameRun } from '@ogod/game-run';
-import { ActionSubjectDefault } from 'packages/game-engine-driver/src/lib/action/state';
+import { makeDriverGameEngine, makeStateObject } from '@ogod/driver-engine';
+import { run } from '@ogod/run';
+import { ActionSubjectDefault } from 'packages/driver-engine/src/lib/action/state';
 import { of, withLatestFrom } from 'rxjs';
 import { makeFeatureData } from './app/data/make';
 import { makeFeatureGenerator } from './app/generator/make';
@@ -34,7 +34,7 @@ function main(sources: WorkerSources): WorkerSinks {
     };
 }
 
-gameRun(main, {
+run(main, {
     GameEngine: makeDriverGameEngine({
         action$: new ActionSubjectDefault(new ActionHandlers()),
         workerContext: self

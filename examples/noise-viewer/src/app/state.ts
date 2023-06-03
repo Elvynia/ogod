@@ -1,6 +1,6 @@
-import { WorkerMessage } from '@ogod/game-core';
-import { GameEngineSink, GameEngineSource } from '@ogod/game-engine-driver';
-import { GameWorkerSource } from '@ogod/game-worker-driver';
+import { WorkerMessage } from '@ogod/core';
+import { GameEngineSink, GameEngineSource } from '@ogod/driver-engine';
+import { GameWorkerSource } from '@ogod/driver-worker';
 import { Subject } from 'rxjs';
 import { Camera } from './camera/state';
 import { GeneratorType } from './generator/state';

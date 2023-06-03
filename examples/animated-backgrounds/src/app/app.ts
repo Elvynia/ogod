@@ -1,5 +1,5 @@
-import { gameRun } from '@ogod/game-run';
-import { makeDriverGameWorker } from '@ogod/game-worker-driver';
+import { run } from '@ogod/run';
+import { makeDriverGameWorker } from '@ogod/driver-worker';
 import { from, fromEvent, map, merge, mergeMap } from 'rxjs';
 import { AppSources } from './state';
 import { makeGameElementDriver } from './util';
@@ -22,7 +22,7 @@ function main(sources: AppSources) {
 export const runApp = (host) => {
     console.log('START app');
     const worker = new Worker(new URL('../worker.ts', import.meta.url));
-    const disposeApp = gameRun(main, {
+    const disposeApp = run(main, {
         GameWorker: makeDriverGameWorker(worker),
         ElementHost: makeGameElementDriver(host)
     });

@@ -1,7 +1,6 @@
-import { makeDriverGameEngine, makeStateObject } from '@ogod/game-engine-driver';
-import { gameRun } from '@ogod/game-run';
-import { gsap } from 'gsap';
-import { ActionSubjectDefault } from 'packages/game-engine-driver/src/lib/action/state';
+import { makeDriverGameEngine, makeStateObject } from '@ogod/driver-engine';
+import { run } from '@ogod/run';
+import { ActionSubjectDefault } from 'packages/driver-engine/src/lib/action/state';
 import { first, map, of, switchMap } from 'rxjs';
 import { makeFeatureCamera } from './app/camera/make';
 import { makeFeatureObjects } from './app/object/make';
@@ -11,7 +10,6 @@ import { ActionHandlers, AppState, WorkerSinks, WorkerSources } from './app/stat
 declare var self: DedicatedWorkerGlobalScope;
 
 function main(sources: WorkerSources): WorkerSinks {
-    gsap.ticker.remove(gsap.updateRoot);
     return {
         GameEngine: {
             reflect$: sources.GameEngine.state$.pipe(
@@ -31,13 +29,13 @@ function main(sources: WorkerSources): WorkerSinks {
                 state: {} as AppState
             }),
             systems: {
-                pre$: of([({ elapsed }) => gsap.updateRoot(elapsed / 1000)])
+                // pre$: of([({ elapsed }) => gsap.updateRoot(elapsed / 1000)])
             }
         }
     };
 }
 
-gameRun(main, {
+run(main, {
     GameEngine: makeDriverGameEngine({
         action$: new ActionSubjectDefault(new ActionHandlers()),
         workerContext: self
