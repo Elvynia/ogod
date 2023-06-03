@@ -9,7 +9,6 @@ export interface Shape {
     density?: number;
     id: string;
     color: string;
-    type: 'rect' | 'circle';
     x: number;
     y: number;
     width: number;

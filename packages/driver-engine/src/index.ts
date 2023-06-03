@@ -9,4 +9,3 @@ export * from './lib/option/state';
 export * from './lib/state/make';
 export * from './lib/state/state';
 export * from './lib/update/make';
-export * from './lib/update/state';

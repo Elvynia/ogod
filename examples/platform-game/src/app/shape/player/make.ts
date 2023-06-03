@@ -24,7 +24,6 @@ export function makePlayer(world: GameBox2dSource): Player {
         ...PLAYER_INIT_POS,
         color: '#A1FFA1',
         id: PlayerId,
-        type: 'rect',
         width,
         height,
         bodyType: b2BodyType.b2_dynamicBody,

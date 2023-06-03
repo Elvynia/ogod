@@ -1,9 +1,9 @@
+import { UpdateState } from '@ogod/core';
 import { Subject } from 'rxjs';
 import { ActionSubject } from '../action/state';
 import { GameEngineSource } from '../driver/state';
 import { EngineSubject } from '../engine/state';
 import { StateSubject } from '../state/state';
-import { UpdateState } from '../update/state';
 
 export interface GameEngineOptions<
     U = UpdateState,

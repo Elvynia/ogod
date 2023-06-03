@@ -17,7 +17,6 @@ export function makeCreatePlatform(gameWorld: GameBox2dSource) {
         width,
         height,
         angle,
-        type: 'rect',
         bodyType: b2BodyType.b2_staticBody
     }, gameWorld);
 }

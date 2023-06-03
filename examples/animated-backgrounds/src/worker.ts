@@ -27,10 +27,7 @@ function main(sources: WorkerSources): WorkerSinks {
                     makeFeatureObjects(sources)
                 ),
                 state: {} as AppState
-            }),
-            systems: {
-                // pre$: of([({ elapsed }) => gsap.updateRoot(elapsed / 1000)])
-            }
+            })
         }
     };
 }

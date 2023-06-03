@@ -1,9 +1,9 @@
+import { UpdateState } from "@ogod/core";
 import { ReplaySubject } from "rxjs";
 import { makeActionEngineListener } from "../action/make";
 import { ActionSubjectDefault } from "../action/state";
 import { EngineSubjectDefault } from "../engine/state";
 import { StateSubjectDefault } from "../state/state";
-import { UpdateState } from "../update/state";
 import { GameEngineOptions } from "./state";
 
 export function makeGameEngineOptionsDefaults<

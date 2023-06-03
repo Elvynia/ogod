@@ -1,9 +1,8 @@
 import { makeGameBox2dDriver } from '@ogod/driver-box2d';
 import { makeDriverGameEngine, makeStateObject } from '@ogod/driver-engine';
 import { run } from '@ogod/run';
-import gsap from 'gsap';
 import { ActionSubjectDefault } from 'packages/driver-engine/src/lib/action/state';
-import { EMPTY, concat, distinctUntilChanged, filter, first, map, merge, of, switchMap } from "rxjs";
+import { EMPTY, distinctUntilChanged, filter, first, map, merge, of, switchMap } from "rxjs";
 import { makeFeatureBackground } from './app/background/make';
 import { makeFeatureCameraResize } from './app/camera/make';
 import { makeFeatureControls } from './app/controls/make';
@@ -24,7 +23,6 @@ const reflectState = ({ fps, loading, paused, map, phase, background }) =>
     ({ fps, loading, paused, gravity: map.gravity, level: map.level, phase, baseColor: background.baseColor });
 
 function main(sources: WorkerSources): WorkerSinks {
-    gsap.ticker.remove(gsap.updateRoot);
     const pausableUpdate$ = sources.GameEngine.state$.pipe(
         map((s) => s.paused),
         distinctUntilChanged(),
@@ -56,19 +54,16 @@ function main(sources: WorkerSources): WorkerSinks {
                 makeLevel(sources)
             ),
             systems: {
-                pre$: concat(
-                    of([({ elapsed }) => gsap.updateRoot(elapsed / 1000)]),
-                    sources.GameEngine.state$.pipe(
-                        filter((s) => !!s.shapes),
-                        first(),
-                        map((state) => [() => {
-                            for (let id in state.shapes) {
-                                const shape = state.shapes[id];
-                                shape.x = Math.round(shape.body.GetPosition().x * sources.World.scale);
-                                shape.y = Math.round(shape.body.GetPosition().y * sources.World.scale);
-                            }
-                        }])
-                    )
+                pre$: sources.GameEngine.state$.pipe(
+                    filter((s) => !!s.shapes),
+                    first(),
+                    map((state) => [() => {
+                        for (let id in state.shapes) {
+                            const shape = state.shapes[id];
+                            shape.x = Math.round(shape.body.GetPosition().x * sources.World.scale);
+                            shape.y = Math.round(shape.body.GetPosition().y * sources.World.scale);
+                        }
+                    }])
                 )
             }
         },

@@ -1,9 +1,8 @@
-import { Driver } from "@ogod/core";
+import { Driver, UpdateState } from "@ogod/core";
 import { Observable, Subject } from "rxjs";
 import { ActionSubject, ActionSubjectChanges } from "../action/state";
 import { EngineFn, EngineSubject } from "../engine/state";
 import { StateSubject } from "../state/state";
-import { UpdateState } from "../update/state";
 
 export interface GameEngineSource<
     S extends object = any,

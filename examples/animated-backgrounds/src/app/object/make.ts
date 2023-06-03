@@ -1,9 +1,27 @@
+import { tweenObject } from '@ogod/core';
 import { FeatureKey, makeStateObject } from '@ogod/driver-engine';
-import gsap, { Elastic, Expo, Linear } from 'gsap';
-import { Observable, concatWith, defer, first, from, map, takeUntil } from "rxjs";
+import { EMPTY, concatWith, defer, first, map, takeUntil } from "rxjs";
 import { AppState, WorkerSources } from '../state';
 import { randNum, randShape, randSize, randomColor } from '../util';
 import { CanvasObject, ObjectState } from "./state";
+
+function easeOutExpo(x: number): number {
+    return x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
+}
+function easeInOutElastic(x: number): number {
+    const c5 = (2 * Math.PI) / 4.5;
+
+    return x === 0
+        ? 0
+        : x === 1
+            ? 1
+            : x < 0.5
+                ? -(Math.pow(2, 20 * x - 10) * Math.sin((20 * x - 11.125) * c5)) / 2
+                : (Math.pow(2, -20 * x + 10) * Math.sin((20 * x - 11.125) * c5)) / 2 + 1;
+}
+function easeInOutSine(x: number): number {
+    return -(Math.cos(Math.PI * x) - 1) / 2;
+}
 
 function randBall(x: number, y: number): CanvasObject {
     return {
@@ -17,46 +35,49 @@ function randBall(x: number, y: number): CanvasObject {
     }
 }
 
-const resetDuration = 400;
-export function makeRandomBall$(reset$: Observable<void>) {
+export function makeRandomBall$(sources: WorkerSources) {
     return (x: number, y: number): FeatureKey<ObjectState, string> => {
         const duration = 2000;
         const obj = randBall(x + (150 - Math.random() * 300), y + (150 - Math.random() * 300));
-        let tween = gsap.to(obj, {
-            x,
-            y,
-            ease: Elastic.easeInOut,
-            duration: duration / 1000
-        });
-        let tween2 = gsap.to(obj, {
-            s: 1,
-            v: 1,
-            ease: Linear.easeInOut,
-            duration: duration / 1000
-        });
-        const updateBall$ = from(tween.then()).pipe(
-            takeUntil(reset$),
-            concatWith(defer(() => {
-                if (obj.v == 1) {
-                    return from(tween2.then());
-                }
-                tween2.kill();
-                tween.vars = {
-                    v: 0,
-                    s: 500,
-                    ease: Expo.easeIn,
-                    duration: resetDuration
-                };
-                tween.invalidate();
-                return from(tween.then());
-            })),
-            map(() => obj),
-        );
         return {
             key: obj.id,
             publishOnComplete: true,
             publishOnCreate: true,
-            value$: updateBall$,
+            value$: tweenObject({
+                source: obj,
+                easeFn: easeInOutElastic,
+                duration,
+                target: {
+                    x: { value: x },
+                    y: { value: y },
+                    s: {
+                        value: 1,
+                        easeFn: easeInOutSine
+                    },
+                    v: {
+                        value: 1,
+                        easeFn: easeInOutSine
+                    }
+                },
+                update$: sources.GameEngine.engine$
+            }).pipe(
+                takeUntil(sources.GameEngine.action$.getHandler('reset')),
+                concatWith(defer(() => {
+                    if (obj.v == 1) {
+                        return EMPTY;
+                    }
+                    return tweenObject({
+                        source: obj,
+                        easeFn: easeOutExpo,
+                        duration: 400,
+                        target: {
+                            v: { value: 0.1 },
+                            s: { value: 500 }
+                        },
+                        update$: sources.GameEngine.engine$
+                    });
+                }))
+            ),
             value: obj
         };
     }
@@ -64,7 +85,7 @@ export function makeRandomBall$(reset$: Observable<void>) {
 
 
 export function makeFeatureObjects(sources: WorkerSources): FeatureKey<AppState, 'objects'> {
-    const randomBall$ = makeRandomBall$(sources.GameEngine.action$.getHandler('reset'));
+    const randomBall$ = makeRandomBall$(sources);
     return {
         key: 'objects',
         publishOnNext: true,

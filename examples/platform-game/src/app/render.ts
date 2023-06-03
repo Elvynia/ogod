@@ -1,10 +1,10 @@
+import { UpdateState } from '@ogod/core';
 import { EngineFn } from '@ogod/driver-engine';
-import { UpdateState } from 'packages/driver-engine/src/lib/update/state';
 import { Observable, distinctUntilChanged, first, map, switchMap } from 'rxjs';
 import { Camera } from './camera/state';
 import { PHASE } from './phase/state';
 import { Shape } from "./shape/state";
-import { Sleet } from './splash/sleet/state';
+import { Circle } from './splash/state';
 import { AppState, WorkerSources } from './state';
 
 const PI2 = 2 * Math.PI;
@@ -21,30 +21,17 @@ export function makeDrawRect(ctx: CanvasRenderingContext2D) {
 }
 
 export function makeDrawCircle(ctx: CanvasRenderingContext2D) {
-    return (obj: Shape) => {
+    return (obj: Circle) => {
         ctx.fillStyle = obj.color;
         ctx.beginPath();
-        ctx.arc(obj.x, ctx.canvas.height - obj.y, obj.width / 2, 0, PI2, false);
+        ctx.arc(obj.x, ctx.canvas.height - obj.y, obj.radius / 2, 0, PI2, false);
         ctx.fill();
-    }
-}
-
-export function makeDrawSleet(ctx: CanvasRenderingContext2D) {
-    return (sleet: Sleet) => {
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.beginPath();
-        ctx.lineWidth = sleet.width;
-        ctx.strokeStyle = sleet.color;
-        ctx.arc(sleet.x, sleet.y, sleet.radius, sleet.angleStart, sleet.angleStop);
-        ctx.stroke();
     }
 }
 
 export const makeDrawHandlers = (ctx) => ({
     circle: makeDrawCircle(ctx),
-    rect: makeDrawRect(ctx),
-    splash: makeDrawSleet(ctx)
+    rect: makeDrawRect(ctx)
 });
 
 export function makeRenderer(state: AppState, ctx: OffscreenCanvasRenderingContext2D) {
@@ -52,7 +39,7 @@ export function makeRenderer(state: AppState, ctx: OffscreenCanvasRenderingConte
     return {
         splash: () => {
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-            Object.values(state.splash).forEach((obj) => drawHandlers.splash(obj));
+            Object.values(state.splash).forEach((obj) => drawHandlers.circle(obj));
         },
         start: () => {
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -65,8 +52,8 @@ export function makeRenderer(state: AppState, ctx: OffscreenCanvasRenderingConte
             const grad = state.background.gradient;
             ctx.fillStyle = grad.color;
             ctx.fillRect(grad.x, grad.y, grad.width, grad.height);
-            Object.values(state.map.platforms).forEach((obj) => drawHandlers[obj.type](obj, state.camera));
-            Object.values(state.shapes).forEach((obj) => drawHandlers[obj.type](obj, state.camera));
+            Object.values(state.map.platforms).forEach((obj) => drawHandlers.rect(obj, state.camera));
+            Object.values(state.shapes).forEach((obj) => drawHandlers.rect(obj, state.camera));
         }
     };
 }

@@ -1,5 +1,5 @@
+import { UpdateState, isUpdateState } from "@ogod/core";
 import { Observable, animationFrames, map, pairwise } from "rxjs";
-import { UpdateState, isUpdateState } from "./state";
 
 export function makeUpdate$(): Observable<UpdateState>;
 export function makeUpdate$(update: UpdateState): Observable<UpdateState>;
