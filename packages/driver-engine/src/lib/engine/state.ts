@@ -1,6 +1,6 @@
-import { Observable, Subject } from "rxjs";
+import { UpdateState } from "@ogod/core";
+import { Observable, Subject, Subscription } from "rxjs";
 import { makeUpdate$ } from "../update/make";
-import { UpdateState } from "../update/state";
 
 export type EngineFn<U = UpdateState> = (update: U) => void;
 
@@ -19,6 +19,7 @@ export class EngineSubjectDefault<U = UpdateState> extends Subject<U> implements
     readonly reflect$: Subject<U>;
     renders: EngineFn<U>[];
     systems: PrePostSystems<U>;
+    subscription: Subscription;
 
     constructor(update$: Observable<U> = makeUpdate$() as Observable<U>) {
         super();
@@ -28,7 +29,7 @@ export class EngineSubjectDefault<U = UpdateState> extends Subject<U> implements
             pre: [],
             post: []
         };
-        update$.subscribe(this);
+        this.subscription = update$.subscribe(this);
     }
 
     override next(value: U): void {
@@ -47,6 +48,11 @@ export class EngineSubjectDefault<U = UpdateState> extends Subject<U> implements
         } catch (e) {
             this.error(e);
         }
+    }
+
+    override complete(): void {
+        this.subscription.unsubscribe();
+        super.complete();
     }
 
 }

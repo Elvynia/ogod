@@ -42,7 +42,11 @@ export function makeDriverGameEngine<S extends object, A, R, U, C>
         };
         options.engine$.subscribe({
             error: (e) => {
-                dispose();
+                if (options.workerContext) {
+                    options.workerContext.close();
+                } else {
+                    dispose();
+                }
                 console.error('[GameEngine] An error occured in animationFrame loop and stopped the engine:\n', e);
             }
         });
