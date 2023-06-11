@@ -24,13 +24,13 @@ export function makeFeatureData(sources: WorkerSources): FeatureKey<AppState, 'd
     return {
         key: 'data',
         publishOnNext: true,
-        value$: sources.GameEngine.renderTarget$.pipe(
+        value$: sources.Engine.target$.pipe(
             switchMap((canvas) => {
                 const makeNoiseView = makeNoiseViewCreator(canvas.getContext('2d'));
-                return sources.GameEngine.state$.pipe(
+                return sources.Engine.state$.pipe(
                     filter((s) => s.scale && s.offset && !!s.generator),
                     // first(),
-                    switchMap((state) => sources.GameEngine.engine$.pipe(
+                    switchMap((state) => sources.Engine.engine$.pipe(
                         throttleTime(throttle),
                         map(() => makeNoiseView(state.generator(), state.scale, state.offset()))
                     ))

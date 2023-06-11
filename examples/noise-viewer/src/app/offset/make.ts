@@ -6,7 +6,7 @@ export function makeFeatureOffset(sources: WorkerSources): FeatureKey<AppState, 
     return {
         key: 'offset',
         publishOnNext: true,
-        value$: sources.GameEngine.action$.getHandler('offset').pipe(
+        value$: sources.Engine.action$.getHandler('offset').pipe(
             map((offset) => {
                 let incr = 0;
                 return offset !== 0 ? () => incr += offset : () => 0;

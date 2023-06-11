@@ -1,4 +1,4 @@
-import { makeDriverGameEngine, makeStateObject } from '@ogod/driver-engine';
+import { makeDriverEngine, makeStateObject } from '@ogod/driver-engine';
 import { run } from '@ogod/run';
 import { ActionSubjectDefault } from 'packages/driver-engine/src/lib/action/state';
 import { of, withLatestFrom } from 'rxjs';
@@ -12,14 +12,14 @@ import { ActionHandlers, AppState, WorkerSinks, WorkerSources } from './app/stat
 declare var self: DedicatedWorkerGlobalScope;
 
 function main(sources: WorkerSources): WorkerSinks {
-    sources.GameEngine.action$.getHandler('camera').pipe(
-        withLatestFrom(sources.GameEngine.renderTarget$)
+    sources.Engine.action$.getHandler('camera').pipe(
+        withLatestFrom(sources.Engine.target$)
     ).subscribe(([camera, canvas]) => {
         canvas.width = camera.width;
         canvas.height = camera.height;
     });
     return {
-        GameEngine: {
+        Engine: {
             render$: makeRenderer$(sources),
             state$: makeStateObject({
                 key$: of(
@@ -35,7 +35,7 @@ function main(sources: WorkerSources): WorkerSinks {
 }
 
 run(main, {
-    GameEngine: makeDriverGameEngine({
+    Engine: makeDriverEngine({
         action$: new ActionSubjectDefault(new ActionHandlers()),
         workerContext: self
     })

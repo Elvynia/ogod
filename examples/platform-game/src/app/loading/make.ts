@@ -7,7 +7,7 @@ export function makeFeatureLoading(sources: WorkerSources): FeatureKey<AppState,
         key: 'loading',
         publishOnNext: true,
         value$: makeStateObject({
-            key$: sources.GameEngine.action$.getHandler('loading'),
+            key$: sources.Engine.action$.getHandler('loading'),
             state: {} as LoadingState
         })
     }

@@ -1,6 +1,6 @@
 import { Observable, map } from "rxjs";
-import { UpdateState } from "../update.state";
-import { EaseFn, animate } from "./animate";
+import { UpdateState } from "../update";
+import { EaseFn, animate } from "../operator/animate";
 
 export const fromTo = (d: number, source: number, target: number) => source + (target - source) * d;
 

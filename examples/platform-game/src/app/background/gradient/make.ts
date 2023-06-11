@@ -43,18 +43,18 @@ function updateBackground(state: AppState, ctx: OffscreenCanvasRenderingContext2
 export function makeFeatureBackgroundGradient(sources: WorkerSources): FeatureKey<Background, 'gradient'> {
     return {
         key: 'gradient',
-        value$: sources.GameEngine.state$.pipe(
+        value$: sources.Engine.state$.pipe(
             filter((s) => s.background?.colors && s.phase > PHASE.SPLASH),
             first(),
-            switchMap(() => sources.GameEngine.state$.pipe(
-                distinctState((state) => state.background.baseColor),
-                withLatestFrom(sources.GameEngine.renderTarget$),
+            switchMap(() => sources.Engine.state$.pipe(
+                distinctState((state) => state.background.baseColor + state.camera.width),
+                withLatestFrom(sources.Engine.target$),
                 switchMap(([state, canvas]) => {
                     const ctx = canvas.getContext('2d');
                     const colorWidth = Math.round(state.map.width * state.map.scale / state.background.colors.length);
                     return concat(
                         of(updateBackground(state, ctx, colorWidth)),
-                        sources.GameEngine.engine$.pipe(
+                        sources.Engine.engine$.pipe(
                             filter(() => state.camera.x !== state.background.lastPos),
                             map(() => updateBackground(state, ctx, colorWidth))
                         )

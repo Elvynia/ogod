@@ -1,5 +1,5 @@
-import { makeGameBox2dDriver } from '@ogod/driver-box2d';
-import { makeDriverGameEngine, makeStateObject } from '@ogod/driver-engine';
+import { makeDriverBox2d } from '@ogod/driver-box2d';
+import { makeActionEngineListener, makeDriverEngine, makeStateObject } from '@ogod/driver-engine';
 import { run } from '@ogod/run';
 import { ActionSubjectDefault } from 'packages/driver-engine/src/lib/action/state';
 import { EMPTY, distinctUntilChanged, filter, first, map, merge, of, switchMap } from "rxjs";
@@ -23,16 +23,16 @@ const reflectState = ({ fps, loading, paused, map, phase, background }) =>
     ({ fps, loading, paused, gravity: map.gravity, level: map.level, phase, baseColor: background.baseColor });
 
 function main(sources: WorkerSources): WorkerSinks {
-    const pausableUpdate$ = sources.GameEngine.state$.pipe(
+    const pausableUpdate$ = sources.Engine.state$.pipe(
         map((s) => s.paused),
         distinctUntilChanged(),
-        switchMap((paused) => paused ? EMPTY : sources.GameEngine.engine$)
+        switchMap((paused) => paused ? EMPTY : sources.Engine.engine$)
     );
     return {
-        GameEngine: {
-            reflect$: sources.GameEngine.state$.pipe(
+        Engine: {
+            reflect$: sources.Engine.state$.pipe(
                 first(),
-                switchMap((state) => sources.GameEngine.engine$.reflect$.pipe(
+                switchMap((state) => sources.Engine.engine$.reflect$.pipe(
                     map(() => reflectState(state))
                 ))
             ),
@@ -54,7 +54,7 @@ function main(sources: WorkerSources): WorkerSinks {
                 makeLevel(sources)
             ),
             systems: {
-                pre$: sources.GameEngine.state$.pipe(
+                pre$: sources.Engine.state$.pipe(
                     filter((s) => !!s.shapes),
                     first(),
                     map((state) => [() => {
@@ -68,12 +68,12 @@ function main(sources: WorkerSources): WorkerSinks {
             }
         },
         World: {
-            update$: sources.GameEngine.state$.pipe(
+            update$: sources.Engine.state$.pipe(
                 map((s) => s.phase),
                 distinctUntilChanged(),
                 switchMap((phase) => phase === PHASE.PLAY ? pausableUpdate$.pipe(map(({ delta }) => delta)) : EMPTY)
             ),
-            gravity$: sources.GameEngine.state$.pipe(
+            gravity$: sources.Engine.state$.pipe(
                 map((s) => s.map.gravity),
                 distinctUntilChanged(),
                 map((g) => ({ x: 0, y: g }))
@@ -83,9 +83,10 @@ function main(sources: WorkerSources): WorkerSinks {
 }
 
 run(main, {
-    GameEngine: makeDriverGameEngine({
+    Engine: makeDriverEngine({
         action$: new ActionSubjectDefault(new ActionHandlers()),
+        listeners: [makeActionEngineListener('camera')],
         workerContext: self
     }),
-    World: makeGameBox2dDriver({ x: 0, y: -10 }, WORLD_SCALE)
+    World: makeDriverBox2d({ x: 0, y: -10 }, WORLD_SCALE)
 }, self);

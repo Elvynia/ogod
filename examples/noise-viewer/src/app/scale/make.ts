@@ -5,6 +5,6 @@ export function makeFeatureScale(sources: WorkerSources): FeatureKey<AppState, '
     return {
         key: 'scale',
         publishOnNext: true,
-        value$: sources.GameEngine.action$.getHandler('scale')
+        value$: sources.Engine.action$.getHandler('scale')
     };
 }

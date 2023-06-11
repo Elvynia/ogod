@@ -59,9 +59,9 @@ export function makeRandomBall$(sources: WorkerSources) {
                         easeFn: easeInOutSine
                     }
                 },
-                update$: sources.GameEngine.engine$
+                update$: sources.Engine.engine$
             }).pipe(
-                takeUntil(sources.GameEngine.action$.getHandler('reset')),
+                takeUntil(sources.Engine.action$.getHandler('reset')),
                 concatWith(defer(() => {
                     if (obj.v == 1) {
                         return EMPTY;
@@ -74,7 +74,7 @@ export function makeRandomBall$(sources: WorkerSources) {
                             v: { value: 0.1 },
                             s: { value: 500 }
                         },
-                        update$: sources.GameEngine.engine$
+                        update$: sources.Engine.engine$
                     });
                 }))
             ),
@@ -88,12 +88,13 @@ export function makeFeatureObjects(sources: WorkerSources): FeatureKey<AppState,
     const randomBall$ = makeRandomBall$(sources);
     return {
         key: 'objects',
+        publishOnCreate: true,
         publishOnNext: true,
         value$: makeStateObject({
-            key$: sources.GameEngine.action$.getHandler('objects').pipe(
+            key$: sources.Engine.action$.getHandler('objects').pipe(
                 map(({ x, y }) => randomBall$(x, y))
             ),
-            state: sources.GameEngine.state$.pipe(
+            state: sources.Engine.state$.pipe(
                 map((s) => s.objects),
                 first()
             )

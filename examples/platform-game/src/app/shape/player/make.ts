@@ -1,5 +1,5 @@
 import { XY, b2BodyType, b2PolygonShape } from "@box2d/core";
-import { GameBox2dSource } from '@ogod/driver-box2d';
+import { Box2dSource } from '@ogod/driver-box2d';
 import { FeatureKey, makeStateObject } from "@ogod/driver-engine";
 import { filter, first, map, merge, of, switchMap, takeUntil, tap, timer } from "rxjs";
 import { AppState, WorkerSources } from "../../state";
@@ -17,7 +17,7 @@ export const PLAYER_INIT_POS: XY = {
     y: PLAYER_INIT_POS_BODY.y * WORLD_SCALE
 };
 
-export function makePlayer(world: GameBox2dSource): Player {
+export function makePlayer(world: Box2dSource): Player {
     const width = 16;
     const height = 30;
     const player = makeShape<Player>({
@@ -45,7 +45,7 @@ export function makePlayer(world: GameBox2dSource): Player {
 function makeFeaturePlayerColor(sources: WorkerSources): FeatureKey<Player, 'color'> {
     return {
         key: 'color',
-        value$: sources.GameEngine.state$.getState('player.grounded').pipe(
+        value$: sources.Engine.state$.getState('player.grounded').pipe(
             map((grounded) => grounded > 0 ? '#22D122' : '#A1FFA1')
         )
     }
@@ -54,7 +54,7 @@ function makeFeaturePlayerColor(sources: WorkerSources): FeatureKey<Player, 'col
 function makeFeaturePlayerGrounded(sources: WorkerSources, player: Player): FeatureKey<Player, 'grounded'> {
     return {
         key: 'grounded',
-        value$: sources.GameEngine.state$.registerState('player.grounded', sources.World.contact$.pipe(
+        value$: sources.Engine.state$.registerState('player.grounded', sources.World.contact$.pipe(
             filter((c) => [c.dataA, c.dataB].includes(PlayerId) && [c.sensorA, c.sensorB].includes(PlayerFeet)),
             map(({ touching }) => player.grounded + touching)
         ))
@@ -63,7 +63,7 @@ function makeFeaturePlayerGrounded(sources: WorkerSources, player: Player): Feat
 
 function makeGamePlayerMovement(sources: WorkerSources, state: AppState) {
     const player = state.shapes.player;
-    return sources.GameEngine.engine$.pipe(
+    return sources.Engine.engine$.pipe(
         filter(() => state.controls.left || state.controls.right || Math.abs(player.body.GetLinearVelocity().x) > 0)
     ).subscribe(({ delta }) => {
         const velocity = player.body.GetLinearVelocity();
@@ -79,13 +79,13 @@ function makeGamePlayerMovement(sources: WorkerSources, state: AppState) {
 }
 
 function makeGamePlayerJump(sources: WorkerSources, player: Player) {
-    return sources.GameEngine.state$.pipe(
+    return sources.Engine.state$.pipe(
         filter((state: any) => !player.jumping && state.controls.jump && player.grounded > 0),
         switchMap(() => {
             player.jumping = true;
-            return sources.GameEngine.engine$.pipe(
+            return sources.Engine.engine$.pipe(
                 takeUntil(merge(
-                    sources.GameEngine.state$.pipe(
+                    sources.Engine.state$.pipe(
                         map((state: any) => state.controls.jump),
                         filter((jump) => !jump),
                         first()
@@ -105,7 +105,7 @@ function makeGamePlayerJump(sources: WorkerSources, player: Player) {
 }
 
 export function makeFeaturePlayer(sources: WorkerSources) {
-    return sources.GameEngine.state$.pipe(
+    return sources.Engine.state$.pipe(
         first(),
         map((state) => {
             const subMove = makeGamePlayerMovement(sources, state);

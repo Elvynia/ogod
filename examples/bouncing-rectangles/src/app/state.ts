@@ -1,8 +1,8 @@
 import { XY } from '@box2d/core';
 import { MainDOMSource } from '@cycle/dom';
-import { Contact, GameBox2dSink, GameBox2dSource } from '@ogod/driver-box2d';
-import { GameEngineSink, GameEngineSource } from '@ogod/driver-engine';
-import { GameWorkerSource } from '@ogod/driver-worker';
+import { Contact, Box2dSink, Box2dSource } from '@ogod/driver-box2d';
+import { EngineSink, EngineSource } from '@ogod/driver-engine';
+import { WorkerSource } from '@ogod/driver-worker';
 import { BehaviorSubject, ReplaySubject } from 'rxjs';
 import { Camera } from './camera/state';
 import { ObjectState } from './object/state';
@@ -34,16 +34,16 @@ export class ActionHandlers {
 export type HealthContact = Contact<BehaviorSubject<number>>;
 
 export interface AppSources {
-    GameWorker: GameWorkerSource<AppReflectState>;
+    Worker: WorkerSource<AppReflectState>;
     DOM: MainDOMSource;
 }
 
 export interface WorkerSources {
-    GameEngine: GameEngineSource<AppState, ActionHandlers, number>;
-    World: GameBox2dSource<HealthContact>;
+    Engine: EngineSource<AppState, ActionHandlers, number>;
+    World: Box2dSource<HealthContact>;
 }
 
 export interface WorkerSinks {
-    GameEngine: GameEngineSink<AppState, AppReflectState, number>;
-    World: GameBox2dSink
+    Engine: EngineSink<AppState, AppReflectState, number>;
+    World: Box2dSink
 }

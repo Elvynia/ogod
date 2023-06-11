@@ -15,13 +15,13 @@ function makeLevelLoad(sources: WorkerSources) {
             makeFeatureShapesLoad(sources),
             makeFeatureMapLoad(sources)
         ),
-        state: sources.GameEngine.state$.pipe(
+        state: sources.Engine.state$.pipe(
             filter((s) => s.phase == PHASE.LOAD),
             first()
         )
     }).pipe(
         tap({
-            complete: () => sources.GameEngine.action$.getHandler('phase').next(PHASE.PLAY)
+            complete: () => sources.Engine.action$.getHandler('phase').next(PHASE.PLAY)
         })
     );
 }
@@ -33,22 +33,22 @@ function makeLevelPlay(sources: WorkerSources) {
             makeFeatureCameraUpdate(sources),
             makeFeaturePaused(sources)
         ),
-        state: sources.GameEngine.state$.pipe(
+        state: sources.Engine.state$.pipe(
             first()
         )
     }).pipe(
-        takeUntil(sources.GameEngine.state$.pipe(
+        takeUntil(sources.Engine.state$.pipe(
             first(),
             switchMap((state) => race(
-                sources.GameEngine.engine$.pipe(
+                sources.Engine.engine$.pipe(
                     filter(() => state.shapes.player.grounded && state.shapes.player.x > state.map.width * state.map.scale - 25),
                     first(),
-                    tap(() => sources.GameEngine.action$.getHandler('phase').next(PHASE.END))
+                    tap(() => sources.Engine.action$.getHandler('phase').next(PHASE.END))
                 ),
-                sources.GameEngine.engine$.pipe(
+                sources.Engine.engine$.pipe(
                     filter(() => state.shapes.player.body.GetPosition().y < -1),
                     first(),
-                    tap(() => sources.GameEngine.action$.getHandler('phase').next(PHASE.GAMEOVER))
+                    tap(() => sources.Engine.action$.getHandler('phase').next(PHASE.GAMEOVER))
                 )
             ))
         ))
@@ -57,14 +57,14 @@ function makeLevelPlay(sources: WorkerSources) {
 
 const VELOCITY_DEFAULT = { x: 0, y: 0 };
 function makeLevelRestartOrNext(sources: WorkerSources, levelHolder: { makeLevel: () => Observable<AppState> }): Observable<AppState> {
-    return sources.GameEngine.state$.pipe(
+    return sources.Engine.state$.pipe(
         first(),
         switchMap((state) => {
             if (state.phase == PHASE.GAMEOVER) {
                 state.shapes.player.body.SetTransformVec(PLAYER_INIT_POS_BODY, 0);
                 state.shapes.player.body.SetLinearVelocity(VELOCITY_DEFAULT);
                 Object.assign(state.shapes.player, PLAYER_INIT_POS);
-                sources.GameEngine.action$.getHandler('phase').next(PHASE.PLAY);
+                sources.Engine.action$.getHandler('phase').next(PHASE.PLAY);
                 return concat(
                     makeLevelPlay(sources),
                     makeLevelRestartOrNext(sources, levelHolder)
@@ -75,7 +75,7 @@ function makeLevelRestartOrNext(sources: WorkerSources, levelHolder: { makeLevel
                 state.map.platforms = {};
                 state.map.width += 5;
                 ++state.map.level;
-                sources.GameEngine.action$.getHandler('phase').next(PHASE.START);
+                sources.Engine.action$.getHandler('phase').next(PHASE.START);
                 return levelHolder.makeLevel();
             }
         })

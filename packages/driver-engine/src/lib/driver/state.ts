@@ -4,7 +4,7 @@ import { ActionSubject, ActionSubjectChanges } from "../action/state";
 import { EngineFn, EngineSubject } from "../engine/state";
 import { StateSubject } from "../state/state";
 
-export interface GameEngineSource<
+export interface EngineSource<
     S extends object = any,
     A = any,
     U = UpdateState,
@@ -13,12 +13,12 @@ export interface GameEngineSource<
     action$: ActionSubject<A>;
     dispose: Function;
     engine$: EngineSubject<U>;
-    renderTarget$: Subject<C>;
+    target$: Subject<C>;
     state$: StateSubject<S>;
     workerContext?: DedicatedWorkerGlobalScope;
 }
 
-export interface GameEngineSink<
+export interface EngineSink<
     S extends object = any,
     R = any,
     U = UpdateState
@@ -33,10 +33,10 @@ export interface GameEngineSink<
     };
 }
 
-export type GameEngineDriver<
+export type DriverEngine<
     S extends object = any,
     A = any,
     R = any,
     U = UpdateState,
     C = OffscreenCanvas
-> = Driver<GameEngineSink<S, R, U>, GameEngineSource<S, A, U, C>>;
+> = Driver<EngineSink<S, R, U>, EngineSource<S, A, U, C>>;

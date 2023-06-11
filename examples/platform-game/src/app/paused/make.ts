@@ -7,8 +7,8 @@ export function makeFeaturePaused(sources: WorkerSources): FeatureKey<AppState, 
         key: 'paused',
         publishOnCreate: true,
         publishOnNext: true,
-        value$: sources.GameEngine.action$.getHandler('paused').pipe(
-            withLatestFrom(sources.GameEngine.state$.pipe(
+        value$: sources.Engine.action$.getHandler('paused').pipe(
+            withLatestFrom(sources.Engine.state$.pipe(
                 map((s) => s.paused)
             )),
             map(([_, paused]) => !paused)

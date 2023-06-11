@@ -9,8 +9,8 @@ export function makeFeaturePhase(sources: WorkerSources): FeatureKey<AppState, '
         publishOnCreate: true,
         publishOnNext: true,
         value$: merge(
-            sources.GameEngine.action$.getHandler('phase'),
-            sources.GameEngine.state$.pipe(
+            sources.Engine.action$.getHandler('phase'),
+            sources.Engine.state$.pipe(
                 filter((s) => !!s.camera?.width),
                 first(),
                 map(() => PHASE.SPLASH)

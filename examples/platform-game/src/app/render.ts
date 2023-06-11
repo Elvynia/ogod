@@ -59,13 +59,13 @@ export function makeRenderer(state: AppState, ctx: OffscreenCanvasRenderingConte
 }
 
 export function makeRenderer$(sources: WorkerSources): Observable<EngineFn<UpdateState>[]> {
-    return sources.GameEngine.state$.pipe(
+    return sources.Engine.state$.pipe(
         first(),
-        switchMap((state) => sources.GameEngine.renderTarget$.pipe(
+        switchMap((state) => sources.Engine.target$.pipe(
             switchMap((canvas) => {
                 const ctx = canvas.getContext('2d');
                 const renderers = makeRenderer(state, ctx);
-                return sources.GameEngine.state$.pipe(
+                return sources.Engine.state$.pipe(
                     map((s) => s.phase),
                     distinctUntilChanged(),
                     map((phase) => {

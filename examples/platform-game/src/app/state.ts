@@ -1,7 +1,7 @@
 import { MainDOMSource } from '@cycle/dom';
-import { Contact, GameBox2dSink, GameBox2dSource } from '@ogod/driver-box2d';
-import { FeatureKey, GameEngineSink, GameEngineSource } from '@ogod/driver-engine';
-import { GameWorkerSource } from '@ogod/driver-worker';
+import { Contact, Box2dSink, Box2dSource } from '@ogod/driver-box2d';
+import { FeatureKey, EngineSink, EngineSource } from '@ogod/driver-engine';
+import { WorkerSource } from '@ogod/driver-worker';
 import { Background } from './background/state';
 import { Camera } from './camera/state';
 import { Controls } from './controls/state';
@@ -16,7 +16,7 @@ export type AppReflectState = Pick<AppState, 'phase' | 'loading' | 'fps' | 'paus
     & Pick<Background, 'baseColor'>;
 
 export interface AppSources {
-    GameWorker: GameWorkerSource<AppReflectState>;
+    Worker: WorkerSource<AppReflectState>;
     DOM: MainDOMSource;
 }
 
@@ -46,11 +46,11 @@ export class ActionHandlers {
 }
 
 export interface WorkerSources {
-    GameEngine: GameEngineSource<AppState, ActionHandlers>;
-    World: GameBox2dSource<Contact<string, string>>;
+    Engine: EngineSource<AppState, ActionHandlers>;
+    World: Box2dSource<Contact<string, string>>;
 }
 
 export interface WorkerSinks {
-    GameEngine: GameEngineSink<AppState, AppReflectState>;
-    World: GameBox2dSink;
+    Engine: EngineSink<AppState, AppReflectState>;
+    World: Box2dSink;
 }

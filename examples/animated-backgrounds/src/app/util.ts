@@ -1,6 +1,4 @@
-import { from, Observable, switchMap } from "rxjs";
 import { Shape, SHAPES } from "./renderer/draw";
-import { AppReflectState } from "./state";
 
 export function randNum(length: number = 4): number {
     return Math.floor(Math.random() * Math.pow(10, length));
@@ -21,14 +19,4 @@ export function randShape(): Shape {
 
 export function randSize(max: number) {
     return Math.max(max, Math.round(Math.random() * max));
-}
-
-export function makeGameElementDriver(host: any) {
-    return (sink$: Promise<Observable<AppReflectState>>) => {
-        host.app.input$ = from(sink$).pipe(
-            switchMap((input$) => input$)
-        );
-        // TODO: dispose ?
-        return host.app.output$;
-    }
 }

@@ -1,20 +1,32 @@
-import { ActionHandlerDefault, EngineAction, isEngineActionCanvas, isEngineActionClose } from '@ogod/core';
-import { Subject, filter } from 'rxjs';
-import { GameEngineSource } from '../driver/state';
+import { ActionEngine, ActionHandlerDefault, isActionEngineClose, isActionEngineResize, isActionEngineTarget } from '@ogod/core';
+import { Subject, filter, withLatestFrom } from 'rxjs';
+import { EngineSource } from '../driver/state';
 
 export function makeActionEngineHandler(): ActionHandlerDefault {
     return {
-        engine: new Subject<EngineAction>()
+        engine: new Subject<ActionEngine>()
     }
 }
 
-export function makeActionEngineListener(engine: GameEngineSource<any, ActionHandlerDefault>): void {
-    engine.action$.getHandler('engine').pipe(
-        filter(isEngineActionCanvas)
-    ).subscribe(({ payload }) => engine.renderTarget$.next(payload));
-    if (engine.workerContext) {
+export function makeActionEngineListener(resizeStateKey?: string) {
+    return (engine: EngineSource<any, ActionHandlerDefault>) => {
         engine.action$.getHandler('engine').pipe(
-            filter(isEngineActionClose)
-        ).subscribe(() => engine.workerContext!.close());
+            filter(isActionEngineTarget)
+        ).subscribe(({ payload }) => engine.target$.next(payload));
+        engine.action$.getHandler('engine').pipe(
+            filter(isActionEngineResize),
+            withLatestFrom(engine.target$)
+        ).subscribe(([{ payload }, canvas]) => {
+            canvas.width = payload.width;
+            canvas.height = payload.height;
+            if (resizeStateKey) {
+                engine.action$.getHandler(resizeStateKey as any).next(payload);
+            }
+        });
+        if (engine.workerContext) {
+            engine.action$.getHandler('engine').pipe(
+                filter(isActionEngineClose)
+            ).subscribe(() => engine.workerContext!.close());
+        }
     }
 }

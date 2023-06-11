@@ -1,5 +1,5 @@
 import { button, div, h1, h2, input, VNode } from '@cycle/dom';
-import { makeWorkerMessage } from '@ogod/driver-worker';
+import { makeMessage } from '@ogod/core';
 import { concat, filter, first, from, fromEvent, map, merge, of, switchMap } from 'rxjs';
 import { AppSources } from "../state";
 import { AppReflectState } from './../state';
@@ -39,7 +39,7 @@ export function makeElementMenu$(sources: AppSources) {
         merge(
             from(sources.DOM.select('#options').element() as any).pipe(
                 switchMap((el: HTMLElement) => fromEvent(el, 'click').pipe(
-                    switchMap(() => sources.GameWorker.input$.pipe(
+                    switchMap(() => sources.Worker.input$.pipe(
                         first()
                     ))
                 )),
@@ -56,18 +56,18 @@ export function makeElementMenu$(sources: AppSources) {
 export function makeListenerMenu$(sources: AppSources) {
     return merge(
         from(sources.DOM.select('#resume').events('click') as any).pipe(
-            map(() => makeWorkerMessage({ key: 'paused' }))
+            map(() => makeMessage({ key: 'paused' }))
         ),
         from(sources.DOM.select('#gravity').events('input') as any).pipe(
             map((e: any) => e.target.value),
             filter((g: string) => !!g.match(/^-?\d+\.?\d*$/)),
             map((g) => parseFloat(g)),
-            map((value) => makeWorkerMessage({ key: 'gravity', value }))
+            map((value) => makeMessage({ key: 'gravity', value }))
         ),
         from(sources.DOM.select('#baseColor').events('input') as any).pipe(
             map((e: any) => e.target.value),
             filter((v: string) => !!v.match(/^#[0-9a-fA-F]{6}$/)),
-            map((value) => makeWorkerMessage({ key: 'background', value }))
+            map((value) => makeMessage({ key: 'background', value }))
         )
     );
 }

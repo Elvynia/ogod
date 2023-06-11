@@ -1,5 +1,5 @@
 import { OperatorFunction, map, takeWhile } from "rxjs";
-import { UpdateState } from "../update.state";
+import { UpdateState } from "../update";
 
 export type EaseFn = (d: number) => number;
 

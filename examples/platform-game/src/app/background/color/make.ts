@@ -24,7 +24,7 @@ export function makeBackgroundColors(color: string): BackgroundColors {
 export function makeFeatureBackgroundColors(sources: WorkerSources): FeatureGroupObservable<Background, BackgroundColors> {
     return {
         publishOnNext: true,
-        value$: sources.GameEngine.action$.getHandler('background').pipe(
+        value$: sources.Engine.action$.getHandler('background').pipe(
             startWith(randColor()),
             map(makeBackgroundColors)
         )

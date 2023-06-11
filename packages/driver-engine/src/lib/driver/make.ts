@@ -1,18 +1,22 @@
-import { WorkerActionInit } from "@ogod/core";
-import { makeGameEngineOptionsDefaults } from '../option/make';
-import { GameEngineOptions } from '../option/state';
-import { GameEngineDriver, GameEngineSink, GameEngineSource } from './state';
+import { MessageEngineInit, UpdateState } from "@ogod/core";
+import { makeEngineOptionsDefaults } from '../option/make';
+import { EngineOptions } from '../option/state';
+import { DriverEngine, EngineSink, EngineSource } from './state';
 
 /**
  *
- * @param options GameEngineOptions<S, A> parameters to control driver properties at creation.
- * @returns GameEngineDriver<S, A, R> a driver that can be used with run package.
+ * @param options EngineOptions<S, A> parameters to control driver properties at creation.
+ * @returns EngineDriver<S, A, R> a driver that can be used with run package.
  */
-export function makeDriverGameEngine<S extends object, A, R, U, C>
-    (params: Partial<GameEngineOptions<U, S, A, C>>): GameEngineDriver<S, A, R, U, C> {
-    const options = makeGameEngineOptionsDefaults<U, S, A, C>(params);
-    return (sink$: Promise<GameEngineSink<S, R, U>>): GameEngineSource<S, A, U, C> => {
-        console.debug('[GameEngine] Created');
+export function makeDriverEngine<S extends object, A = any, R = any, U = UpdateState, C = OffscreenCanvas>
+    (params?: Partial<EngineOptions<U, S, A, C>>): DriverEngine<S, A, R, U, C> {
+    const options = makeEngineOptionsDefaults<U, S, A, C>(params);
+    return (sink$: Promise<EngineSink<S, R, U>>): EngineSource<S, A, U, C> => {
+        let id = 'Engine';
+        if (options.workerContext?.name) {
+            id += '#' + options.workerContext.name;
+        }
+        console.debug(`[${id}] Created`);
         sink$.then((sink) => {
             if (sink.action$) {
                 sink.action$.subscribe(options.action$);
@@ -24,7 +28,7 @@ export function makeDriverGameEngine<S extends object, A, R, U, C>
                 if (options.workerContext) {
                     sink.reflect$.subscribe((state) => options.workerContext!.postMessage(state));
                 } else {
-                    throw new Error('[GameEngine] Worker context is required when using reflect mode');
+                    throw new Error(`[${id}] Worker context is required when using reflect mode`);
                 }
             }
             if (sink.systems) {
@@ -32,13 +36,13 @@ export function makeDriverGameEngine<S extends object, A, R, U, C>
                 sink.systems.post$?.subscribe((systems) => options.engine$.systems.post = systems);
             }
             sink.state$.subscribe(options.state$);
-            console.debug('[GameEngine] Initialized');
+            console.debug(`[${id}] Initialized`);
         });
         const dispose = () => {
             options.action$.complete();
             options.engine$.complete();
             options.state$.complete();
-            console.debug('[GameEngine] Disposed');
+            console.debug(`[${id}] Disposed`);
         };
         options.engine$.subscribe({
             error: (e) => {
@@ -47,7 +51,7 @@ export function makeDriverGameEngine<S extends object, A, R, U, C>
                 } else {
                     dispose();
                 }
-                console.error('[GameEngine] An error occured in animationFrame loop and stopped the engine:\n', e);
+                console.error(`[${id}] An error occured in animationFrame loop and stopped the engine:\n`, e);
             }
         });
         const source = {
@@ -55,20 +59,20 @@ export function makeDriverGameEngine<S extends object, A, R, U, C>
             engine$: options.engine$,
             dispose,
             state$: options.state$,
-            renderTarget$: options.renderTarget$,
+            target$: options.target$,
             workerContext: options.workerContext
         };
         // FIXME: Cannot use partial typing on listeners if using generics en source argument.
-        options.listeners.forEach((listener) => listener(source as any as GameEngineSource));
+        options.listeners.forEach((listener) => listener(source as any as EngineSource));
         if (options.workerContext) {
             options.workerContext.onmessage = (event) => {
                 try {
                     source.action$.getHandler(event.data.key).next(event.data.value);
                 } catch (e) {
-                    console.error('cannot send action for event data: ', event.data, e);
+                    console.error(`[${id}] Cannot send action for event data: `, event.data, e);
                 }
             };
-            options.workerContext.postMessage(WorkerActionInit);
+            options.workerContext.postMessage(MessageEngineInit);
         }
         return source;
     };

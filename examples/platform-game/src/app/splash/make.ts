@@ -26,7 +26,7 @@ export function makeFeatureSplash(sources: WorkerSources): FeatureKey<AppState, 
         publishOnCreate: true,
         publishOnNext: true,
         value$: makeStateObject({
-            key$: sources.GameEngine.state$.pipe(
+            key$: sources.Engine.state$.pipe(
                 filter((s) => s.splash && s.phase === PHASE.SPLASH),
                 first(),
                 switchMap((state) => {
@@ -55,7 +55,7 @@ export function makeFeatureSplash(sources: WorkerSources): FeatureKey<AppState, 
                                                 easeFn: easeOutCubic
                                             }
                                         },
-                                        update$: sources.GameEngine.engine$
+                                        update$: sources.Engine.engine$
                                     }),
                                     value: source
                                 } as FeatureKey<SplashState, string>
@@ -67,7 +67,7 @@ export function makeFeatureSplash(sources: WorkerSources): FeatureKey<AppState, 
             state: {} as SplashState
         }).pipe(
             tap({
-                complete: () => sources.GameEngine.action$.getHandler('phase').next(PHASE.START)
+                complete: () => sources.Engine.action$.getHandler('phase').next(PHASE.START)
             })
         ),
         value: {}

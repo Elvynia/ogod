@@ -60,7 +60,7 @@ export function makeFeatureGrounds(sources: WorkerSources): FeatureKey<AppState,
         key: 'grounds',
         publishOnCreate: true,
         value$: waitForCamera(sources).pipe(
-            withLatestFrom(sources.GameEngine.renderTarget$),
+            withLatestFrom(sources.Engine.target$),
             first(),
             map(([state, canvas]) => makeGrounds(sources, state.camera, canvas.getContext('2d')))
         )

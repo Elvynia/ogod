@@ -1,9 +1,10 @@
-import { WorkerMessage } from '@ogod/core';
-import { makeEngineAction, makeWorkerMessage } from '@ogod/driver-worker';
+import { WorkerMessage, makeMessage, makeMessageEngine } from '@ogod/core';
+import { makeDriverWorker } from '@ogod/driver-worker';
+import { run } from '@ogod/run';
 import { define, html } from 'hybrids';
-import { debounceTime, fromEvent, map, merge, of, startWith, Subject } from 'rxjs';
-import { runApp } from './app';
-import { randNum } from './util';
+import { Subject, debounceTime, fromEvent, map, merge, of, startWith } from 'rxjs';
+import { main } from './app';
+import { makeDriverElement, randNum } from './util';
 
 interface AppElement extends HTMLElement {
     app: {
@@ -33,42 +34,40 @@ export default define<AppElement>({
                 input$: undefined,
                 output$: new Subject<WorkerMessage>()
             };
-            const dispose = runApp(new Worker(new URL('../worker.ts', import.meta.url)), host);
             host.content();
-            const canvas = host.querySelector('#' + host.targetId) as any;
+            const canvas = host.querySelector<HTMLCanvasElement>('#' + host.targetId);
             const offscreen = canvas.transferControlToOffscreen();
-            setTimeout(() => {
-                merge(
-                    of(makeEngineAction('OGOD_ENGINE_TARGET', offscreen, [offscreen])),
-                    fromEvent(window, 'resize').pipe(
-                        debounceTime(16),
-                        startWith(null),
-                        map(() => makeWorkerMessage({
-                            key: 'camera',
-                            value: {
-                                width: canvas.clientWidth,
-                                height: canvas.clientHeight
-                            }
-                        }))
-                    ),
-                ).subscribe(host.app.output$)
-            }, 1000);
-            return () => {
-                console.log('[ROOT] Disconnect');
-                dispose();
-            };
+            setTimeout(() => merge(
+                of(makeMessageEngine('OGOD_ENGINE_TARGET', offscreen, [offscreen])),
+                fromEvent(window, 'resize').pipe(
+                    debounceTime(16),
+                    startWith(null),
+                    map(() => makeMessage({
+                        key: 'camera',
+                        value: {
+                            width: canvas.clientWidth,
+                            height: canvas.clientHeight
+                        }
+                    }))
+                ),
+            ).subscribe(host.app.output$), 1000);
+            const worker = new Worker(new URL('../worker.ts', import.meta.url));
+            return run(main, {
+                Worker: makeDriverWorker(worker),
+                Element: makeDriverElement(host)
+            });
         }
     },
     generator: {
         value: 'random',
         connect: (host, key) => {
-            setTimeout(() => host.app.output$.next(makeWorkerMessage({
+            setTimeout(() => host.app.output$.next(makeMessage({
                 key,
                 value: host[key]
             })), 1000);
         },
         observe: (host, value) => {
-            host.app.output$.next(makeWorkerMessage({
+            host.app.output$.next(makeMessage({
                 key: 'generator',
                 value
             }));
@@ -77,13 +76,13 @@ export default define<AppElement>({
     scale: {
         value: 1,
         connect: (host, key) => {
-            setTimeout(() => host.app.output$.next(makeWorkerMessage({
+            setTimeout(() => host.app.output$.next(makeMessage({
                 key,
                 value: host[key]
             })), 1000);
         },
         observe: (host, value) => {
-            host.app.output$.next(makeWorkerMessage({
+            host.app.output$.next(makeMessage({
                 key: 'scale',
                 value
             }));
@@ -92,13 +91,13 @@ export default define<AppElement>({
     offset: {
         value: 0,
         connect: (host, key) => {
-            setTimeout(() => host.app.output$.next(makeWorkerMessage({
+            setTimeout(() => host.app.output$.next(makeMessage({
                 key,
                 value: host[key]
             })), 1000);
         },
         observe: (host, value) => {
-            host.app.output$.next(makeWorkerMessage({
+            host.app.output$.next(makeMessage({
                 key: 'offset',
                 value
             }));

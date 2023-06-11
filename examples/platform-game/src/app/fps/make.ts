@@ -7,7 +7,7 @@ export function makeFeatureFps(sources: WorkerSources): FeatureKey<AppState, 'fp
         key: 'fps',
         publishOnCreate: true,
         publishOnNext: true,
-        value$: sources.GameEngine.engine$.pipe(
+        value$: sources.Engine.engine$.pipe(
             bufferCount(10),
             map((frames) => {
                 const total = frames.reduce((acc, curr) => acc + curr.delta, 0) / 1000;

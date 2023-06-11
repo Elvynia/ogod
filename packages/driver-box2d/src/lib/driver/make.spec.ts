@@ -1,7 +1,7 @@
-import { makeGameBox2dDriver } from './make';
+import { makeDriverBox2d } from './make';
 
-describe('gameBox2dDriver', () => {
+describe('DriverBox2d', () => {
   it('should work', () => {
-    expect(makeGameBox2dDriver()).toEqual('driver-box2d');
+    expect(makeDriverBox2d()).toEqual('driver-box2d');
   });
 });

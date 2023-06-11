@@ -1,5 +1,5 @@
 import { EngineFn } from '@ogod/driver-engine';
-import { Observable, first, map, switchMap } from 'rxjs';
+import { Observable, first, map, switchMap, tap } from 'rxjs';
 import { AppState, WorkerSources } from '../state';
 import { drawCircle, drawRect } from './draw';
 
@@ -16,9 +16,9 @@ export function makeRenderer(state: AppState, canvas: OffscreenCanvas) {
 }
 
 export function makeRenderer$(sources: WorkerSources): Observable<EngineFn[]> {
-    return sources.GameEngine.state$.pipe(
+    return sources.Engine.state$.pipe(
         first(),
-        switchMap((state) => sources.GameEngine.renderTarget$.pipe(
+        switchMap((state) => sources.Engine.target$.pipe(
             map((canvas) => [makeRenderer(state, canvas)])
         ))
     );

@@ -49,7 +49,7 @@ export function makeFeatureObject(sources: WorkerSources, { x, y }, camera: Came
                 key: 'health',
                 value$: health$.pipe(
                     takeWhile((health) => health > 0),
-                    finalize(() => sources.GameEngine.engine$.pipe(
+                    finalize(() => sources.Engine.engine$.pipe(
                         first()
                     ).subscribe(() => sources.World.instance.DestroyBody(state.body)))
                 )
@@ -66,7 +66,7 @@ export function makeFeatureObjects(sources: WorkerSources): FeatureKey<AppState,
         publishOnNext: true,
         value$: makeStateObject({
             key$: waitForCamera(sources).pipe(
-                switchMap((state) => sources.GameEngine.action$.getHandler('objects').pipe(
+                switchMap((state) => sources.Engine.action$.getHandler('objects').pipe(
                     map((pos) => makeFeatureObject(sources, pos, state.camera)),
                 ))
             ),

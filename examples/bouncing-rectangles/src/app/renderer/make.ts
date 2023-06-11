@@ -25,8 +25,8 @@ export const makeRenderer = (state: AppState, canvas: any) => {
 }
 
 export function makeRenderer$(sources: WorkerSources) {
-    return sources.GameEngine.renderTarget$.pipe(
-        switchMap((canvas) => sources.GameEngine.state$.pipe(
+    return sources.Engine.target$.pipe(
+        switchMap((canvas) => sources.Engine.state$.pipe(
             filter((state) => state.camera && state.player && !!state.objects && !!state.grounds),
             first(),
             map((state) => [makeRenderer(state, canvas)])

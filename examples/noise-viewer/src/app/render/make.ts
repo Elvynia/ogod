@@ -6,9 +6,9 @@ export function makeRenderer(state: AppState, ctx: OffscreenCanvasRenderingConte
 }
 
 export function makeRenderer$(sources: WorkerSources) {
-    return sources.GameEngine.renderTarget$.pipe(
+    return sources.Engine.target$.pipe(
         switchMap((canvas) => {
-            return sources.GameEngine.state$.pipe(
+            return sources.Engine.state$.pipe(
                 filter((s) => !!s.data),
                 first(),
                 map((state) => [makeRenderer(state, canvas.getContext('2d'))])

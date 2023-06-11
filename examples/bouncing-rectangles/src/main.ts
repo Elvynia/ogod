@@ -1,6 +1,7 @@
 import { canvas, div, h3, input, makeDOMDriver, span } from '@cycle/dom';
+import { makeMessage, makeMessageEngine } from '@ogod/core';
+import { makeDriverWorker } from '@ogod/driver-worker';
 import { run } from '@ogod/run';
-import { makeDriverGameWorker, makeEngineAction, makeWorkerMessage } from '@ogod/driver-worker';
 import { EMPTY, Subject, combineLatest, concat, debounceTime, delayWhen, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, interval, map, merge, of, startWith, switchMap, take, takeUntil, takeWhile, timer } from 'rxjs';
 import xs from 'xstream';
 import { Camera } from './app/camera/state';
@@ -20,11 +21,11 @@ function main(sources: AppSources) {
         switchMap((canvas: any) => {
             const offscreen = canvas.transferControlToOffscreen();
             return concat(
-                of(makeEngineAction('OGOD_ENGINE_TARGET', offscreen, [offscreen])),
+                of(makeMessageEngine('OGOD_ENGINE_TARGET', offscreen, [offscreen])),
                 fromEvent(window, 'resize').pipe(
                     debounceTime(16),
                     startWith(camera),
-                    map(() => makeWorkerMessage({
+                    map(() => makeMessage({
                         key: 'camera',
                         value: {
                             ...camera,
@@ -40,7 +41,7 @@ function main(sources: AppSources) {
         switchMap((e) => paused ? EMPTY : timer(200).pipe(
             switchMap(() => interval(100).pipe(
                 map(() => e as MouseEvent),
-                map(({ clientX, clientY }) => makeWorkerMessage({
+                map(({ clientX, clientY }) => makeMessage({
                     key: 'objects',
                     value: {
                         x: clientX + Math.round(200 - Math.random() * 400),
@@ -61,17 +62,17 @@ function main(sources: AppSources) {
             map(() => paused = !paused)
         )),
         startWith(paused),
-        map((value) => makeWorkerMessage({ key: 'paused', value }))
+        map((value) => makeMessage({ key: 'paused', value }))
     );
     const playerColor$ = from(sources.DOM.select('#playerColor').events('input') as any).pipe(
         map((e: Event) => (e.target as any).value),
         filter((value) => value && value.length === 7),
         startWith(playerColor),
-        delayWhen(() => sources.GameWorker.initialized$),
-        map((value) => makeWorkerMessage({ key: 'playerColor', value }))
+        delayWhen(() => sources.Worker.initialized$),
+        map((value) => makeMessage({ key: 'playerColor', value }))
     );
     return {
-        GameWorker: merge(
+        Worker: merge(
             addRect$,
             offscreen$,
             paused$,
@@ -79,7 +80,7 @@ function main(sources: AppSources) {
         ),
         DOM: combineLatest([
             of(canvas({ attrs: { id: 'game', width: camera.width, height: camera.height, tabindex: 0 } })),
-            sources.GameWorker.input$.pipe(
+            sources.Worker.input$.pipe(
                 map((state) => state.objects.map(({ x, y, angle, width, height, health, colorLight }) => div({
                     class: {
                         rect: true
@@ -101,19 +102,19 @@ function main(sources: AppSources) {
                 input({ attrs: { id: 'playerColor', value: playerColor } }),
                 span('Use space to pause simulation')
             ])),
-            sources.GameWorker.input$.pipe(
+            sources.Worker.input$.pipe(
                 distinctUntilKeyChanged('fps'),
                 map((state: any) => state.fps),
                 startWith(''),
                 map((fps) => h3('FPS: ' + fps)),
             ),
-            sources.GameWorker.input$.pipe(
+            sources.Worker.input$.pipe(
                 map((state) => state.objects.length),
                 distinctUntilChanged(),
                 startWith('0'),
                 map((count) => h3('Object count: ' + count)),
             ),
-            sources.GameWorker.input$.pipe(
+            sources.Worker.input$.pipe(
                 map((state) => state.box2dCount),
                 distinctUntilChanged(),
                 startWith('0'),
@@ -137,7 +138,7 @@ function main(sources: AppSources) {
 }
 
 (window as any).stopApp = run(main, {
-    GameWorker: makeDriverGameWorker<AppReflectState>(new Worker(new URL('worker.ts', import.meta.url))),
+    Worker: makeDriverWorker<AppReflectState>(new Worker(new URL('worker.ts', import.meta.url))),
     DOM: (promise) => {
         const dom = makeDOMDriver('#app');
         const wrapper = new Subject();

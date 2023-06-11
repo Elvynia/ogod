@@ -1,5 +1,5 @@
-import { makeGameBox2dDriver } from '@ogod/driver-box2d';
-import { EngineSubjectDefault, makeDriverGameEngine, makeStateObject, makeUpdate$ } from '@ogod/driver-engine';
+import { makeDriverBox2d } from '@ogod/driver-box2d';
+import { EngineSubjectDefault, makeDriverEngine, makeStateObject, makeUpdate$ } from '@ogod/driver-engine';
 import { run } from '@ogod/run';
 import { ActionSubjectDefault } from 'packages/driver-engine/src/lib/action/state';
 import { EMPTY, distinctUntilChanged, filter, first, map, of, switchMap } from 'rxjs';
@@ -20,11 +20,11 @@ function main(sources: WorkerSources): WorkerSinks {
         map(({ dataA, dataB }) => [dataA, dataB].filter((data) => !!data))
     ).subscribe((healths) => healths.forEach((h) => h.next(h.value - 1)));
     return {
-        GameEngine: {
-            reflect$: sources.GameEngine.state$.pipe(
+        Engine: {
+            reflect$: sources.Engine.state$.pipe(
                 filter((state) => state.camera && state.player && !!state.objects),
                 first(),
-                switchMap((state) => sources.GameEngine.engine$.reflect$.pipe(
+                switchMap((state) => sources.Engine.engine$.reflect$.pipe(
                     map(() => {
                         const objects = new Array();
                         for (let k in state.objects) {
@@ -58,7 +58,7 @@ function main(sources: WorkerSources): WorkerSinks {
                 state: {} as AppState
             }),
             systems: {
-                pre$: sources.GameEngine.state$.pipe(
+                pre$: sources.Engine.state$.pipe(
                     filter((s) => s.player && !!s.objects),
                     first(),
                     map((state) => [() => {
@@ -71,20 +71,20 @@ function main(sources: WorkerSources): WorkerSinks {
             }
         },
         World: {
-            update$: sources.GameEngine.state$.pipe(
+            update$: sources.Engine.state$.pipe(
                 map((state) => state.paused),
                 distinctUntilChanged(),
-                switchMap((paused) => paused ? EMPTY : sources.GameEngine.engine$)
+                switchMap((paused) => paused ? EMPTY : sources.Engine.engine$)
             )
         }
     };
 }
 
 run(main, {
-    GameEngine: makeDriverGameEngine({
+    Engine: makeDriverEngine({
         action$: new ActionSubjectDefault(new ActionHandlers()),
         engine$: new EngineSubjectDefault(makeUpdate$(0)),
         workerContext: self
     }),
-    World: makeGameBox2dDriver()
+    World: makeDriverBox2d()
 }, self);

@@ -1,5 +1,5 @@
 import { b2BodyType } from "@box2d/core";
-import { GameBox2dSource } from '@ogod/driver-box2d';
+import { Box2dSource } from '@ogod/driver-box2d';
 import { FeatureKey, makeStateObject } from "@ogod/driver-engine";
 import { EMPTY, concatMap, delay, first, map, of, range, tap } from "rxjs";
 import { createNoise2D } from "simplex-noise";
@@ -8,7 +8,7 @@ import { WorkerSources } from "../../state";
 import { MapState } from "../state";
 import { PlatformState } from "./state";
 
-export function makeCreatePlatform(gameWorld: GameBox2dSource) {
+export function makeCreatePlatform(gameWorld: Box2dSource) {
     return (x: number, y: number, width: number = 400, height: number = 10, angle: number = 0) => makeShape({
         color: '#B244A5',
         id: undefined,
@@ -28,7 +28,7 @@ export function makeFeatureMapPlatform(sources: WorkerSources): FeatureKey<MapSt
         key: 'platforms',
         publishOnNext: true,
         value$: makeStateObject({
-            key$: sources.GameEngine.state$.pipe(
+            key$: sources.Engine.state$.pipe(
                 first(),
                 map(({ map: mapState }) => ({
                     publishOnNext: true,
@@ -46,7 +46,7 @@ export function makeFeatureMapPlatform(sources: WorkerSources): FeatureKey<MapSt
                             }
                             return of(platforms).pipe(
                                 delay(50),
-                                tap(() => sources.GameEngine.action$.getHandler('loading').next({
+                                tap(() => sources.Engine.action$.getHandler('loading').next({
                                     key: 'map',
                                     publishOnCreate: true,
                                     publishOnComplete: Math.round(x * 100 / mapState.width) === 100,

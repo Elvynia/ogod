@@ -6,8 +6,8 @@ export function makeFeatureCamera(sources: WorkerSources): FeatureKey<AppState, 
     return {
         key: 'camera',
         publishOnNext: true,
-        value$: sources.GameEngine.renderTarget$.pipe(
-            switchMap((canvas) => sources.GameEngine.action$.getHandler('camera').pipe(
+        value$: sources.Engine.target$.pipe(
+            switchMap((canvas) => sources.Engine.action$.getHandler('camera').pipe(
                 tap((camera) => {
                     canvas.width = camera.width;
                     canvas.height = camera.height;
@@ -18,7 +18,7 @@ export function makeFeatureCamera(sources: WorkerSources): FeatureKey<AppState, 
 }
 
 export function waitForCamera(sources: WorkerSources): Observable<AppState> {
-    return sources.GameEngine.state$.pipe(
+    return sources.Engine.state$.pipe(
         filter((state) => !!state.camera),
         first()
     );

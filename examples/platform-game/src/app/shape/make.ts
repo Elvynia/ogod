@@ -1,5 +1,5 @@
 import { b2BodyType, b2PolygonShape } from "@box2d/core";
-import { GameBox2dSource } from '@ogod/driver-box2d';
+import { Box2dSource } from '@ogod/driver-box2d';
 import { FeatureKey, makeStateObject } from "@ogod/driver-engine";
 import { first, map, of } from "rxjs";
 import { AppState, WorkerSources } from "../state";
@@ -8,7 +8,7 @@ import { makeFeaturePlayer, makePlayer } from "./player/make";
 import { Shape } from "./state";
 
 export function makeShape<R extends Shape = Shape, T extends Omit<R, 'body'> = Omit<R, 'body'>>(
-    shape: T, world: GameBox2dSource): T & Pick<Shape, 'body'> {
+    shape: T, world: Box2dSource): T & Pick<Shape, 'body'> {
     const id = shape.id || randNum(8).toString();
     const b2Width = shape.width / (2 * world.scale);
     const b2Height = shape.height / (2 * world.scale);
@@ -50,7 +50,7 @@ export function makeFeatureShapesUpdate(sources: WorkerSources): FeatureKey<AppS
         publishOnNext: true,
         value$: makeStateObject({
             key$: makeFeaturePlayer(sources),
-            state: sources.GameEngine.state$.pipe(
+            state: sources.Engine.state$.pipe(
                 map((s) => s.shapes),
                 first()
             )

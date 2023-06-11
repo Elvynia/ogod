@@ -18,7 +18,7 @@ export function makeFeatureGenerator(sources: WorkerSources): FeatureKey<AppStat
     return {
         key: 'generator',
         publishOnNext: true,
-        value$: sources.GameEngine.action$.getHandler('generator').pipe(
+        value$: sources.Engine.action$.getHandler('generator').pipe(
             map((genType) => generators[genType])
         )
     };

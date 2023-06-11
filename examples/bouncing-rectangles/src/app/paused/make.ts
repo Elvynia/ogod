@@ -5,6 +5,6 @@ export function makeFeaturePaused(sources: WorkerSources): FeatureKey<AppState, 
     return {
         key: 'paused',
         publishOnNext: true,
-        value$: sources.GameEngine.action$.getHandler('paused')
+        value$: sources.Engine.action$.getHandler('paused')
     };
 }

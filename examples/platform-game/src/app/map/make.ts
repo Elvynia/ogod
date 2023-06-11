@@ -32,7 +32,7 @@ export function makeFeatureMapLoad(sources: WorkerSources): FeatureKey<AppState,
             key$: of(
                 makeFeatureMapPlatform(sources)
             ),
-            state: sources.GameEngine.state$.pipe(
+            state: sources.Engine.state$.pipe(
                 map((s) => s.map),
                 first()
             )

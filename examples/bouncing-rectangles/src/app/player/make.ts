@@ -13,7 +13,7 @@ export function makeFeaturePlayer(sources: WorkerSources): FeatureKey<AppState, 
                     key$: of({
                         key: 'color' as const,
                         publishOnNext: true,
-                        value$: sources.GameEngine.action$.getHandler('playerColor')
+                        value$: sources.Engine.action$.getHandler('playerColor')
                     }),
                     state: makeRect({
                         x: 400,
