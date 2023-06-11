@@ -1,5 +1,5 @@
 import { makeDriverBox2d } from '@ogod/driver-box2d';
-import { EngineSubjectDefault, makeDriverEngine, makeStateObject, makeUpdate$ } from '@ogod/driver-engine';
+import { makeDriverEngine, makeStateObject } from '@ogod/driver-engine';
 import { run } from '@ogod/run';
 import { ActionSubjectDefault } from 'packages/driver-engine/src/lib/action/state';
 import { EMPTY, distinctUntilChanged, filter, first, map, of, switchMap } from 'rxjs';
@@ -83,7 +83,6 @@ function main(sources: WorkerSources): WorkerSinks {
 run(main, {
     Engine: makeDriverEngine({
         action$: new ActionSubjectDefault(new ActionHandlers()),
-        engine$: new EngineSubjectDefault(makeUpdate$(0)),
         workerContext: self
     }),
     World: makeDriverBox2d()

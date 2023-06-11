@@ -1,6 +1,6 @@
 import { XY } from '@box2d/core';
 import { MainDOMSource } from '@cycle/dom';
-import { Contact, Box2dSink, Box2dSource } from '@ogod/driver-box2d';
+import { Box2dSink, Box2dSource, Contact } from '@ogod/driver-box2d';
 import { EngineSink, EngineSource } from '@ogod/driver-engine';
 import { WorkerSource } from '@ogod/driver-worker';
 import { BehaviorSubject, ReplaySubject } from 'rxjs';
@@ -39,11 +39,11 @@ export interface AppSources {
 }
 
 export interface WorkerSources {
-    Engine: EngineSource<AppState, ActionHandlers, number>;
+    Engine: EngineSource<AppState, ActionHandlers>;
     World: Box2dSource<HealthContact>;
 }
 
 export interface WorkerSinks {
-    Engine: EngineSink<AppState, AppReflectState, number>;
+    Engine: EngineSink<AppState, AppReflectState>;
     World: Box2dSink
 }

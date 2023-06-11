@@ -10,7 +10,7 @@ export function makeFeatureFps(sources: WorkerSources): FeatureKey<AppState, 'fp
         value$: sources.Engine.engine$.pipe(
             bufferCount(10),
             map((frames) => {
-                const total = frames.reduce((acc, curr) => acc + curr, 0) / 1000;
+                const total = frames.reduce((acc, curr) => acc + curr.delta, 0) / 1000;
                 return 1 / (total / frames.length);
             }),
             map((fps) => Math.round(fps * 10) / 10),

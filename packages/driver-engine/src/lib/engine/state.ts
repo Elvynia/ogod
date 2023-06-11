@@ -2,26 +2,26 @@ import { UpdateState } from "@ogod/core";
 import { Observable, Subject, Subscription } from "rxjs";
 import { makeUpdate$ } from "../update/make";
 
-export type EngineFn<U = UpdateState> = (update: U) => void;
+export type EngineFn = (update: UpdateState) => void;
 
-export interface PrePostSystems<U = UpdateState> {
-    pre: EngineFn<U>[];
-    post: EngineFn<U>[];
+export interface PrePostSystems {
+    pre: EngineFn[];
+    post: EngineFn[];
 }
 
-export interface EngineSubject<U = UpdateState> extends Subject<U> {
-    renders: EngineFn<U>[];
-    systems: PrePostSystems<U>;
-    readonly reflect$: Subject<U>;
+export interface EngineSubject extends Subject<UpdateState> {
+    renders: EngineFn[];
+    systems: PrePostSystems;
+    readonly reflect$: Subject<UpdateState>;
 }
 
-export class EngineSubjectDefault<U = UpdateState> extends Subject<U> implements EngineSubject<U> {
-    readonly reflect$: Subject<U>;
-    renders: EngineFn<U>[];
-    systems: PrePostSystems<U>;
+export class EngineSubjectDefault extends Subject<UpdateState> implements EngineSubject {
+    readonly reflect$: Subject<UpdateState>;
+    renders: EngineFn[];
+    systems: PrePostSystems;
     subscription: Subscription;
 
-    constructor(update$: Observable<U> = makeUpdate$() as Observable<U>) {
+    constructor(update$: Observable<UpdateState> = makeUpdate$()) {
         super();
         this.reflect$ = new Subject();
         this.renders = [];
@@ -32,7 +32,7 @@ export class EngineSubjectDefault<U = UpdateState> extends Subject<U> implements
         this.subscription = update$.subscribe(this);
     }
 
-    override next(value: U): void {
+    override next(value: UpdateState): void {
         try {
             for (let i = 0; i < this.systems.pre.length; ++i) {
                 this.systems.pre[i](value);

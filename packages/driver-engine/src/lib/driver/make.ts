@@ -1,4 +1,4 @@
-import { MessageEngineInit, UpdateState } from "@ogod/core";
+import { MessageEngineInit } from "@ogod/core";
 import { makeEngineOptionsDefaults } from '../option/make';
 import { EngineOptions } from '../option/state';
 import { DriverEngine, EngineSink, EngineSource } from './state';
@@ -8,10 +8,14 @@ import { DriverEngine, EngineSink, EngineSource } from './state';
  * @param options EngineOptions<S, A> parameters to control driver properties at creation.
  * @returns EngineDriver<S, A, R> a driver that can be used with run package.
  */
-export function makeDriverEngine<S extends object, A = any, R = any, U = UpdateState, C = OffscreenCanvas>
-    (params?: Partial<EngineOptions<U, S, A, C>>): DriverEngine<S, A, R, U, C> {
-    const options = makeEngineOptionsDefaults<U, S, A, C>(params);
-    return (sink$: Promise<EngineSink<S, R, U>>): EngineSource<S, A, U, C> => {
+export function makeDriverEngine<
+    S extends object,
+    A = any,
+    R = any,
+    C = OffscreenCanvas
+>(params?: Partial<EngineOptions<S, A, C>>): DriverEngine<S, A, R, C> {
+    const options = makeEngineOptionsDefaults<S, A, C>(params);
+    return (sink$: Promise<EngineSink<S, R>>): EngineSource<S, A, C> => {
         let id = 'Engine';
         if (options.workerContext?.name) {
             id += '#' + options.workerContext.name;

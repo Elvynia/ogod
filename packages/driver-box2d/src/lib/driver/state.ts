@@ -1,5 +1,5 @@
 import { b2World, XY } from '@box2d/core';
-import { Driver } from '@ogod/core';
+import { Driver, UpdateState } from '@ogod/core';
 import { Observable, Subject } from 'rxjs';
 import { Contact } from '../contact/state';
 
@@ -11,7 +11,7 @@ export interface Box2dSource<C extends Contact = Contact> {
 }
 
 export interface Box2dSink {
-    update$: Observable<number>;
+    update$: Observable<UpdateState>;
     gravity$?: Observable<XY>;
     // contact$: Observable<Contact>;
 }

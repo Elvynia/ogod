@@ -11,7 +11,7 @@ export function makeDriverBox2d(initalGravity: XY = { x: 0, y: 0 }, scale: numbe
     return (sink$: Promise<Box2dSink>): Box2dSource => {
         console.debug('[Box2d] Created');
         sink$.then((sink) => {
-            subs.push(sink.update$.subscribe((delta: number) => {
+            subs.push(sink.update$.subscribe(({ delta }) => {
                 world.Step(delta / 1000, {
                     velocityIterations: 6,
                     positionIterations: 2

@@ -71,7 +71,7 @@ function main(sources: WorkerSources): WorkerSinks {
             update$: sources.Engine.state$.pipe(
                 map((s) => s.phase),
                 distinctUntilChanged(),
-                switchMap((phase) => phase === PHASE.PLAY ? pausableUpdate$.pipe(map(({ delta }) => delta)) : EMPTY)
+                switchMap((phase) => phase === PHASE.PLAY ? pausableUpdate$ : EMPTY)
             ),
             gravity$: sources.Engine.state$.pipe(
                 map((s) => s.map.gravity),

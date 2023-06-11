@@ -1,4 +1,3 @@
-import { UpdateState } from '@ogod/core';
 import { EngineFn } from '@ogod/driver-engine';
 import { Observable, distinctUntilChanged, first, map, switchMap } from 'rxjs';
 import { Camera } from './camera/state';
@@ -58,7 +57,7 @@ export function makeRenderer(state: AppState, ctx: OffscreenCanvasRenderingConte
     };
 }
 
-export function makeRenderer$(sources: WorkerSources): Observable<EngineFn<UpdateState>[]> {
+export function makeRenderer$(sources: WorkerSources): Observable<EngineFn[]> {
     return sources.Engine.state$.pipe(
         first(),
         switchMap((state) => sources.Engine.target$.pipe(
