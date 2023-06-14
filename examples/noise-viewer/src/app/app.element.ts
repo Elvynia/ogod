@@ -1,10 +1,8 @@
-import { WorkerMessage, makeMessage, makeMessageEngine } from '@ogod/core';
-import { makeDriverWorker } from '@ogod/driver-worker';
-import { run } from '@ogod/run';
+import { WorkerMessage, makeMessage } from '@ogod/core';
+import { makeHybridWorker } from '@ogod/integration-hybrids';
 import { define, html } from 'hybrids';
-import { Subject, debounceTime, fromEvent, map, merge, of, startWith } from 'rxjs';
-import { main } from './app';
-import { makeDriverElement, randNum } from './util';
+import { Subject } from 'rxjs';
+import { randNum } from './util';
 
 interface AppElement extends HTMLElement {
     app: {
@@ -26,46 +24,17 @@ export default define<AppElement>({
             host[key] = '_' + randNum(8).toString()
         }
     },
-    app: {
-        value: undefined,
-        connect(host) {
-            console.log('[ROOT] Connect');
-            host.app = {
-                input$: undefined,
-                output$: new Subject<WorkerMessage>()
-            };
+    app: makeHybridWorker({
+        canvasFn: (host) => {
             host.content();
-            const canvas = host.querySelector<HTMLCanvasElement>('#' + host.targetId);
-            const offscreen = canvas.transferControlToOffscreen();
-            setTimeout(() => merge(
-                of(makeMessageEngine('OGOD_ENGINE_TARGET', offscreen, [offscreen])),
-                fromEvent(window, 'resize').pipe(
-                    debounceTime(16),
-                    startWith(null),
-                    map(() => makeMessage({
-                        key: 'camera',
-                        value: {
-                            width: canvas.clientWidth,
-                            height: canvas.clientHeight
-                        }
-                    }))
-                ),
-            ).subscribe(host.app.output$), 1000);
-            const worker = new Worker(new URL('../worker.ts', import.meta.url));
-            return run(main, {
-                Worker: makeDriverWorker(worker),
-                Element: makeDriverElement(host)
-            });
-        }
-    },
+            return host.querySelector<HTMLCanvasElement>('#' + host.targetId);
+        },
+        workerFn: (host) => new Worker(new URL('../worker.ts', import.meta.url), {
+            name: host.targetId
+        })
+    }),
     generator: {
         value: 'random',
-        connect: (host, key) => {
-            setTimeout(() => host.app.output$.next(makeMessage({
-                key,
-                value: host[key]
-            })), 1000);
-        },
         observe: (host, value) => {
             host.app.output$.next(makeMessage({
                 key: 'generator',
@@ -75,12 +44,6 @@ export default define<AppElement>({
     },
     scale: {
         value: 1,
-        connect: (host, key) => {
-            setTimeout(() => host.app.output$.next(makeMessage({
-                key,
-                value: host[key]
-            })), 1000);
-        },
         observe: (host, value) => {
             host.app.output$.next(makeMessage({
                 key: 'scale',
@@ -90,12 +53,6 @@ export default define<AppElement>({
     },
     offset: {
         value: 0,
-        connect: (host, key) => {
-            setTimeout(() => host.app.output$.next(makeMessage({
-                key,
-                value: host[key]
-            })), 1000);
-        },
         observe: (host, value) => {
             host.app.output$.next(makeMessage({
                 key: 'offset',

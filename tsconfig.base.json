@@ -19,6 +19,9 @@
       "@ogod/driver-box2d": ["packages/driver-box2d/src/index.ts"],
       "@ogod/driver-engine": ["packages/driver-engine/src/index.ts"],
       "@ogod/driver-worker": ["packages/driver-worker/src/index.ts"],
+      "@ogod/integration-hybrids": [
+        "packages/integration-hybrids/src/index.ts"
+      ],
       "@ogod/run": ["packages/run/src/index.ts"]
     }
   },
