@@ -36,7 +36,7 @@ export type HealthContact = Contact<BehaviorSubject<number>>;
 
 export interface AppSources {
     Worker: WorkerSource<AppReflectState>;
-    DOM: MainDOMSource;
+    // DOM: MainDOMSource;
 }
 
 export interface WorkerSources {

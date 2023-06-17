@@ -15,8 +15,8 @@ function randSize(min: number, max: number) {
     return Math.max(min, Math.round(Math.random() * max));
 }
 
-function randSpeed(max: number = 10) {
-    return Math.round(max - Math.random() * max * 2)
+function randSpeed(min: number = 3, max: number = 10) {
+    return Math.max(min, Math.round(Math.random() * max)) * Math.sign(Math.random() - 0.5);
 }
 
 function isColorLight(color: string) {
@@ -50,7 +50,7 @@ export function makeRect(rect: Partial<Rect>, world: b2World, scale: number) {
     body.CreateFixture({
         shape: new b2PolygonShape().SetAsBox(b2Width, b2Height),
         density: 10,
-        restitution: 1.2
+        restitution: rect.dynamic ? 1.2 : 0.9
     });
     const color = rect.color || randomColor();
     return {
