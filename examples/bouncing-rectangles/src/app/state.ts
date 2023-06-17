@@ -15,6 +15,7 @@ export interface AppState {
     objects: ObjectState;
     paused: boolean;
     player: Rect;
+    scale: number;
 }
 
 export type AppReflectState = Pick<AppState, 'fps'> & {

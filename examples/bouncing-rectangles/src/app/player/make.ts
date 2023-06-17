@@ -21,7 +21,7 @@ export function makeFeaturePlayer(sources: WorkerSources): FeatureKey<AppState, 
                         width: 15,
                         height: 25,
                         dynamic: true
-                    }, sources.World.instance, state.camera.scale)
+                    }, sources.World.instance, state.scale)
                 })
             })
         )

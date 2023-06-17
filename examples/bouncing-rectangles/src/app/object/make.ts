@@ -1,18 +1,17 @@
 import { FeatureKey, makeStateObject } from '@ogod/driver-engine';
 import { BehaviorSubject, finalize, first, map, of, switchMap, takeWhile } from 'rxjs';
 import { waitForCamera } from '../camera/make';
-import { Camera } from '../camera/state';
 import { makeRect } from '../rect/make';
 import { Rect } from '../rect/state';
 import { AppState, WorkerSources } from '../state';
 import { randNum } from '../util';
 import { ObjectState } from './state';
 
-export const updateMovement = (obj: Rect, camera: Camera) => {
+export const updateMovement = (obj: Rect, state: AppState) => {
     const pos = obj.body.GetPosition();
     const newPos = pos.Clone();
-    const appWidth = camera.width / camera.scale;
-    const appHeight = camera.height / camera.scale;
+    const appWidth = state.camera.width / state.scale;
+    const appHeight = state.camera.height / state.scale;
     if (pos.x < 0) {
         newPos.Set(pos.x + appWidth, appHeight - pos.y);
     } else if (pos.x > appWidth) {
@@ -26,21 +25,21 @@ export const updateMovement = (obj: Rect, camera: Camera) => {
     if (pos.x !== newPos.x || pos.y !== newPos.y) {
         obj.body.SetTransformVec(newPos, 0);
     }
-    obj.x = Math.round(obj.body.GetPosition().x * camera.scale);
-    obj.y = Math.round(obj.body.GetPosition().y * camera.scale);
+    obj.x = Math.round(obj.body.GetPosition().x * state.scale);
+    obj.y = Math.round(obj.body.GetPosition().y * state.scale);
     obj.angle = -obj.body.GetAngle();
 };
 
-export function makeFeatureObject(sources: WorkerSources, { x, y }, camera: Camera): FeatureKey<ObjectState, string> {
+export function makeFeatureObject(sources: WorkerSources, { x, y }, state: AppState): FeatureKey<ObjectState, string> {
     const id = randNum(8).toString();
-    const state = makeRect({
+    const obj = makeRect({
         id,
         x,
-        y: camera.height - y,
+        y: state.camera.height - y,
         dynamic: true
-    }, sources.World.instance, camera.scale);
-    const health$ = new BehaviorSubject(state.health);
-    state.body.SetUserData(health$);
+    }, sources.World.instance, state.scale);
+    const health$ = new BehaviorSubject(obj.health);
+    obj.body.SetUserData(health$);
     return {
         key: id,
         publishOnComplete: true,
@@ -51,11 +50,11 @@ export function makeFeatureObject(sources: WorkerSources, { x, y }, camera: Came
                     takeWhile((health) => health > 0),
                     finalize(() => sources.Engine.engine$.pipe(
                         first()
-                    ).subscribe(() => sources.World.instance.DestroyBody(state.body)))
+                    ).subscribe(() => sources.World.instance.DestroyBody(obj.body)))
                 )
             }),
             publishOnCreate: true,
-            state
+            state: obj
         })
     };
 }
@@ -67,7 +66,7 @@ export function makeFeatureObjects(sources: WorkerSources): FeatureKey<AppState,
         value$: makeStateObject({
             key$: waitForCamera(sources).pipe(
                 switchMap((state) => sources.Engine.action$.getHandler('objects').pipe(
-                    map((pos) => makeFeatureObject(sources, pos, state.camera)),
+                    map((pos) => makeFeatureObject(sources, pos, state)),
                 ))
             ),
             publishOnCreate: true,

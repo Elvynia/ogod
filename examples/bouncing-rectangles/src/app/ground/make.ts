@@ -1,7 +1,6 @@
 import { FeatureKey } from '@ogod/driver-engine';
 import { first, map, withLatestFrom } from 'rxjs';
 import { waitForCamera } from '../camera/make';
-import { Camera } from '../camera/state';
 import { makeRect } from '../rect/make';
 import { AppState, WorkerSources } from '../state';
 
@@ -13,45 +12,45 @@ export function makeGrad(ctx: OffscreenCanvasRenderingContext2D, length: number,
     return grad;
 }
 
-export function makeGrounds(sources: WorkerSources, camera: Camera, ctx: OffscreenCanvasRenderingContext2D) {
+export function makeGrounds(sources: WorkerSources, state: AppState, ctx: OffscreenCanvasRenderingContext2D) {
     const width = 10;
-    const yLength = camera.width - 200;
-    const xLength = camera.height - 200;
+    const yLength = state.camera.width - 200;
+    const xLength = state.camera.height - 200;
     return [
         makeRect({
-            x: camera.width / 2,
+            x: state.camera.width / 2,
             y: width / 2,
             width: yLength,
             height: width,
             dynamic: false,
             color: makeGrad(ctx, yLength)
-        }, sources.World.instance, camera.scale),
+        }, sources.World.instance, state.scale),
         makeRect({
             x: width / 2,
-            y: camera.height / 2,
+            y: state.camera.height / 2,
             width: xLength,
             height: width,
             dynamic: false,
             angle: -Math.PI / 2,
             color: makeGrad(ctx, yLength)
-        }, sources.World.instance, camera.scale),
+        }, sources.World.instance, state.scale),
         makeRect({
-            x: camera.width - width / 2,
-            y: camera.height / 2,
+            x: state.camera.width - width / 2,
+            y: state.camera.height / 2,
             width: xLength,
             height: width,
             dynamic: false,
             angle: -Math.PI / 2,
             color: makeGrad(ctx, yLength)
-        }, sources.World.instance, camera.scale),
+        }, sources.World.instance, state.scale),
         makeRect({
-            x: camera.width / 2,
-            y: camera.height - width / 2,
+            x: state.camera.width / 2,
+            y: state.camera.height - width / 2,
             width: yLength,
             height: width,
             dynamic: false,
             color: makeGrad(ctx, yLength)
-        }, sources.World.instance, camera.scale)
+        }, sources.World.instance, state.scale)
     ];
 }
 
@@ -62,7 +61,7 @@ export function makeFeatureGrounds(sources: WorkerSources): FeatureKey<AppState,
         value$: waitForCamera(sources).pipe(
             withLatestFrom(sources.Engine.target$),
             first(),
-            map(([state, canvas]) => makeGrounds(sources, state.camera, canvas.getContext('2d')))
+            map(([state, canvas]) => makeGrounds(sources, state, canvas.getContext('2d')))
         )
     }
 }

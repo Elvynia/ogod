@@ -1,41 +1,23 @@
 import { canvas, div, h3, input, makeDOMDriver, span } from '@cycle/dom';
-import { makeMessage, makeMessageEngine } from '@ogod/core';
+import { makeMessage, makeTargetActions } from '@ogod/core';
 import { makeDriverWorker } from '@ogod/driver-worker';
 import { run } from '@ogod/run';
-import { EMPTY, Subject, combineLatest, concat, debounceTime, delayWhen, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, interval, map, merge, of, startWith, switchMap, take, takeUntil, takeWhile, timer } from 'rxjs';
+import { EMPTY, Subject, combineLatest, delayWhen, distinctUntilChanged, distinctUntilKeyChanged, filter, first, from, fromEvent, interval, map, merge, of, startWith, switchMap, takeUntil, takeWhile, timer } from 'rxjs';
 import xs from 'xstream';
-import { Camera } from './app/camera/state';
 import { AppReflectState, AppSources } from './app/state';
 
 function main(sources: AppSources) {
+    const width = 800;
+    const height = 600;
     let paused = false;
     const playerColor = '#ff33ff';
-    const camera: Camera = {
-        width: 800,
-        height: 600,
-        scale: 10
-    }
     const canvas$ = sources.DOM.select('#game');
     const offscreen$ = from(canvas$.element() as any).pipe(
-        take(1),
-        switchMap((canvas: any) => {
-            const offscreen = canvas.transferControlToOffscreen();
-            return concat(
-                of(makeMessageEngine('OGOD_ENGINE_TARGET', offscreen, [offscreen])),
-                fromEvent(window, 'resize').pipe(
-                    debounceTime(16),
-                    startWith(camera),
-                    map(() => makeMessage({
-                        key: 'camera',
-                        value: {
-                            ...camera,
-                            width: canvas.clientWidth,
-                            height: canvas.clientHeight
-                        }
-                    }))
-                )
-            )
-        })
+        first(),
+        switchMap((canvas: HTMLCanvasElement) => makeTargetActions({
+            canvas,
+            resizeDebounceTime: 16
+        }))
     );
     const addRect$ = from(canvas$.events('mousedown') as any).pipe(
         switchMap((e) => paused ? EMPTY : timer(200).pipe(
@@ -79,17 +61,17 @@ function main(sources: AppSources) {
             playerColor$
         ),
         DOM: combineLatest([
-            of(canvas({ attrs: { id: 'game', width: camera.width, height: camera.height, tabindex: 0 } })),
+            of(canvas({ attrs: { id: 'game', width, height, tabindex: 0 } })),
             sources.Worker.input$.pipe(
-                map((state) => state.objects.map(({ x, y, angle, width, height, health, colorLight }) => div({
+                map((state) => state.objects.map(({ x, y, angle, width, height: objHeight, health, colorLight }) => div({
                     class: {
                         rect: true
                     },
                     style: {
                         color: colorLight ? 'black' : 'white',
                         width: `${width}px`,
-                        height: `${height}px`,
-                        transform: `translate(calc(${x}px - 50%), calc(${camera.height - y}px - 50%))rotate(${angle}rad)`
+                        height: `${objHeight}px`,
+                        transform: `translate(calc(${x}px - 50%), calc(${height - y}px - 50%))rotate(${angle}rad)`
                     }
                 }, [health.toString()]))),
                 startWith([])

@@ -1,5 +1,5 @@
 import { makeDriverBox2d } from '@ogod/driver-box2d';
-import { makeDriverEngine, makeStateObject } from '@ogod/driver-engine';
+import { makeActionEngineListener, makeDriverEngine, makeStateObject } from '@ogod/driver-engine';
 import { run } from '@ogod/run';
 import { ActionSubjectDefault } from 'packages/driver-engine/src/lib/action/state';
 import { EMPTY, distinctUntilChanged, filter, first, map, of, switchMap } from 'rxjs';
@@ -55,7 +55,9 @@ function main(sources: WorkerSources): WorkerSinks {
                     makeFeaturePlayer(sources),
                     makeFeatureObjects(sources)
                 ),
-                state: {} as AppState
+                state: {
+                    scale: 10
+                } as AppState
             }),
             systems: {
                 pre$: sources.Engine.state$.pipe(
@@ -63,9 +65,9 @@ function main(sources: WorkerSources): WorkerSinks {
                     first(),
                     map((state) => [() => {
                         for (let id in state.objects) {
-                            updateMovement(state.objects[id], state.camera);
+                            updateMovement(state.objects[id], state);
                         }
-                        updateMovement(state.player, state.camera);
+                        updateMovement(state.player, state);
                     }])
                 )
             }
@@ -83,6 +85,7 @@ function main(sources: WorkerSources): WorkerSinks {
 run(main, {
     Engine: makeDriverEngine({
         action$: new ActionSubjectDefault(new ActionHandlers()),
+        listeners: [makeActionEngineListener('camera')],
         workerContext: self
     }),
     World: makeDriverBox2d()
