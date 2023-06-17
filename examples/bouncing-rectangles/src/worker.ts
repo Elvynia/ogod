@@ -1,9 +1,8 @@
 import { makeDriverBox2d } from '@ogod/driver-box2d';
-import { makeActionEngineListener, makeDriverEngine, makeStateObject } from '@ogod/driver-engine';
+import { makeDriverEngine, makeStateObject } from '@ogod/driver-engine';
 import { run } from '@ogod/run';
 import { ActionSubjectDefault } from 'packages/driver-engine/src/lib/action/state';
-import { EMPTY, distinctUntilChanged, filter, first, map, of, switchMap } from 'rxjs';
-import { makeFeatureCamera } from './app/camera/make';
+import { EMPTY, distinctUntilChanged, filter, first, map, of, switchMap, withLatestFrom } from 'rxjs';
 import { makeFeatureFps } from './app/fps';
 import { makeFeatureGrounds } from './app/ground/make';
 import { makeFeatureObjects, updateMovement } from './app/object/make';
@@ -22,7 +21,7 @@ function main(sources: WorkerSources): WorkerSinks {
     return {
         Engine: {
             reflect$: sources.Engine.state$.pipe(
-                filter((state) => state.camera && state.player && !!state.objects),
+                filter((state) => state.player && !!state.objects),
                 first(),
                 switchMap((state) => sources.Engine.engine$.reflect$.pipe(
                     map(() => {
@@ -48,7 +47,6 @@ function main(sources: WorkerSources): WorkerSinks {
             render$: makeRenderer$(sources),
             state$: makeStateObject({
                 key$: of(
-                    makeFeatureCamera(sources),
                     makeFeatureFps(sources),
                     makeFeatureGrounds(sources),
                     makeFeaturePaused(sources),
@@ -62,12 +60,13 @@ function main(sources: WorkerSources): WorkerSinks {
             systems: {
                 pre$: sources.Engine.state$.pipe(
                     filter((s) => s.player && !!s.objects),
+                    withLatestFrom(sources.Engine.target$),
                     first(),
-                    map((state) => [() => {
+                    map(([state, canvas]) => [() => {
                         for (let id in state.objects) {
-                            updateMovement(state.objects[id], state);
+                            updateMovement(state.objects[id], state, canvas);
                         }
-                        updateMovement(state.player, state);
+                        updateMovement(state.player, state, canvas);
                     }])
                 )
             }
@@ -85,7 +84,6 @@ function main(sources: WorkerSources): WorkerSinks {
 run(main, {
     Engine: makeDriverEngine({
         action$: new ActionSubjectDefault(new ActionHandlers()),
-        listeners: [makeActionEngineListener('camera')],
         workerContext: self
     }),
     World: makeDriverBox2d()

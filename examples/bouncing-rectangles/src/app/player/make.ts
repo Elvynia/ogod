@@ -1,13 +1,13 @@
 import { FeatureKey, makeStateObject } from '@ogod/driver-engine';
-import { of, switchMap } from 'rxjs';
-import { waitForCamera } from '../camera/make';
+import { first, of, switchMap } from 'rxjs';
 import { makeRect } from '../rect/make';
 import { AppState, WorkerSources } from "../state";
 
 export function makeFeaturePlayer(sources: WorkerSources): FeatureKey<AppState, 'player'> {
     return {
         key: 'player',
-        value$: waitForCamera(sources).pipe(
+        value$: sources.Engine.state$.pipe(
+            first(),
             switchMap((state) => {
                 return makeStateObject({
                     key$: of({

@@ -1,10 +1,11 @@
+import { distinctState } from '@ogod/core';
 import { makeDriverBox2d } from '@ogod/driver-box2d';
-import { makeActionEngineListener, makeDriverEngine, makeStateObject } from '@ogod/driver-engine';
+import { makeDriverEngine, makeStateObject } from '@ogod/driver-engine';
 import { run } from '@ogod/run';
 import { ActionSubjectDefault } from 'packages/driver-engine/src/lib/action/state';
 import { EMPTY, distinctUntilChanged, filter, first, map, merge, of, switchMap } from "rxjs";
 import { makeFeatureBackground } from './app/background/make';
-import { makeFeatureCameraResize } from './app/camera/make';
+import { makeFeatureCamera } from './app/camera/make';
 import { makeFeatureControls } from './app/controls/make';
 import { makeFeatureFps } from './app/fps/make';
 import { makeLevel } from './app/level/make';
@@ -41,7 +42,7 @@ function main(sources: WorkerSources): WorkerSinks {
                 makeStateObject({
                     key$: of(
                         makeFeatureBackground(sources),
-                        makeFeatureCameraResize(sources),
+                        makeFeatureCamera(sources),
                         makeFeatureControls(sources),
                         makeFeatureFps(sources),
                         makeFeatureLoading(sources),
@@ -64,6 +65,26 @@ function main(sources: WorkerSources): WorkerSinks {
                             shape.y = Math.round(shape.body.GetPosition().y * sources.World.scale);
                         }
                     }])
+                ),
+                post$: sources.Engine.state$.pipe(
+                    filter((s) => s.phase > PHASE.SPLASH),
+                    switchMap(() => sources.Engine.state$.pipe(
+                        distinctState({
+                            resolver: (s) => s.phase + s.camera.width
+                        }),
+                        map(({ camera, map: mapState, shapes, phase }) => {
+                            if (phase === PHASE.PLAY) {
+                                const minY = -mapState.height * mapState.scale / 2;
+                                const maxX = mapState.width * mapState.scale - camera.width;
+                                return [() => {
+                                    // FIXME: Smmoth scrolling by tweening with delta.
+                                    camera.x = Math.min(maxX, Math.max(0, shapes.player.x - camera.width / 2));
+                                    camera.y = Math.min(-minY, Math.max(minY, shapes.player.y - camera.height / 2));
+                                }];
+                            }
+                            return [];
+                        })
+                    ))
                 )
             }
         },
@@ -85,7 +106,6 @@ function main(sources: WorkerSources): WorkerSinks {
 run(main, {
     Engine: makeDriverEngine({
         action$: new ActionSubjectDefault(new ActionHandlers()),
-        listeners: [makeActionEngineListener('camera')],
         workerContext: self
     }),
     World: makeDriverBox2d({ x: 0, y: -10 }, WORLD_SCALE)

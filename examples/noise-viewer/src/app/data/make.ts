@@ -1,5 +1,5 @@
 import { FeatureKey } from '@ogod/driver-engine';
-import { filter, map, switchMap, throttleTime } from 'rxjs';
+import { filter, first, map, switchMap, throttleTime } from 'rxjs';
 import { AppState, WorkerSources } from '../state';
 
 export function makeNoiseViewCreator(ctx: OffscreenCanvasRenderingContext2D) {
@@ -29,7 +29,7 @@ export function makeFeatureData(sources: WorkerSources): FeatureKey<AppState, 'd
                 const makeNoiseView = makeNoiseViewCreator(canvas.getContext('2d'));
                 return sources.Engine.state$.pipe(
                     filter((s) => s.scale && s.offset && !!s.generator),
-                    // first(),
+                    first(),
                     switchMap((state) => sources.Engine.engine$.pipe(
                         throttleTime(throttle),
                         map(() => makeNoiseView(state.generator(), state.scale, state.offset()))

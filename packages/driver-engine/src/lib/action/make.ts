@@ -8,7 +8,7 @@ export function makeActionEngineHandler(): ActionHandlerDefault {
     }
 }
 
-export function makeActionEngineListener(resizeStateKey?: string) {
+export function makeActionEngineListener() {
     return (engine: EngineSource<any, ActionHandlerDefault>) => {
         engine.action$.getHandler('engine').pipe(
             filter(isActionEngineTarget)
@@ -19,9 +19,7 @@ export function makeActionEngineListener(resizeStateKey?: string) {
         ).subscribe(([{ payload }, canvas]) => {
             canvas.width = payload.width;
             canvas.height = payload.height;
-            if (resizeStateKey) {
-                engine.action$.getHandler(resizeStateKey as any).next(payload);
-            }
+            engine.target$.next(canvas);
         });
         if (engine.workerContext) {
             engine.action$.getHandler('engine').pipe(

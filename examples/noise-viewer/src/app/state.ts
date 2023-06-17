@@ -2,7 +2,6 @@ import { WorkerMessage } from '@ogod/core';
 import { EngineSink, EngineSource } from '@ogod/driver-engine';
 import { WorkerSource } from '@ogod/driver-worker';
 import { Subject } from 'rxjs';
-import { Camera } from './camera/state';
 import { GeneratorType } from './generator/state';
 
 export interface AppState {
@@ -24,7 +23,6 @@ export type AppAction = typeof ActionKeys[number];
 
 export class ActionHandlers {
     constructor(
-        public camera?: Camera,
         public generator?: GeneratorType,
         public scale?: number,
         public offset?: number

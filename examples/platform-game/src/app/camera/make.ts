@@ -1,9 +1,9 @@
 import { FeatureKey } from "@ogod/driver-engine";
-import { filter, first, ignoreElements, map, switchMap, tap } from "rxjs";
+import { map, skip } from "rxjs";
 import { AppState, WorkerSources } from "../state";
 import { Camera } from "./state";
 
-export function makeFeatureCameraResize(sources: WorkerSources): FeatureKey<AppState, 'camera'> {
+export function makeFeatureCamera(sources: WorkerSources): FeatureKey<AppState, 'camera'> {
     const value = {
         x: 0,
         y: 0
@@ -12,35 +12,14 @@ export function makeFeatureCameraResize(sources: WorkerSources): FeatureKey<AppS
         key: 'camera',
         publishOnCreate: true,
         publishOnNext: true,
-        value$: sources.Engine.action$.getHandler('camera').pipe(
-            map((payload) => {
-                Object.assign(value, payload);
+        value$: sources.Engine.target$.pipe(
+            skip(1),
+            map((canvas) => {
+                value.width = canvas.width;
+                value.height = canvas.height;
                 return value;
             })
         ),
         value
     };
-}
-
-// FIXME: use system$
-export function makeFeatureCameraUpdate(sources: WorkerSources): FeatureKey<AppState, 'camera'> {
-    return {
-        key: 'camera',
-        value$: sources.Engine.state$.pipe(
-            filter((s) => !!s.shapes?.player),
-            first(),
-            switchMap(({ camera, map: mapState, shapes }) => {
-                const minY = -mapState.height * mapState.scale / 2;
-                const maxX = mapState.width * mapState.scale - camera.width;
-                return sources.Engine.engine$.pipe(
-                    tap(() => {
-                        // FIXME: Smmoth scrolling by tweening with delta.
-                        camera.x = Math.min(maxX, Math.max(0, shapes.player.x - camera.width / 2));
-                        camera.y = Math.min(-minY, Math.max(minY, shapes.player.y - camera.height / 2));
-                    }),
-                    ignoreElements()
-                );
-            })
-        )
-    }
 }

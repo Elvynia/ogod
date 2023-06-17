@@ -1,6 +1,5 @@
 import { FeatureKey } from '@ogod/driver-engine';
 import { first, map, withLatestFrom } from 'rxjs';
-import { waitForCamera } from '../camera/make';
 import { makeRect } from '../rect/make';
 import { AppState, WorkerSources } from '../state';
 
@@ -12,13 +11,14 @@ export function makeGrad(ctx: OffscreenCanvasRenderingContext2D, length: number,
     return grad;
 }
 
-export function makeGrounds(sources: WorkerSources, state: AppState, ctx: OffscreenCanvasRenderingContext2D) {
+export function makeGrounds(sources: WorkerSources, state: AppState, canvas: OffscreenCanvas) {
+    const ctx = canvas.getContext('2d');
     const width = 10;
-    const yLength = state.camera.width - 200;
-    const xLength = state.camera.height - 200;
+    const yLength = canvas.width - 200;
+    const xLength = canvas.height - 200;
     return [
         makeRect({
-            x: state.camera.width / 2,
+            x: canvas.width / 2,
             y: width / 2,
             width: yLength,
             height: width,
@@ -27,7 +27,7 @@ export function makeGrounds(sources: WorkerSources, state: AppState, ctx: Offscr
         }, sources.World.instance, state.scale),
         makeRect({
             x: width / 2,
-            y: state.camera.height / 2,
+            y: canvas.height / 2,
             width: xLength,
             height: width,
             dynamic: false,
@@ -35,8 +35,8 @@ export function makeGrounds(sources: WorkerSources, state: AppState, ctx: Offscr
             color: makeGrad(ctx, yLength)
         }, sources.World.instance, state.scale),
         makeRect({
-            x: state.camera.width - width / 2,
-            y: state.camera.height / 2,
+            x: canvas.width - width / 2,
+            y: canvas.height / 2,
             width: xLength,
             height: width,
             dynamic: false,
@@ -44,8 +44,8 @@ export function makeGrounds(sources: WorkerSources, state: AppState, ctx: Offscr
             color: makeGrad(ctx, yLength)
         }, sources.World.instance, state.scale),
         makeRect({
-            x: state.camera.width / 2,
-            y: state.camera.height - width / 2,
+            x: canvas.width / 2,
+            y: canvas.height - width / 2,
             width: yLength,
             height: width,
             dynamic: false,
@@ -58,10 +58,10 @@ export function makeFeatureGrounds(sources: WorkerSources): FeatureKey<AppState,
     return {
         key: 'grounds',
         publishOnCreate: true,
-        value$: waitForCamera(sources).pipe(
+        value$: sources.Engine.state$.pipe(
             withLatestFrom(sources.Engine.target$),
             first(),
-            map(([state, canvas]) => makeGrounds(sources, state, canvas.getContext('2d')))
+            map(([state, canvas]) => makeGrounds(sources, state, canvas))
         )
     }
 }
