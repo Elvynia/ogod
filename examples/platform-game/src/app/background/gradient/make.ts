@@ -47,7 +47,7 @@ export function makeFeatureBackgroundGradient(sources: WorkerSources): FeatureKe
             filter((s) => s.background?.colors && s.phase > PHASE.SPLASH),
             first(),
             switchMap(() => sources.Engine.state$.pipe(
-                distinctState((state) => state.background.baseColor + state.camera.width),
+                distinctState((state) => state.background.baseColor + state.camera.width + state.map.width),
                 withLatestFrom(sources.Engine.target$),
                 switchMap(([state, canvas]) => {
                     const ctx = canvas.getContext('2d');

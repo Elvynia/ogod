@@ -10,9 +10,9 @@ export type BackgroundColors = Pick<Background, 'baseColor' | 'colors'>;
 export function makeBackgroundColors(color: string): BackgroundColors {
     const ch = chroma(color).lch();
     const colors = [color];
-    for (let i = 0; i < 4; ++i) {
-        ch[2] += 50;
-        colors.push(chroma.lch(...ch).hex())
+    for (let i = 0; i < 6; ++i) {
+        ch[2] += 30;
+        colors.push(chroma.lch(...ch).hex());
     }
     return {
         baseColor: color,

@@ -1,6 +1,5 @@
-import { MainDOMSource } from '@cycle/dom';
-import { Contact, Box2dSink, Box2dSource } from '@ogod/driver-box2d';
-import { FeatureKey, EngineSink, EngineSource } from '@ogod/driver-engine';
+import { Box2dSink, Box2dSource, Contact } from '@ogod/driver-box2d';
+import { EngineSink, EngineSource, FeatureKey } from '@ogod/driver-engine';
 import { WorkerSource } from '@ogod/driver-worker';
 import { Background } from './background/state';
 import { Camera } from './camera/state';
@@ -17,7 +16,6 @@ export type AppReflectState = Pick<AppState, 'phase' | 'loading' | 'fps' | 'paus
 
 export interface AppSources {
     Worker: WorkerSource<AppReflectState>;
-    DOM: MainDOMSource;
 }
 
 export interface AppState {

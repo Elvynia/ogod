@@ -20,7 +20,10 @@ function makeLevelLoad(sources: WorkerSources) {
         )
     }).pipe(
         tap({
-            complete: () => sources.Engine.action$.getHandler('phase').next(PHASE.PLAY)
+            complete: () => sources.Engine.state$.pipe(
+                filter((s) => Object.keys(s.loading).length === 0),
+                first()
+            ).subscribe(() => sources.Engine.action$.getHandler('phase').next(PHASE.PLAY))
         })
     );
 }

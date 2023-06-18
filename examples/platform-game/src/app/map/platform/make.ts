@@ -1,7 +1,7 @@
 import { b2BodyType } from "@box2d/core";
 import { Box2dSource } from '@ogod/driver-box2d';
 import { FeatureKey, makeStateObject } from "@ogod/driver-engine";
-import { EMPTY, concatMap, delay, first, map, of, range, tap } from "rxjs";
+import { EMPTY, concatMap, delay, first, ignoreElements, map, of, range, skip, tap } from "rxjs";
 import { createNoise2D } from "simplex-noise";
 import { makeShape } from "../../shape/make";
 import { WorkerSources } from "../../state";
@@ -46,16 +46,26 @@ export function makeFeatureMapPlatform(sources: WorkerSources): FeatureKey<MapSt
                             }
                             return of(platforms).pipe(
                                 delay(50),
-                                tap(() => sources.Engine.action$.getHandler('loading').next({
-                                    key: 'map',
-                                    publishOnCreate: true,
-                                    publishOnComplete: Math.round(x * 100 / mapState.width) === 100,
-                                    value$: EMPTY,
-                                    value: {
-                                        message: 'Generating map platforms !',
-                                        progress: Math.round(x * 100 / mapState.width)
-                                    }
-                                }))
+                                tap(() => {
+                                    const progress = Math.round(x * 100 / mapState.width);
+                                    const publishOnComplete = progress === 100;
+                                    return sources.Engine.action$.getHandler('loading').next({
+                                        key: 'map',
+                                        publishOnCreate: true,
+                                        publishOnComplete,
+                                        value$: publishOnComplete
+                                            ? sources.Engine.engine$.pipe(
+                                                skip(1),
+                                                first(),
+                                                ignoreElements()
+                                            )
+                                            : EMPTY,
+                                        value: {
+                                            message: 'Generating map platforms !',
+                                            progress
+                                        }
+                                    })
+                                })
                             );
                         })
                     )
