@@ -10,20 +10,37 @@
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
-    "lib": ["webworker", "es2020", "dom"],
+    "lib": [
+      "webworker",
+      "es2020",
+      "dom"
+    ],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@ogod/core": ["packages/core/src/index.ts"],
-      "@ogod/driver-box2d": ["packages/driver-box2d/src/index.ts"],
-      "@ogod/driver-engine": ["packages/driver-engine/src/index.ts"],
-      "@ogod/driver-worker": ["packages/driver-worker/src/index.ts"],
-      "@ogod/integration-hybrids": [
-        "packages/integration-hybrids/src/index.ts"
+      "@ogod/core": [
+        "packages/core/src/index.ts"
       ],
-      "@ogod/run": ["packages/run/src/index.ts"]
+      "@ogod/driver-box2d": [
+        "packages/driver/box2d/src/index.ts"
+      ],
+      "@ogod/driver-engine": [
+        "packages/driver/engine/src/index.ts"
+      ],
+      "@ogod/driver-worker": [
+        "packages/driver/worker/src/index.ts"
+      ],
+      "@ogod/integration-hybrids": [
+        "packages/integration/hybrids/src/index.ts"
+      ],
+      "@ogod/run": [
+        "packages/run/src/index.ts"
+      ]
     }
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
 }

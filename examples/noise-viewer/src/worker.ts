@@ -1,6 +1,5 @@
-import { makeDriverEngine, makeStateObject } from '@ogod/driver-engine';
+import { ActionSubjectDefault, makeDriverEngine, makeStateObject } from '@ogod/driver-engine';
 import { run } from '@ogod/run';
-import { ActionSubjectDefault } from 'packages/driver-engine/src/lib/action/state';
 import { of } from 'rxjs';
 import { makeFeatureData } from './app/data/make';
 import { makeFeatureGenerator } from './app/generator/make';
