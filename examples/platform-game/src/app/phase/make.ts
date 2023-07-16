@@ -1,5 +1,5 @@
 import { FeatureKey } from '@ogod/driver-engine';
-import { filter, first, map, merge, tap } from 'rxjs';
+import { filter, first, map, merge } from 'rxjs';
 import { AppState, WorkerSources } from '../state';
 import { PHASE } from './state';
 

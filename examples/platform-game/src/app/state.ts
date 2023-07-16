@@ -8,7 +8,7 @@ import { LoadingState } from './loading/state';
 import { MapState } from './map/state';
 import { PHASE } from './phase/state';
 import { Shapes } from './shape/state';
-import { SplashState } from './splash/state';
+import { SplashState } from './splash';
 
 export type AppReflectState = Pick<AppState, 'phase' | 'loading' | 'fps' | 'paused'>
     & Pick<MapState, 'level' | 'gravity'>

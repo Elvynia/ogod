@@ -1,6 +1,6 @@
 import { FeatureKey } from '@ogod/driver-engine';
 import { first, map, withLatestFrom } from 'rxjs';
-import { makeRect } from '../rect/make';
+import { makeBox } from '../object/make';
 import { AppState, WorkerSources } from '../state';
 
 export function makeGrad(ctx: OffscreenCanvasRenderingContext2D, length: number, middle: number = 0.5) {
@@ -17,15 +17,15 @@ export function makeGrounds(sources: WorkerSources, state: AppState, canvas: Off
     const yLength = canvas.width - 200;
     const xLength = canvas.height - 200;
     return [
-        makeRect({
+        makeBox({
             x: canvas.width / 2,
             y: width / 2,
             width: yLength,
             height: width,
             dynamic: false,
             color: makeGrad(ctx, yLength)
-        }, sources.World.instance, state.scale),
-        makeRect({
+        }, sources.World),
+        makeBox({
             x: width / 2,
             y: canvas.height / 2,
             width: xLength,
@@ -33,8 +33,8 @@ export function makeGrounds(sources: WorkerSources, state: AppState, canvas: Off
             dynamic: false,
             angle: -Math.PI / 2,
             color: makeGrad(ctx, yLength)
-        }, sources.World.instance, state.scale),
-        makeRect({
+        }, sources.World),
+        makeBox({
             x: canvas.width - width / 2,
             y: canvas.height / 2,
             width: xLength,
@@ -42,15 +42,15 @@ export function makeGrounds(sources: WorkerSources, state: AppState, canvas: Off
             dynamic: false,
             angle: -Math.PI / 2,
             color: makeGrad(ctx, yLength)
-        }, sources.World.instance, state.scale),
-        makeRect({
+        }, sources.World),
+        makeBox({
             x: canvas.width / 2,
             y: canvas.height - width / 2,
             width: yLength,
             height: width,
             dynamic: false,
             color: makeGrad(ctx, yLength)
-        }, sources.World.instance, state.scale)
+        }, sources.World)
     ];
 }
 

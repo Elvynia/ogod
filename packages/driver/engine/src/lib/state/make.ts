@@ -1,9 +1,9 @@
 import { Observable, Observer, Subscriber, finalize, mergeMap, startWith, switchMap } from "rxjs";
-import { FeatureGroup, FeatureKey, FeatureObject, FeatureProperty, isFeatureKey } from "../feature/state";
+import { FeatureGroup, FeatureKey, FeatureObject, FeaturePropertyState, isFeatureKey } from "../feature/state";
 
 export function makeObserverProperty<T extends object, V>(
     assign: (value: V) => void,
-    feature: FeatureProperty<T>,
+    feature: FeaturePropertyState<T>,
     remove: () => void,
     subscriber: Subscriber<T>
 ): Observer<V> {
@@ -48,7 +48,7 @@ export function makeObserverGroup<T extends object>(
 }
 
 export function makeObserverKey<T extends object, K extends keyof T = keyof T>(
-    feature: FeatureKey<T> & { state: T },
+    feature: FeatureKey<T, K> & { state: T },
     subscriber: Subscriber<T>
 ): Observer<T[K]> {
     return makeObserverProperty(
@@ -59,9 +59,9 @@ export function makeObserverKey<T extends object, K extends keyof T = keyof T>(
     );
 }
 
-export function makeStateProperty<T extends object>(feature: FeatureProperty<T>): Observable<T> {
+export function makeStateProperty<T extends object>(feature: FeaturePropertyState<T>): Observable<T> {
     return new Observable<T>((subscriber) => {
-        const sub = isFeatureKey(feature)
+        const sub = isFeatureKey<T>(feature)
             ? feature.value$.subscribe(makeObserverKey(feature, subscriber))
             : feature.value$.subscribe(makeObserverGroup(feature, subscriber));
         return () => {

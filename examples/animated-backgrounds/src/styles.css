@@ -4,7 +4,7 @@ body {
     height: 100vh;
 }
 
-app-root {
+animated-background {
     display: flex;
     height: 100%;
 }

@@ -2,11 +2,10 @@ import { el } from '@modern-helpers/el';
 import { makeMessage, makeTargetActions } from '@ogod/core';
 import { makeDriverWorker } from '@ogod/driver-worker';
 import { run } from '@ogod/run';
-import { EMPTY, filter, first, fromEvent, interval, map, merge, startWith, switchMap, takeUntil, takeWhile, timer } from 'rxjs';
+import { EMPTY, filter, first, fromEvent, interval, map, merge, race, switchMap, takeUntil, timer, withLatestFrom } from 'rxjs';
 import { AppReflectState, AppSources } from './app/state';
 
 function main(sources: AppSources) {
-    let paused = false;
     const playerColor = '#ff33ff';
     const playerColorId = 'playerColor';
     const canvas = el('canvas', {
@@ -62,7 +61,7 @@ function main(sources: AppSources) {
             rects[i].style.width = `${obj.width}px`;
             rects[i].style.height = `${obj.height}px`;
             rects[i].textContent = obj.health.toString();
-            rects[i].style.transform = `translate(calc(${obj.x}px - 50%), calc(${canvas.height - obj.y}px - 50%))rotate(${obj.angle}rad)`;
+            rects[i].style.transform = `translate(calc(${obj.x}px - 50%), calc(${obj.y}px - 50%))rotate(${obj.angle}rad)`;
         }
         if (rects.length > state.objects.length) {
             rects.splice(state.objects.length, rects.length - state.objects.length).forEach((el) => wrapper.removeChild(el));
@@ -85,14 +84,13 @@ function main(sources: AppSources) {
             fromEvent(canvas, 'focus').pipe(
                 switchMap(() => fromEvent(canvas, 'keydown').pipe(
                     takeUntil(fromEvent(canvas, 'blur')),
-                    filter((e: KeyboardEvent) => e.code === 'Space'),
-                    map(() => paused = !paused)
+                    filter((e: KeyboardEvent) => e.code === 'Space')
                 )),
-                startWith(paused),
-                map((value) => makeMessage({ key: 'paused', value }))
+                map(() => makeMessage({ key: 'paused' }))
             ),
             fromEvent(canvas, 'mousedown').pipe(
-                switchMap((e) => paused ? EMPTY : timer(200).pipe(
+                withLatestFrom(sources.Worker.input$),
+                switchMap(([e, state]) => state.paused ? EMPTY : timer(200).pipe(
                     switchMap(() => interval(100).pipe(
                         map(() => e as MouseEvent),
                         map(({ clientX, clientY }) => makeMessage({
@@ -103,9 +101,14 @@ function main(sources: AppSources) {
                             }
                         }))
                     )),
-                    takeWhile(() => !paused),
-                    takeUntil(fromEvent(document, 'mouseup').pipe(
-                        first()
+                    takeUntil(race(
+                        fromEvent(document, 'mouseup').pipe(
+                            first()
+                        ),
+                        sources.Worker.input$.pipe(
+                            filter((state) => state.paused),
+                            first()
+                        )
                     ))
                 ))
             )

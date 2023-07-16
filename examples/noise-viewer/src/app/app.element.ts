@@ -1,8 +1,8 @@
 import { WorkerMessage, makeMessage } from '@ogod/core';
+import { makeRandNum } from '@ogod/examples-common';
 import { makeHybridWorker } from '@ogod/integration-hybrids';
 import { define, html } from 'hybrids';
 import { Subject } from 'rxjs';
-import { randNum } from './util';
 
 interface AppElement extends HTMLElement {
     app: {
@@ -21,7 +21,7 @@ export default define<AppElement>({
     targetId: {
         value: '',
         connect: (host, key) => {
-            host[key] = '_' + randNum(8).toString()
+            host[key] = '_' + makeRandNum().toString()
         }
     },
     app: makeHybridWorker({

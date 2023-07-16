@@ -2,7 +2,7 @@ import { ActionSubjectDefault, makeDriverEngine, makeStateObject } from '@ogod/d
 import { run } from '@ogod/run';
 import { first, map, of, switchMap } from 'rxjs';
 import { makeFeatureObjects } from './app/object/make';
-import { makeRenderer$ } from './app/renderer/make';
+import { makeRender } from './app/render';
 import { ActionHandlers, AppState, WorkerSinks, WorkerSources } from './app/state';
 
 declare var self: DedicatedWorkerGlobalScope;
@@ -18,7 +18,7 @@ function main(sources: WorkerSources): WorkerSinks {
                     }))
                 ))
             ),
-            render$: makeRenderer$(sources),
+            render$: makeRender(sources),
             state$: makeStateObject({
                 key$: of(
                     makeFeatureObjects(sources)

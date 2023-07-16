@@ -1,0 +1,26 @@
+{
+  "name": "examples-common",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/examples/common/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/examples/common",
+        "main": "packages/examples/common/src/index.ts",
+        "tsConfig": "packages/examples/common/tsconfig.lib.json",
+        "assets": ["packages/examples/common/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/examples/common/**/*.ts"]
+      }
+    }
+  },
+  "tags": []
+}

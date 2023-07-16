@@ -12,9 +12,10 @@ canvas {
 }
 
 .rect {
-    display: table-cell;
+    display: flex;
     position: absolute;
-    text-align: center;
+    justify-content: center;
+    align-items: center;
     user-select: none;
 }
 

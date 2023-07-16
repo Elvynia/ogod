@@ -1,13 +1,3 @@
-import { Shape } from "../renderer/draw";
+import { AnyShape } from "@ogod/examples-common";
 
-export interface CanvasObject {
-    id: string;
-    x: number;
-    y: number;
-    v: number;
-    s: number;
-    c: string;
-    shape: Shape;
-}
-
-export type ObjectState = Record<string, CanvasObject>;
+export type ObjectState = Record<string, AnyShape>;

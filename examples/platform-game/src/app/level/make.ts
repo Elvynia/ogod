@@ -1,12 +1,11 @@
 import { makeStateObject } from "@ogod/driver-engine";
+import { makeFeatureSwitch } from "@ogod/examples-common";
 import { Observable, concat, filter, first, of, race, switchMap, takeUntil, tap } from "rxjs";
 import { makeFeatureMapLoad } from "../map/make";
-import { makeFeaturePaused } from "../paused/make";
 import { PHASE } from '../phase/state';
 import { makeFeatureShapesLoad, makeFeatureShapesUpdate } from "../shape/make";
-import { PLAYER_INIT_POS_BODY } from "../shape/player/make";
+import { makePlayerPosition } from "../shape/player/make";
 import { AppState, WorkerSources } from "../state";
-import { PLAYER_INIT_POS } from './../shape/player/make';
 
 function makeLevelLoad(sources: WorkerSources) {
     return makeStateObject({
@@ -32,7 +31,11 @@ function makeLevelPlay(sources: WorkerSources) {
     return makeStateObject({
         key$: of(
             makeFeatureShapesUpdate(sources),
-            makeFeaturePaused(sources)
+            makeFeatureSwitch({
+                key: 'paused',
+                action$: sources.Engine.action$.getHandler('paused'),
+                state$: sources.Engine.state$
+            })
         ),
         state: sources.Engine.state$.pipe(
             first()
@@ -42,12 +45,12 @@ function makeLevelPlay(sources: WorkerSources) {
             first(),
             switchMap((state) => race(
                 sources.Engine.engine$.pipe(
-                    filter(() => state.shapes.player.grounded && state.shapes.player.x > state.map.width * state.map.scale - 25),
+                    filter(() => state.shapes.player.grounded && state.shapes.player.worldX > state.map.width * state.map.scale - 25),
                     first(),
                     tap(() => sources.Engine.action$.getHandler('phase').next(PHASE.END))
                 ),
                 sources.Engine.engine$.pipe(
-                    filter(() => state.shapes.player.body.GetPosition().y < -1),
+                    filter(() => state.shapes.player.worldY < -100),
                     first(),
                     tap(() => sources.Engine.action$.getHandler('phase').next(PHASE.GAMEOVER))
                 )
@@ -62,9 +65,9 @@ function makeLevelRestartOrNext(sources: WorkerSources, levelHolder: { makeLevel
         first(),
         switchMap((state) => {
             if (state.phase == PHASE.GAMEOVER) {
-                state.shapes.player.body.SetTransformVec(PLAYER_INIT_POS_BODY, 0);
+                state.shapes.player.body.SetTransformVec(makePlayerPosition(), 0);
                 state.shapes.player.body.SetLinearVelocity(VELOCITY_DEFAULT);
-                Object.assign(state.shapes.player, PLAYER_INIT_POS);
+                Object.assign(state.shapes.player, makePlayerPosition(sources.World.scale));
                 sources.Engine.action$.getHandler('phase').next(PHASE.PLAY);
                 return concat(
                     makeLevelPlay(sources),

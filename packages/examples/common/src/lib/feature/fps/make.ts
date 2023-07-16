@@ -1,19 +1,21 @@
-import { FeatureKey } from '@ogod/driver-engine';
+import { EngineSubject, FeatureKey } from '@ogod/driver-engine';
 import { bufferCount, distinctUntilChanged, map } from 'rxjs';
-import { AppState, WorkerSources } from './state';
 
-export function makeFeatureFps(sources: WorkerSources): FeatureKey<AppState, 'fps'> {
+export function makeFeatureFps<K extends string>(params: {
+    key: K,
+    engine$: EngineSubject,
+}): FeatureKey<Record<K, number>, K> {
     return {
-        key: 'fps',
+        key: params.key,
         publishOnCreate: true,
         publishOnNext: true,
-        value$: sources.Engine.engine$.pipe(
+        value$: params.engine$.pipe(
             bufferCount(10),
             map((frames) => {
                 const total = frames.reduce((acc, curr) => acc + curr.delta, 0) / 1000;
                 return 1 / (total / frames.length);
             }),
-            map((fps) => Math.round(fps * 10) / 10),
+            map((fps) => Math.round(fps)),
             distinctUntilChanged(),
         ),
         value: 0

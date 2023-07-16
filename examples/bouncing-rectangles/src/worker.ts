@@ -1,13 +1,13 @@
 import { makeDriverBox2d } from '@ogod/driver-box2d';
 import { ActionSubjectDefault, makeDriverEngine, makeStateObject } from '@ogod/driver-engine';
+import { makeFeatureFps, makeFeatureSwitch } from '@ogod/examples-common';
 import { run } from '@ogod/run';
 import { EMPTY, distinctUntilChanged, filter, first, map, of, switchMap, withLatestFrom } from 'rxjs';
-import { makeFeatureFps } from './app/fps';
 import { makeFeatureGrounds } from './app/ground/make';
-import { makeFeatureObjects, updateMovement } from './app/object/make';
-import { makeFeaturePaused } from './app/paused/make';
+import { makeFeatureObjects } from './app/object/make';
+import { updateMovement } from './app/object/movement';
 import { makeFeaturePlayer } from './app/player/make';
-import { makeRenderer$ } from './app/renderer/make';
+import { makeRenderer$ } from './app/render';
 import { ActionHandlers, AppState, WorkerSinks, WorkerSources } from './app/state';
 
 declare var self: DedicatedWorkerGlobalScope;
@@ -38,7 +38,8 @@ function main(sources: WorkerSources): WorkerSinks {
                         return {
                             box2dCount: sources.World.instance.GetBodyCount(),
                             fps: state.fps,
-                            objects
+                            objects,
+                            paused: state.paused
                         }
                     })
                 ))
@@ -46,15 +47,20 @@ function main(sources: WorkerSources): WorkerSinks {
             render$: makeRenderer$(sources),
             state$: makeStateObject({
                 key$: of(
-                    makeFeatureFps(sources),
+                    makeFeatureFps({
+                        key: 'fps',
+                        engine$: sources.Engine.engine$
+                    }),
                     makeFeatureGrounds(sources),
-                    makeFeaturePaused(sources),
+                    makeFeatureSwitch({
+                        key: 'paused',
+                        action$: sources.Engine.action$.getHandler('paused'),
+                        state$: sources.Engine.state$
+                    }),
                     makeFeaturePlayer(sources),
                     makeFeatureObjects(sources)
                 ),
-                state: {
-                    scale: 10
-                } as AppState
+                state: {} as AppState
             }),
             systems: {
                 pre$: sources.Engine.state$.pipe(
@@ -63,9 +69,9 @@ function main(sources: WorkerSources): WorkerSinks {
                     first(),
                     map(([state, canvas]) => [() => {
                         for (let id in state.objects) {
-                            updateMovement(state.objects[id], state, canvas);
+                            updateMovement(state.objects[id], sources.World.scale, canvas);
                         }
-                        updateMovement(state.player, state, canvas);
+                        updateMovement(state.player, sources.World.scale, canvas);
                     }])
                 )
             }

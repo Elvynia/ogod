@@ -1,14 +1,14 @@
 import { tweenObject } from '@ogod/core';
 import { FeatureKey, makeStateObject } from '@ogod/driver-engine';
+import { Circle, makeRandColor, makeRandNum } from '@ogod/examples-common';
 import { filter, first, map, mergeMap, range, switchMap, tap } from 'rxjs';
-import { PHASE } from '../phase/state';
-import { AppState, WorkerSources } from '../state';
-import { randColor, randNum } from '../util';
-import { SplashState } from './state';
+import { PHASE } from './phase/state';
+import { AppState, WorkerSources } from './state';
+
+export type SplashState = Record<string, Circle>;
 
 function easeOutElastic(x: number): number {
     const c4 = (2 * Math.PI) / 3;
-
     return x === 0
         ? 0
         : x === 1
@@ -31,16 +31,17 @@ export function makeFeatureSplash(sources: WorkerSources): FeatureKey<AppState, 
                 first(),
                 switchMap((state) => {
                     return range(0, (state.camera.width + 100) / 100).pipe(
-                        mergeMap((x) => range(0, state.camera.height / 100).pipe(
+                        mergeMap((x) => range(0, (state.camera.height + 100) / 100).pipe(
                             map((y) => {
                                 const source = {
+                                    id: makeRandNum().toString(),
                                     x: state.camera.width / 2,
                                     y: state.camera.height / 2,
                                     radius: 5,
-                                    color: randColor()
+                                    color: makeRandColor()
                                 };
                                 return {
-                                    key: randNum(8).toString(),
+                                    key: source.id,
                                     publishOnCreate: true,
                                     publishOnComplete: true,
                                     value$: tweenObject({

@@ -1,27 +1,24 @@
-import { XY, b2BodyType, b2PolygonShape } from "@box2d/core";
+import { b2BodyType, b2PolygonShape } from "@box2d/core";
 import { Box2dSource } from '@ogod/driver-box2d';
 import { FeatureKey, makeStateObject } from "@ogod/driver-engine";
 import { filter, first, map, merge, of, switchMap, takeUntil, tap, timer } from "rxjs";
+import { Camera } from "../../camera/state";
 import { AppState, WorkerSources } from "../../state";
-import { WORLD_SCALE } from "../../util";
 import { makeShape } from "../make";
 import { Shapes } from "../state";
 import { Player, PlayerFeet, PlayerId } from "./state";
 
-export const PLAYER_INIT_POS_BODY: XY = {
-    x: 1,
-    y: 25
-};
-export const PLAYER_INIT_POS: XY = {
-    x: PLAYER_INIT_POS_BODY.x * WORLD_SCALE,
-    y: PLAYER_INIT_POS_BODY.y * WORLD_SCALE
-};
+export const makePlayerPosition = (scale: number = 1) => ({
+    x: scale * 1,
+    y: scale * 25
+});
 
-export function makePlayer(world: Box2dSource): Player {
+export function makePlayer(camera: Camera, world: Box2dSource): Player {
     const width = 16;
     const height = 30;
+    const pos = makePlayerPosition(world.scale);
     const player = makeShape<Player>({
-        ...PLAYER_INIT_POS,
+        angle: 0,
         color: '#A1FFA1',
         id: PlayerId,
         width,
@@ -30,8 +27,12 @@ export function makePlayer(world: Box2dSource): Player {
         density: 50,
         grounded: 0,
         jumping: false,
-        fixedRotation: true
-    }, world);
+        fixedRotation: true,
+        type: 'rect',
+        opacity: 1,
+        worldX: pos.x,
+        worldY: pos.y
+    }, camera, world);
     const feetSize = width / (2 * world.scale) - 0.1;
     const feetShape = new b2PolygonShape().SetAsBox(feetSize, feetSize, { x: 0, y: -height / (2 * world.scale) });
     player.body.CreateFixture({

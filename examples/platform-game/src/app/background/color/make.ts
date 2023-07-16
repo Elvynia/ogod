@@ -2,8 +2,8 @@ import { FeatureGroupObservable } from '@ogod/driver-engine';
 import * as chroma from 'chroma-js';
 import { map, startWith } from 'rxjs';
 import { WorkerSources } from '../../state';
-import { randColor } from '../../util';
 import { Background } from '../state';
+import { makeRandColor } from '@ogod/examples-common';
 
 export type BackgroundColors = Pick<Background, 'baseColor' | 'colors'>;
 
@@ -25,7 +25,7 @@ export function makeFeatureBackgroundColors(sources: WorkerSources): FeatureGrou
     return {
         publishOnNext: true,
         value$: sources.Engine.action$.getHandler('background').pipe(
-            startWith(randColor()),
+            startWith(makeRandColor()),
             map(makeBackgroundColors)
         )
     };

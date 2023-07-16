@@ -1,46 +1,55 @@
+import { b2BodyType, b2PolygonShape } from '@box2d/core';
+import { Box2dSource } from '@ogod/driver-box2d';
 import { FeatureKey, makeStateObject } from '@ogod/driver-engine';
-import { BehaviorSubject, finalize, first, map, of, switchMap, takeWhile, withLatestFrom } from 'rxjs';
-import { makeRect } from '../rect/make';
-import { Rect } from '../rect/state';
+import { isColorLight, makeRandColor, makeRandInRange, makeRandNum } from '@ogod/examples-common';
+import { BehaviorSubject, finalize, first, map, of, takeWhile } from 'rxjs';
 import { AppState, WorkerSources } from '../state';
-import { randNum } from '../util';
-import { ObjectState } from './state';
+import { Box, ObjectState } from './state';
 
-export const updateMovement = (obj: Rect, state: AppState, canvas: OffscreenCanvas) => {
-    const pos = obj.body.GetPosition();
-    const newPos = pos.Clone();
-    const appWidth = canvas.width / state.scale;
-    const appHeight = canvas.height / state.scale;
-    if (pos.x < 0) {
-        newPos.Set(pos.x + appWidth, appHeight - pos.y);
-    } else if (pos.x > appWidth) {
-        newPos.Set(pos.x - appWidth, appHeight - pos.y);
+export function makeBox(box: Partial<Box>, world: Box2dSource): Box {
+    const obj = {
+        ...box,
+        angle: box.angle || 0,
+        color: box.color || makeRandColor(),
+        id: box.id || makeRandNum().toString(),
+        width: box.width || makeRandInRange(20, 50),
+        height: box.height || makeRandInRange(20, 50)
+    } as Box;
+    obj.health = Math.round(obj.width * obj.height / 50);
+    obj.body = world.instance.CreateBody({
+        position: {
+            x: obj.x / world.scale,
+            y: obj.y / world.scale
+        },
+        linearVelocity: obj.dynamic ? {
+            x: makeRandInRange(-8, 8),
+            y: makeRandInRange(-8, 8)
+        } : undefined,
+        type: obj.dynamic ? b2BodyType.b2_dynamicBody : b2BodyType.b2_staticBody,
+        angle: -obj.angle
+    });
+    obj.body.CreateFixture({
+        shape: new b2PolygonShape().SetAsBox(obj.width / (2 * world.scale), obj.height / (2 * world.scale)),
+        density: 10,
+        restitution: obj.dynamic ? 1.1 : 0.9
+    });
+    if (box.dynamic) {
+        obj.colorLight = isColorLight(obj.color as string);
     }
-    if (pos.y < 0) {
-        newPos.Set(appWidth - newPos.x, pos.y + appHeight);
-    } else if (pos.y > appHeight) {
-        newPos.Set(appWidth - newPos.x, pos.y - appHeight);
-    }
-    if (pos.x !== newPos.x || pos.y !== newPos.y) {
-        obj.body.SetTransformVec(newPos, 0);
-    }
-    obj.x = Math.round(obj.body.GetPosition().x * state.scale);
-    obj.y = Math.round(obj.body.GetPosition().y * state.scale);
-    obj.angle = -obj.body.GetAngle();
-};
+    return obj;
+}
 
-export function makeFeatureObject(sources: WorkerSources, { x, y }, state: AppState, canvas: OffscreenCanvas): FeatureKey<ObjectState, string> {
-    const id = randNum(8).toString();
-    const obj = makeRect({
-        id,
+export function makeFeatureObject(sources: WorkerSources, { x, y }): FeatureKey<ObjectState, string> {
+    const obj = makeBox({
+        angle: 0,
+        dynamic: true,
         x,
-        y: canvas.height - y,
-        dynamic: true
-    }, sources.World.instance, state.scale);
+        y: y,
+    }, sources.World);
     const health$ = new BehaviorSubject(obj.health);
     obj.body.SetUserData(health$);
     return {
-        key: id,
+        key: obj.id,
         publishOnComplete: true,
         value$: makeStateObject({
             key$: of({
@@ -63,15 +72,11 @@ export function makeFeatureObjects(sources: WorkerSources): FeatureKey<AppState,
         key: 'objects',
         publishOnNext: true,
         value$: makeStateObject({
-            key$: sources.Engine.state$.pipe(
-                withLatestFrom(sources.Engine.target$),
-                first(),
-                switchMap(([state, canvas]) => sources.Engine.action$.getHandler('objects').pipe(
-                    map((pos) => makeFeatureObject(sources, pos, state, canvas)),
-                ))
+            key$: sources.Engine.action$.getHandler('objects').pipe(
+                map((pos) => makeFeatureObject(sources, pos)),
             ),
             publishOnCreate: true,
-            state: {}
+            state: {} as ObjectState
         }),
     };
 }

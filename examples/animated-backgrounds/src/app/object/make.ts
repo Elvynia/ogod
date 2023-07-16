@@ -1,98 +1,61 @@
-import { tweenObject } from '@ogod/core';
 import { FeatureKey, makeStateObject } from '@ogod/driver-engine';
+import { AnyShape, Circle, PI2, Rect, makeRandInRange, makeRandShape } from '@ogod/examples-common';
 import { EMPTY, concatWith, defer, first, map, takeUntil } from "rxjs";
 import { AppState, WorkerSources } from '../state';
-import { randNum, randShape, randSize, randomColor } from '../util';
-import { CanvasObject, ObjectState } from "./state";
+import { makeObjectAnimation, makeObjectAnimationReset } from './animate';
+import { ObjectState } from "./state";
 
-function easeOutExpo(x: number): number {
-    return x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
-}
-function easeInOutElastic(x: number): number {
-    const c5 = (2 * Math.PI) / 4.5;
-
-    return x === 0
-        ? 0
-        : x === 1
-            ? 1
-            : x < 0.5
-                ? -(Math.pow(2, 20 * x - 10) * Math.sin((20 * x - 11.125) * c5)) / 2
-                : (Math.pow(2, -20 * x + 10) * Math.sin((20 * x - 11.125) * c5)) / 2 + 1;
-}
-function easeInOutSine(x: number): number {
-    return -(Math.cos(Math.PI * x) - 1) / 2;
-}
-
-function randBall(x: number, y: number): CanvasObject {
-    return {
-        id: randNum(8).toString(),
+function makeRandObject(x: number, y: number): AnyShape {
+    const obj = makeRandShape({
         x,
         y,
-        s: randSize(50),
-        c: randomColor(),
-        v: 0,
-        shape: randShape()
+        opacity: 0
+    });
+    switch (obj.type) {
+        case 'circle':
+            return {
+                ...obj,
+                radius: makeRandInRange(5, 50),
+            } as Circle;
+        case 'rect':
+            const size = makeRandInRange(0, 50);
+            return {
+                ...obj,
+                angle: makeRandInRange(0, PI2 * 100) / 100,
+                width: size,
+                height: size
+            } as Rect;
     }
 }
 
-export function makeRandomBall$(sources: WorkerSources) {
-    return (x: number, y: number): FeatureKey<ObjectState, string> => {
-        const duration = 2000;
-        const obj = randBall(x + (150 - Math.random() * 300), y + (150 - Math.random() * 300));
-        return {
-            key: obj.id,
-            publishOnComplete: true,
-            publishOnCreate: true,
-            value$: tweenObject({
-                source: obj,
-                easeFn: easeInOutElastic,
-                duration,
-                target: {
-                    x: { value: x },
-                    y: { value: y },
-                    s: {
-                        value: 1,
-                        easeFn: easeInOutSine
-                    },
-                    v: {
-                        value: 1,
-                        easeFn: easeInOutSine
-                    }
-                },
-                update$: sources.Engine.engine$
-            }).pipe(
-                takeUntil(sources.Engine.action$.getHandler('reset')),
-                concatWith(defer(() => {
-                    if (obj.v == 1) {
-                        return EMPTY;
-                    }
-                    return tweenObject({
-                        source: obj,
-                        easeFn: easeOutExpo,
-                        duration: 400,
-                        target: {
-                            v: { value: 0.1 },
-                            s: { value: 500 }
-                        },
-                        update$: sources.Engine.engine$
-                    });
-                }))
-            ),
-            value: obj
-        };
-    }
+export function makeObject(sources: WorkerSources, x: number, y: number): FeatureKey<ObjectState, string> {
+    const obj = makeRandObject(x + (150 - Math.random() * 300), y + (150 - Math.random() * 300));
+    return {
+        key: obj.id,
+        publishOnComplete: true,
+        publishOnCreate: true,
+        value$: makeObjectAnimation(obj, { x, y }, sources.Engine.engine$).pipe(
+            takeUntil(sources.Engine.action$.getHandler('reset')),
+            concatWith(defer(() => {
+                if (obj.opacity == 1) {
+                    return EMPTY;
+                }
+                return makeObjectAnimationReset(obj, sources.Engine.engine$);
+            }))
+        ),
+        value: obj
+    };
 }
 
 
 export function makeFeatureObjects(sources: WorkerSources): FeatureKey<AppState, 'objects'> {
-    const randomBall$ = makeRandomBall$(sources);
     return {
         key: 'objects',
         publishOnCreate: true,
         publishOnNext: true,
         value$: makeStateObject({
             key$: sources.Engine.action$.getHandler('objects').pipe(
-                map(({ x, y }) => randomBall$(x, y))
+                map(({ x, y }) => makeObject(sources, x, y))
             ),
             state: sources.Engine.state$.pipe(
                 map((s) => s.objects),

@@ -3,21 +3,20 @@ import { Box2dSink, Box2dSource, Contact } from '@ogod/driver-box2d';
 import { EngineSink, EngineSource } from '@ogod/driver-engine';
 import { WorkerSource } from '@ogod/driver-worker';
 import { BehaviorSubject, ReplaySubject } from 'rxjs';
-import { ObjectState } from './object/state';
-import { Rect } from './rect/state';
+import { Box, ObjectState } from './object/state';
 
 export interface AppState {
     fps: number;
-    grounds: Rect[];
+    grounds: Box[];
     objects: ObjectState;
     paused: boolean;
-    player: Rect;
-    scale: number;
+    player: Box;
 }
 
 export type AppReflectState = Pick<AppState, 'fps'> & {
-    objects: Array<Omit<Rect, 'id' | 'dynamic' | 'color' | 'body'>>;
+    objects: Array<Omit<Box, 'id' | 'dynamic' | 'color' | 'body'>>;
     box2dCount: number;
+    paused: boolean;
 };
 
 export class ActionHandlers {

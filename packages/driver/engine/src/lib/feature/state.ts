@@ -29,20 +29,22 @@ export interface FeatureKey<T extends object, K extends keyof T = keyof T> exten
 }
 
 export type FeatureKeys<T extends object> = {
-    [K in keyof T]: FeatureKey<T, K>;
+    [K in keyof T]: FeatureKey<Partial<T>, K>;
 }[keyof T];
 
-export type FeatureProperty<T extends object> = (FeatureGroup<T> | FeatureKeys<T>) & {
+export type FeatureProperty<T extends object> = FeatureGroup<T> | FeatureKeys<T>;
+
+export type FeaturePropertyState<T extends object> = FeatureProperty<T> & {
     state: T;
 }
 
 export interface FeatureObject<T extends object> {
-    key$: Observable<FeatureGroup<T> | FeatureKeys<T>>;
+    key$: Observable<FeatureProperty<T>>;
     publishOnCreate?: boolean;
     state: T | Observable<T>;
     subscriptions?: Subscription[];
 }
 
-export function isFeatureKey<T extends object>(f: any): f is FeatureKey<T, typeof f['key']> {
+export function isFeatureKey<T extends object>(f: any): f is FeatureKey<Partial<T>, typeof f['key']> {
     return typeof f === 'object' && f.value$ && f.key;
 }
