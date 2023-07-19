@@ -65,21 +65,21 @@ export default define<AppElement>({
         <canvas id="${host.targetId}" tabindex="1"></canvas>
         <div class="d-flex flex-column">
             <div class="form-group">
-                <label for="gen">Generator type:</label>
-                <select name="gen" class="form-control" value="${host.generator}" onchange="${(h, e) => h.generator = e.target.value}">
+                <label for="gen-${host.targetId}">Generator type:</label>
+                <select id="gen-${host.targetId}" name="gen" class="form-control" value="${host.generator}" onchange="${(h, e) => h.generator = e.target.value}">
                     <option value="random">Random</option>
                     <option value="perlin">Simplex perlin (rand)</option>
                     <option value="perlin-constant">Simplex perlin (const)</option>
                 </select>
             </div>
             <div class="form-group" hidden="${host.generator === 'random'}">
-                <label for="scale">Scale:</label>
-                <input type="number" step="0.001" name="scale" class="form-control"
+                <label for="scale-${host.targetId}">Scale:</label>
+                <input type="number" step="0.001" id="scale-${host.targetId}" name="scale" class="form-control"
                     value="${host.scale}" onchange="${(h, e) => h.scale = e.target.value}">
             </div>
             <div class="form-group" hidden="${host.generator !== 'perlin-constant'}">
-                <label for="offset">Offset:</label>
-                <input type="number" step="0.0001" name="offset" class="form-control"
+                <label for="offset-${host.targetId}">Offset:</label>
+                <input type="number" step="0.0001" id="offset-${host.targetId}" name="offset" class="form-control"
                     value="${host.offset}" onchange="${(h, e) => h.offset = e.target.value}">
             </div>
             <div class="d-flex justify-content-center mt-2">
