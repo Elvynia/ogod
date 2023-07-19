@@ -2,17 +2,19 @@ import { FeatureKey } from '@ogod/driver-engine';
 import { filter, first, map, switchMap, throttleTime } from 'rxjs';
 import { AppState, WorkerSources } from '../state';
 
+const OpaqueColor = 0xff000000;
+
 export function makeNoiseViewCreator(ctx: OffscreenCanvasRenderingContext2D) {
     return (nextRandFn, scale: number = 1, offset: number = 0) => {
         const data = ctx.createImageData(ctx.canvas.width, ctx.canvas.height);
         const buffer = new Uint32Array(data.data.buffer);
         for (let i = 0; i < buffer.length; ++i) {
             const n = nextRandFn(offset + (i % ctx.canvas.width) * scale, offset + Math.floor(i / ctx.canvas.width) * scale);
-            buffer[i] = 4278190080;
             if (n > 0) {
-                buffer[i] += n * 255;
+                buffer[i] = OpaqueColor + 64 + n * (255 - 64);
             } else {
-                buffer[i] += -n * 255 * 255;
+                const c =  Math.round(64 - n * (255 - 64));
+                buffer[i] = OpaqueColor + 256 * c;
             }
         }
         return data;
