@@ -8,18 +8,12 @@ import { makeShape } from "../make";
 import { Shapes } from "../state";
 import { Player, PlayerFeet, PlayerId } from "./state";
 
-export const makePlayerPosition = (scale: number = 1) => ({
-    x: scale * 1,
-    y: scale * 25
-});
-
-export function makePlayer(camera: Camera, world: Box2dSource): Player {
+export function makePlayer(camera: Camera, world: Box2dSource, worldX: number, worldY: number): Player {
     const width = 16;
     const height = 30;
-    const pos = makePlayerPosition(world.scale);
     const player = makeShape<Player>({
         angle: 0,
-        color: '#A1FFA1',
+        color: '#22D122',
         id: PlayerId,
         width,
         height,
@@ -29,9 +23,9 @@ export function makePlayer(camera: Camera, world: Box2dSource): Player {
         jumping: false,
         fixedRotation: true,
         type: 'rect',
-        opacity: 1,
-        worldX: pos.x,
-        worldY: pos.y
+        opacity: 0.5,
+        worldX,
+        worldY
     }, camera, world);
     const feetSize = width / (2 * world.scale) - 0.1;
     const feetShape = new b2PolygonShape().SetAsBox(feetSize, feetSize, { x: 0, y: -height / (2 * world.scale) });
@@ -43,11 +37,11 @@ export function makePlayer(camera: Camera, world: Box2dSource): Player {
     return player;
 }
 
-function makeFeaturePlayerColor(sources: WorkerSources): FeatureKey<Player, 'color'> {
+function makeFeaturePlayerOpacity(sources: WorkerSources): FeatureKey<Player, 'opacity'> {
     return {
-        key: 'color',
+        key: 'opacity',
         value$: sources.Engine.state$.getState('player.grounded').pipe(
-            map((grounded) => grounded > 0 ? '#22D122' : '#A1FFA1')
+            map((grounded) => grounded > 0 ? 1 : 0.5)
         )
     }
 }
@@ -70,7 +64,7 @@ function makeGamePlayerMovement(sources: WorkerSources, state: AppState) {
         const velocity = player.body.GetLinearVelocity();
         if (state.controls.left || state.controls.right) {
             const dir = state.controls.left ? -1 : 1;
-            if (Math.abs(velocity.x) < 8) {
+            if (Math.abs(velocity.x) < 8 || Math.sign(velocity.x) !== dir) {
                 player.body.SetLinearVelocity({ x: velocity.x + dir * delta / 30, y: velocity.y });
             }
         } else {
@@ -116,7 +110,7 @@ export function makeFeaturePlayer(sources: WorkerSources) {
                 value$: makeStateObject({
                     key$: of(
                         makeFeaturePlayerGrounded(sources, state.shapes.player),
-                        makeFeaturePlayerColor(sources)
+                        makeFeaturePlayerOpacity(sources)
                     ),
                     state: state.shapes.player
                 }),

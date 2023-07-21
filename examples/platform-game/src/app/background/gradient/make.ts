@@ -51,7 +51,7 @@ export function makeFeatureBackgroundGradient(sources: WorkerSources): FeatureKe
                 withLatestFrom(sources.Engine.target$),
                 switchMap(([state, canvas]) => {
                     const ctx = canvas.getContext('2d');
-                    const colorWidth = Math.round(state.map.width * state.map.scale / state.background.colors.length);
+                    const colorWidth = Math.round(state.map.width / state.background.colors.length);
                     return concat(
                         of(updateBackground(state, ctx, colorWidth)),
                         sources.Engine.engine$.pipe(

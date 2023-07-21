@@ -2,7 +2,7 @@ import { el } from '@modern-helpers/el';
 import { makeMessage, makeTargetActions } from '@ogod/core';
 import { makeDriverWorker } from '@ogod/driver-worker';
 import { run } from '@ogod/run';
-import { distinctUntilKeyChanged, filter, finalize, fromEvent, map, merge, switchMap, takeWhile } from 'rxjs';
+import { distinctUntilKeyChanged, filter, finalize, first, fromEvent, map, merge, race, repeat, skipWhile, switchMap, takeWhile } from 'rxjs';
 import { makeControls$ } from './app/controls/make';
 import { makeElementMenu } from './app/menu/make';
 import { PHASE } from './app/phase/state';
@@ -54,6 +54,10 @@ function main(sources: AppSources) {
             }
         });
     });
+    const loadMessage = makeMessage({
+        key: 'phase',
+        value: PHASE.LOAD
+    });
     sources.Worker.input$.pipe(
         filter(({ phase }) => phase > 0)
     ).subscribe(({ fps }) => fpsEl.textContent = fps.toString());
@@ -68,15 +72,26 @@ function main(sources: AppSources) {
                 resizeDebounceTime: 16
             }),
             makeControls$({ jump: 'Space', left: 'KeyA', right: 'KeyD' }),
-            fromEvent(startEl, 'click').pipe(
-                map(() => {
-                    wrapperEl.removeChild(startEl);
-                    return makeMessage({
-                        key: 'phase',
-                        value: PHASE.LOAD
-                    });
-                })
-            ),
+            race(
+                fromEvent(startEl, 'click'),
+                fromEvent(document, 'keyup').pipe(
+                    filter((e: KeyboardEvent) => e.code === 'Space' || e.code === 'Enter'),
+                )).pipe(
+                    map(() => {
+                        wrapperEl.removeChild(startEl);
+                        return loadMessage;
+                    }),
+                    first(),
+                    repeat({
+                        delay: () => sources.Worker.input$.pipe(
+                            filter((state) => state.phase === PHASE.PLAY),
+                            switchMap(() => sources.Worker.input$.pipe(
+                                filter((state) => state.phase === PHASE.START),
+                                first()
+                            ))
+                        ),
+                    })
+                ),
             makeElementMenu(sources, wrapperEl)
         )
     }

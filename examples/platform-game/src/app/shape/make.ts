@@ -4,6 +4,7 @@ import { FeatureKey, makeStateObject } from "@ogod/driver-engine";
 import { makeRandNum } from "@ogod/examples-common";
 import { first, map } from "rxjs";
 import { Camera } from "../camera/state";
+import { PlatformStartId } from "../map/platform/generate";
 import { AppState, WorkerSources } from "../state";
 import { makeFeaturePlayer, makePlayer } from "./player/make";
 import { Shape } from "./state";
@@ -46,9 +47,12 @@ export function makeFeatureShapesLoad(sources: WorkerSources): FeatureKey<AppSta
         publishOnNext: true,
         value$: sources.Engine.state$.pipe(
             first(),
-            map(({ camera }) => ({
-                player: makePlayer(camera, sources.World)
-            }))
+            map(({ camera, map: mapState }) => {
+                const startP = mapState.platforms[PlatformStartId];
+                return {
+                    player: makePlayer(camera, sources.World, 10, startP.worldY + 50)
+                }
+            })
         )
     }
 }

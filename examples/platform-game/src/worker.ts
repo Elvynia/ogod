@@ -77,14 +77,12 @@ function main(sources: WorkerSources): WorkerSinks {
                 post$: sources.Engine.state$.pipe(
                     filter((s) => s.phase > PHASE.SPLASH),
                     switchMap(() => sources.Engine.state$.pipe(
-                        distinctState({
-                            resolver: (s) => s.phase + s.camera.width
-                        }),
+                        distinctState((s) => s.phase + s.camera.width + (s.shapes?.player ? 'p' : '')),
                         map(({ camera, map: mapState, shapes, phase }) => {
-                            if (phase === PHASE.LOAD || phase === PHASE.PLAY) {
+                            if (shapes?.player && (phase === PHASE.LOAD || phase === PHASE.PLAY)) {
                                 const minY = -camera.height / 2;
                                 const maxY = mapState.height * mapState.scale + minY;
-                                const maxX = mapState.width * mapState.scale - camera.width;
+                                const maxX = mapState.width + mapState.platformWidth / 2 - camera.width;
                                 return [() => {
                                     // FIXME: Smmoth scrolling by tweening with delta.
                                     camera.x = Math.min(maxX, Math.max(0, shapes.player.worldX - camera.width / 2));
@@ -104,9 +102,13 @@ function main(sources: WorkerSources): WorkerSinks {
                 switchMap((phase) => phase === PHASE.PLAY ? pausableUpdate$ : EMPTY)
             ),
             gravity$: sources.Engine.state$.pipe(
-                map((s) => s.map.gravity),
-                distinctUntilChanged(),
-                map((g) => ({ x: 0, y: g }))
+                filter((s) => !!s.map),
+                first(),
+                switchMap(() => sources.Engine.state$.pipe(
+                    map((s) => s.map.gravity),
+                    distinctUntilChanged(),
+                    map((g) => ({ x: 0, y: g }))
+                ))
             )
         }
     }
