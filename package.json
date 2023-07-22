@@ -12,6 +12,7 @@
     "hybrids": "^8.1.15",
     "rxjs": "^7.8.0",
     "simplex-noise": "^4.0.0",
+    "three": "^0.154.0",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
@@ -28,6 +29,7 @@
     "@types/jest": "29.4.4",
     "@types/node": "18.7.14",
     "@types/offscreencanvas": "^2019.7.0",
+    "@types/three": "^0.154.0",
     "@typescript-eslint/eslint-plugin": "5.58.0",
     "@typescript-eslint/parser": "5.58.0",
     "eslint": "~8.23.0",

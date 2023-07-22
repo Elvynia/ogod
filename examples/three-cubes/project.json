@@ -1,0 +1,64 @@
+{
+  "name": "three-cubes",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "examples/three-cubes/src",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/examples/three-cubes",
+        "compiler": "babel",
+        "main": "examples/three-cubes/src/main.ts",
+        "tsConfig": "examples/three-cubes/tsconfig.app.json",
+        "webpackConfig": "examples/three-cubes/webpack.config.js",
+        "assets": [
+          "examples/three-cubes/src/favicon.ico",
+          "examples/three-cubes/src/assets"
+        ],
+        "index": "examples/three-cubes/src/index.html",
+        "baseHref": "/",
+        "styles": ["examples/three-cubes/src/styles.css"],
+        "scripts": []
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false,
+          "fileReplacements": [
+            {
+              "replace": "examples/three-cubes/src/environments/environment.ts",
+              "with": "examples/three-cubes/src/environments/environment.prod.ts"
+            }
+          ]
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/webpack:dev-server",
+      "options": {
+        "buildTarget": "three-cubes:build",
+        "port": 4205
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "three-cubes:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["examples/three-cubes/**/*.ts"]
+      }
+    }
+  }
+}
