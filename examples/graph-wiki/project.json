@@ -1,0 +1,64 @@
+{
+  "name": "graph-wiki",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "examples/graph-wiki/src",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/examples/graph-wiki",
+        "compiler": "babel",
+        "main": "examples/graph-wiki/src/main.ts",
+        "tsConfig": "examples/graph-wiki/tsconfig.app.json",
+        "webpackConfig": "examples/graph-wiki/webpack.config.js",
+        "assets": [
+          "examples/graph-wiki/src/favicon.ico",
+          "examples/graph-wiki/src/assets"
+        ],
+        "index": "examples/graph-wiki/src/index.html",
+        "baseHref": "/",
+        "styles": ["examples/graph-wiki/src/styles.css"],
+        "scripts": []
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false,
+          "fileReplacements": [
+            {
+              "replace": "examples/graph-wiki/src/environments/environment.ts",
+              "with": "examples/graph-wiki/src/environments/environment.prod.ts"
+            }
+          ]
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/webpack:dev-server",
+      "options": {
+        "buildTarget": "graph-wiki:build",
+        "port": 4206
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "graph-wiki:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["examples/graph-wiki/**/*.ts"]
+      }
+    }
+  }
+}
