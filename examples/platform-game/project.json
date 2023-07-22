@@ -49,7 +49,7 @@
       "executor": "@nx/webpack:dev-server",
       "options": {
         "buildTarget": "platform-game:build",
-        "port": 4202
+        "port": 4204
       },
       "configurations": {
         "production": {

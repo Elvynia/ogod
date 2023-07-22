@@ -48,7 +48,8 @@
     "serve": {
       "executor": "@nx/webpack:dev-server",
       "options": {
-        "buildTarget": "bouncing-rectangles:build"
+        "buildTarget": "bouncing-rectangles:build",
+        "port": 4202
       },
       "configurations": {
         "production": {
