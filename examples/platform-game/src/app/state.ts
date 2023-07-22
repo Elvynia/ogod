@@ -38,7 +38,7 @@ export class ActionHandlers {
         public controls?: any,
         public gravity?: number,
         public loading?: FeatureKey<LoadingState, string>,
-        public paused?: boolean,
+        public paused?: void,
         public phase?: number
     ) { }
 }

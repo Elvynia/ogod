@@ -22,7 +22,7 @@ export type AppReflectState = Pick<AppState, 'fps'> & {
 export class ActionHandlers {
     constructor(
         public objects?: XY,
-        public paused?: boolean,
+        public paused?: void,
         public playerColor = new ReplaySubject<string>(1)
     ) { }
 }

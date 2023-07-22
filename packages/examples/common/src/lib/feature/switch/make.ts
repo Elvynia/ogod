@@ -4,7 +4,7 @@ import { Observable, map, withLatestFrom } from 'rxjs';
 export function makeFeatureSwitch<K extends string>(params: {
     key: K,
     state$: Observable<Record<K, boolean>>,
-    action$: Observable<boolean>
+    action$: Observable<void>
 }): FeatureKey<Record<K, boolean>, K> {
     return {
         key: params.key,
